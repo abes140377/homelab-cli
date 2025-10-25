@@ -16,40 +16,41 @@ My homelab CLI
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g mycli123
-$ mycli123 COMMAND
+$ npm install -g homelab-cli
+$ homelab COMMAND
 running command...
-$ mycli123 (--version)
-mycli123/0.0.0 darwin-arm64 node-v20.12.2
-$ mycli123 --help [COMMAND]
+$ homelab (--version)
+homelab-cli/0.0.0 darwin-arm64 node-v22.21.0
+$ homelab --help [COMMAND]
 USAGE
-  $ mycli123 COMMAND
+  $ homelab COMMAND
 ...
 ```
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`mycli123 hello PERSON`](#mycli123-hello-person)
-* [`mycli123 hello world`](#mycli123-hello-world)
-* [`mycli123 help [COMMAND]`](#mycli123-help-command)
-* [`mycli123 plugins`](#mycli123-plugins)
-* [`mycli123 plugins add PLUGIN`](#mycli123-plugins-add-plugin)
-* [`mycli123 plugins:inspect PLUGIN...`](#mycli123-pluginsinspect-plugin)
-* [`mycli123 plugins install PLUGIN`](#mycli123-plugins-install-plugin)
-* [`mycli123 plugins link PATH`](#mycli123-plugins-link-path)
-* [`mycli123 plugins remove [PLUGIN]`](#mycli123-plugins-remove-plugin)
-* [`mycli123 plugins reset`](#mycli123-plugins-reset)
-* [`mycli123 plugins uninstall [PLUGIN]`](#mycli123-plugins-uninstall-plugin)
-* [`mycli123 plugins unlink [PLUGIN]`](#mycli123-plugins-unlink-plugin)
-* [`mycli123 plugins update`](#mycli123-plugins-update)
+* [`homelab hello PERSON`](#homelab-hello-person)
+* [`homelab hello world`](#homelab-hello-world)
+* [`homelab help [COMMAND]`](#homelab-help-command)
+* [`homelab plugins`](#homelab-plugins)
+* [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
+* [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
+* [`homelab plugins install PLUGIN`](#homelab-plugins-install-plugin)
+* [`homelab plugins link PATH`](#homelab-plugins-link-path)
+* [`homelab plugins remove [PLUGIN]`](#homelab-plugins-remove-plugin)
+* [`homelab plugins reset`](#homelab-plugins-reset)
+* [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
+* [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
+* [`homelab plugins update`](#homelab-plugins-update)
+* [`homelab workspace list`](#homelab-workspace-list)
 
-## `mycli123 hello PERSON`
+## `homelab hello PERSON`
 
 Say hello
 
 ```
 USAGE
-  $ mycli123 hello PERSON -f <value>
+  $ homelab hello PERSON -f <value>
 
 ARGUMENTS
   PERSON  Person to say hello to
@@ -61,57 +62,57 @@ DESCRIPTION
   Say hello
 
 EXAMPLES
-  $ mycli123 hello friend --from oclif
+  $ homelab hello friend --from oclif
   hello friend from oclif! (./src/commands/hello/index.ts)
 ```
 
-_See code: [src/commands/hello/index.ts](https://github.com/mdonnalley/mycli123/blob/v0.0.0/src/commands/hello/index.ts)_
+_See code: [src/commands/hello/index.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/hello/index.ts)_
 
-## `mycli123 hello world`
+## `homelab hello world`
 
 Say hello world
 
 ```
 USAGE
-  $ mycli123 hello world
+  $ homelab hello world
 
 DESCRIPTION
   Say hello world
 
 EXAMPLES
-  $ mycli123 hello world
+  $ homelab hello world
   hello world! (./src/commands/hello/world.ts)
 ```
 
-_See code: [src/commands/hello/world.ts](https://github.com/mdonnalley/mycli123/blob/v0.0.0/src/commands/hello/world.ts)_
+_See code: [src/commands/hello/world.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/hello/world.ts)_
 
-## `mycli123 help [COMMAND]`
+## `homelab help [COMMAND]`
 
-Display help for mycli123.
+Display help for homelab.
 
 ```
 USAGE
-  $ mycli123 help [COMMAND...] [-n]
+  $ homelab help [COMMAND...] [-n]
 
 ARGUMENTS
-  COMMAND...  Command to show help for.
+  [COMMAND...]  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
 
 DESCRIPTION
-  Display help for mycli123.
+  Display help for homelab.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.21/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.34/src/commands/help.ts)_
 
-## `mycli123 plugins`
+## `homelab plugins`
 
 List installed plugins.
 
 ```
 USAGE
-  $ mycli123 plugins [--json] [--core]
+  $ homelab plugins [--json] [--core]
 
 FLAGS
   --core  Show core plugins.
@@ -123,18 +124,18 @@ DESCRIPTION
   List installed plugins.
 
 EXAMPLES
-  $ mycli123 plugins
+  $ homelab plugins
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/index.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/index.ts)_
 
-## `mycli123 plugins add PLUGIN`
+## `homelab plugins add PLUGIN`
 
-Installs a plugin into mycli123.
+Installs a plugin into homelab.
 
 ```
 USAGE
-  $ mycli123 plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ homelab plugins add PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -149,39 +150,39 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into mycli123.
+  Installs a plugin into homelab.
 
-  Uses bundled npm executable to install plugins into /Users/mdonnalley/.local/share/mycli123
+  Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the MYCLI123_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the MYCLI123_NPM_REGISTRY environment variable to set the npm registry.
+  Use the HOMELAB_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the HOMELAB_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ mycli123 plugins add
+  $ homelab plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ mycli123 plugins add myplugin
+    $ homelab plugins add myplugin
 
   Install a plugin from a github url.
 
-    $ mycli123 plugins add https://github.com/someuser/someplugin
+    $ homelab plugins add https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ mycli123 plugins add someuser/someplugin
+    $ homelab plugins add someuser/someplugin
 ```
 
-## `mycli123 plugins:inspect PLUGIN...`
+## `homelab plugins:inspect PLUGIN...`
 
 Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ mycli123 plugins inspect PLUGIN...
+  $ homelab plugins inspect PLUGIN...
 
 ARGUMENTS
   PLUGIN...  [default: .] Plugin to inspect.
@@ -197,18 +198,18 @@ DESCRIPTION
   Displays installation properties of a plugin.
 
 EXAMPLES
-  $ mycli123 plugins inspect myplugin
+  $ homelab plugins inspect myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/inspect.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/inspect.ts)_
 
-## `mycli123 plugins install PLUGIN`
+## `homelab plugins install PLUGIN`
 
-Installs a plugin into mycli123.
+Installs a plugin into homelab.
 
 ```
 USAGE
-  $ mycli123 plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
+  $ homelab plugins install PLUGIN... [--json] [-f] [-h] [-s | -v]
 
 ARGUMENTS
   PLUGIN...  Plugin to install.
@@ -223,41 +224,41 @@ GLOBAL FLAGS
   --json  Format output as json.
 
 DESCRIPTION
-  Installs a plugin into mycli123.
+  Installs a plugin into homelab.
 
-  Uses bundled npm executable to install plugins into /Users/mdonnalley/.local/share/mycli123
+  Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  Use the MYCLI123_NPM_LOG_LEVEL environment variable to set the npm loglevel.
-  Use the MYCLI123_NPM_REGISTRY environment variable to set the npm registry.
+  Use the HOMELAB_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the HOMELAB_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
-  $ mycli123 plugins add
+  $ homelab plugins add
 
 EXAMPLES
   Install a plugin from npm registry.
 
-    $ mycli123 plugins install myplugin
+    $ homelab plugins install myplugin
 
   Install a plugin from a github url.
 
-    $ mycli123 plugins install https://github.com/someuser/someplugin
+    $ homelab plugins install https://github.com/someuser/someplugin
 
   Install a plugin from a github slug.
 
-    $ mycli123 plugins install someuser/someplugin
+    $ homelab plugins install someuser/someplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/install.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/install.ts)_
 
-## `mycli123 plugins link PATH`
+## `homelab plugins link PATH`
 
 Links a plugin into the CLI for development.
 
 ```
 USAGE
-  $ mycli123 plugins link PATH [-h] [--install] [-v]
+  $ homelab plugins link PATH [-h] [--install] [-v]
 
 ARGUMENTS
   PATH  [default: .] path to plugin
@@ -269,6 +270,7 @@ FLAGS
 
 DESCRIPTION
   Links a plugin into the CLI for development.
+
   Installation of a linked plugin will override a user-installed or core plugin.
 
   e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello'
@@ -276,21 +278,21 @@ DESCRIPTION
 
 
 EXAMPLES
-  $ mycli123 plugins link myplugin
+  $ homelab plugins link myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/link.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/link.ts)_
 
-## `mycli123 plugins remove [PLUGIN]`
+## `homelab plugins remove [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ mycli123 plugins remove [PLUGIN...] [-h] [-v]
+  $ homelab plugins remove [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
-  PLUGIN...  plugin to uninstall
+  [PLUGIN...]  plugin to uninstall
 
 FLAGS
   -h, --help     Show CLI help.
@@ -300,38 +302,38 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ mycli123 plugins unlink
-  $ mycli123 plugins remove
+  $ homelab plugins unlink
+  $ homelab plugins remove
 
 EXAMPLES
-  $ mycli123 plugins remove myplugin
+  $ homelab plugins remove myplugin
 ```
 
-## `mycli123 plugins reset`
+## `homelab plugins reset`
 
 Remove all user-installed and linked plugins.
 
 ```
 USAGE
-  $ mycli123 plugins reset [--hard] [--reinstall]
+  $ homelab plugins reset [--hard] [--reinstall]
 
 FLAGS
   --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
   --reinstall  Reinstall all plugins after uninstalling.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/reset.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/reset.ts)_
 
-## `mycli123 plugins uninstall [PLUGIN]`
+## `homelab plugins uninstall [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ mycli123 plugins uninstall [PLUGIN...] [-h] [-v]
+  $ homelab plugins uninstall [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
-  PLUGIN...  plugin to uninstall
+  [PLUGIN...]  plugin to uninstall
 
 FLAGS
   -h, --help     Show CLI help.
@@ -341,25 +343,25 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ mycli123 plugins unlink
-  $ mycli123 plugins remove
+  $ homelab plugins unlink
+  $ homelab plugins remove
 
 EXAMPLES
-  $ mycli123 plugins uninstall myplugin
+  $ homelab plugins uninstall myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/uninstall.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/uninstall.ts)_
 
-## `mycli123 plugins unlink [PLUGIN]`
+## `homelab plugins unlink [PLUGIN]`
 
 Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ mycli123 plugins unlink [PLUGIN...] [-h] [-v]
+  $ homelab plugins unlink [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
-  PLUGIN...  plugin to uninstall
+  [PLUGIN...]  plugin to uninstall
 
 FLAGS
   -h, --help     Show CLI help.
@@ -369,20 +371,20 @@ DESCRIPTION
   Removes a plugin from the CLI.
 
 ALIASES
-  $ mycli123 plugins unlink
-  $ mycli123 plugins remove
+  $ homelab plugins unlink
+  $ homelab plugins remove
 
 EXAMPLES
-  $ mycli123 plugins unlink myplugin
+  $ homelab plugins unlink myplugin
 ```
 
-## `mycli123 plugins update`
+## `homelab plugins update`
 
 Update installed plugins.
 
 ```
 USAGE
-  $ mycli123 plugins update [-h] [-v]
+  $ homelab plugins update [-h] [-v]
 
 FLAGS
   -h, --help     Show CLI help.
@@ -392,5 +394,26 @@ DESCRIPTION
   Update installed plugins.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.0.16/src/commands/plugins/update.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/update.ts)_
+
+## `homelab workspace list`
+
+List all workspaces
+
+```
+USAGE
+  $ homelab workspace list
+
+DESCRIPTION
+  List all workspaces
+
+EXAMPLES
+  $ homelab workspace list
+  ID                                   NAME         CREATED AT           UPDATED AT
+  550e8400-e29b-41d4-a716-446655440001 production   2024-01-15 10:00:00  2024-01-15 10:00:00
+  550e8400-e29b-41d4-a716-446655440002 staging      2024-01-20 14:30:00  2024-02-01 09:15:00
+  550e8400-e29b-41d4-a716-446655440003 development  2024-02-01 08:00:00  2024-02-10 16:45:00
+```
+
+_See code: [src/commands/workspace/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list.ts)_
 <!-- commandsstop -->
