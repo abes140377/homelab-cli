@@ -1,0 +1,12 @@
+[tools]
+pnpm = "latest"
+
+[env]
+_.file = [
+  { path = "{{env.HOME}}/.env", optional = true },
+  { path = ".env", optional = true },
+  { path = ".creds.env.yaml", redact = true }
+]
+_.path = [
+  "./scripts"
+]
