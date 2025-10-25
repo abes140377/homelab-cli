@@ -6,7 +6,9 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm run lint:*)",
       "Bash(pnpm exec eslint:*)",
-      "Bash(pnpm run prepack:*)"
+      "Bash(pnpm run prepack:*)",
+      "Bash(openspec list:*)",
+      "Bash(openspec show:*)"
     ],
     "deny": [],
     "ask": []
