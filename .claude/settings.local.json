@@ -8,7 +8,8 @@
       "Bash(pnpm exec eslint:*)",
       "Bash(pnpm run prepack:*)",
       "Bash(openspec list:*)",
-      "Bash(openspec show:*)"
+      "Bash(openspec show:*)",
+      "Bash(test *)"
     ],
     "deny": [],
     "ask": []

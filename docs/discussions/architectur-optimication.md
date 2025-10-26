@@ -111,13 +111,13 @@ class GreetingService {
     if (!validation.success) {
       return failure(new ValidationError(validation.error));
     }
-    
+
     // Business logic
     const result = await this.repository.find(validation.data);
     if (!result.success) {
       return failure(new ServiceError('Failed to get greeting'));
     }
-    
+
     return success(result.data);
   }
 }
