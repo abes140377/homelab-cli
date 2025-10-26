@@ -24,29 +24,14 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
    */
   async listTemplates(): Promise<Result<ProxmoxTemplateDTO[], RepositoryError>> {
     try {
-      // Parse API token: format is user@realm!tokenid=secret
-      // We need: tokenID (user@realm!tokenid) and tokenSecret (secret)
-      const tokenParts = this.config.apiToken.split('=');
-      if (tokenParts.length !== 2) {
-        return failure(
-          new RepositoryError('Invalid API token format - expected format: user@realm!tokenid=secret', {
-            context: {apiToken: 'Token must contain = separator'},
-          }),
-        );
-      }
-
-      const tokenID = tokenParts[0]; // user@realm!tokenid
-      const tokenSecret = tokenParts[1]; // secret
-
-      // Extract host without protocol for proxmox-api
-      const hostUrl = new URL(this.config.host);
-      const host = hostUrl.hostname;
-      const port = hostUrl.port || '8006';
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const {tokenSecret} = this.config;
 
       // Create proxmox client with token authentication
       const proxmox = proxmoxApi({
-        host,
-        port: Number.parseInt(port, 10),
+        host: this.config.host,
+        port: this.config.port,
         tokenID,
         tokenSecret,
       });

@@ -7,8 +7,12 @@ import {ProxmoxRepository} from '../../src/repositories/proxmox.repository.js';
 
 describe('ProxmoxRepository', () => {
   const mockConfig: ProxmoxConfig = {
-    apiToken: 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
-    host: 'https://proxmox.home.sflab.io:8006',
+    host: 'proxmox.home.sflab.io',
+    port: 8006,
+    realm: 'pam',
+    tokenKey: 'homelabcli',
+    tokenSecret: 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
+    user: 'root',
   };
 
   let originalFetch: typeof globalThis.fetch;
@@ -58,7 +62,7 @@ describe('ProxmoxRepository', () => {
       }
     });
 
-    it('should correctly parse API token for Authorization header', async () => {
+    it('should correctly construct API token for Authorization header', async () => {
       let capturedHeaders: Record<string, string> | undefined;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,7 +79,7 @@ describe('ProxmoxRepository', () => {
       await repository.listTemplates();
 
       expect(capturedHeaders).to.deep.include({
-        Authorization: 'PVEAPIToken=homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
+        Authorization: 'PVEAPIToken=root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
       });
     });
 
@@ -213,10 +217,18 @@ describe('ProxmoxRepository', () => {
       }
     });
 
-    it('should handle invalid API token format', async () => {
+    it('should handle network connection failures gracefully', async () => {
       const invalidConfig: ProxmoxConfig = {
-        apiToken: 'invalid-token-without-separator',
-        host: 'https://proxmox.home.sflab.io:8006',
+        host: 'invalid-hostname-that-does-not-exist',
+        port: 8006,
+        realm: 'pam',
+        tokenKey: 'testtoken',
+        tokenSecret: '12345678-1234-1234-1234-123456789abc',
+        user: 'root',
+      };
+
+      globalThis.fetch = async () => {
+        throw new Error('getaddrinfo ENOTFOUND invalid-hostname-that-does-not-exist');
       };
 
       const repository = new ProxmoxRepository(invalidConfig);
@@ -224,7 +236,7 @@ describe('ProxmoxRepository', () => {
 
       expect(result.success).to.be.false;
       if (!result.success) {
-        expect(result.error.message).to.include('Invalid API token format');
+        expect(result.error.message).to.include('Failed to connect to Proxmox API');
       }
     });
 

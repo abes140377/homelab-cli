@@ -8,18 +8,34 @@ import {ProxmoxApiRepository} from '../../src/repositories/proxmox-api.repositor
  * These tests require a real Proxmox server and are skipped if environment variables are not set.
  *
  * To run these tests, set the following environment variables:
- * - PROXMOX_HOST: Proxmox server URL (e.g., https://proxmox.home.sflab.io:8006)
- * - PROXMOX_API_TOKEN: API token (format: user@realm!tokenid=secret)
+ * - PROXMOX_USER: Proxmox user (e.g., root)
+ * - PROXMOX_REALM: Authentication realm (e.g., pam)
+ * - PROXMOX_TOKEN_KEY: Token identifier (e.g., homelabcli)
+ * - PROXMOX_TOKEN_SECRET: Token secret (UUID format, e.g., bd2ed89e-6a09-48e8-8a6e-38da9128c8ce)
+ * - PROXMOX_HOST: Proxmox hostname without protocol (e.g., proxmox.home.sflab.io)
+ * - PROXMOX_PORT: Port number (optional, defaults to 8006)
  *
- * Run with: PROXMOX_HOST=... PROXMOX_API_TOKEN=... pnpm test
+ * Example:
+ *   export PROXMOX_USER=root
+ *   export PROXMOX_REALM=pam
+ *   export PROXMOX_TOKEN_KEY=homelabcli
+ *   export PROXMOX_TOKEN_SECRET=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce
+ *   export PROXMOX_HOST=proxmox.home.sflab.io
+ *   export PROXMOX_PORT=8006
+ *   pnpm test
  */
 describe('ProxmoxApiRepository Integration Tests', () => {
   // Check if environment variables are set
-  const hasEnvVars = process.env.PROXMOX_HOST && process.env.PROXMOX_API_TOKEN
+  const hasEnvVars = process.env.PROXMOX_USER &&
+                     process.env.PROXMOX_REALM &&
+                     process.env.PROXMOX_TOKEN_KEY &&
+                     process.env.PROXMOX_TOKEN_SECRET &&
+                     process.env.PROXMOX_HOST
 
   // Skip all tests if environment variables are not set
   if (!hasEnvVars) {
-    console.log('\n⚠️  Skipping Proxmox integration tests - PROXMOX_HOST and PROXMOX_API_TOKEN not set\n')
+    console.log('\n⚠️  Skipping Proxmox integration tests - required environment variables not set\n')
+    console.log('   Required: PROXMOX_USER, PROXMOX_REALM, PROXMOX_TOKEN_KEY, PROXMOX_TOKEN_SECRET, PROXMOX_HOST\n')
   }
 
   const describeOrSkip = hasEnvVars ? describe : describe.skip
@@ -137,10 +153,14 @@ describe('ProxmoxApiRepository Integration Tests', () => {
 
   // Test for error handling with invalid configuration
   describe('Error Handling', () => {
-    it('should return error for invalid token format', async () => {
+    it('should handle invalid configuration gracefully', async () => {
       const invalidConfig = {
-        apiToken: 'invalid-token-without-equals',
-        host: 'https://proxmox.home.sflab.io:8006',
+        host: 'invalid-hostname',
+        port: 8006,
+        realm: 'pam',
+        tokenKey: 'testtoken',
+        tokenSecret: '12345678-1234-1234-1234-123456789abc',
+        user: 'root',
       }
 
       const repository = new ProxmoxApiRepository(invalidConfig)
@@ -148,7 +168,7 @@ describe('ProxmoxApiRepository Integration Tests', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Invalid API token format')
+        expect(result.error.message).to.include('Failed to connect to Proxmox API')
       }
     })
   })

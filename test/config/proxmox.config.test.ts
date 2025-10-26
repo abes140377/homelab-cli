@@ -8,8 +8,12 @@ describe('Proxmox Configuration', () => {
   beforeEach(() => {
     // Reset environment before each test
     process.env = {...originalEnv};
+    delete process.env.PROXMOX_USER;
+    delete process.env.PROXMOX_REALM;
+    delete process.env.PROXMOX_TOKEN_KEY;
+    delete process.env.PROXMOX_TOKEN_SECRET;
     delete process.env.PROXMOX_HOST;
-    delete process.env.PROXMOX_API_TOKEN;
+    delete process.env.PROXMOX_PORT;
   });
 
   afterEach(() => {
@@ -18,69 +22,142 @@ describe('Proxmox Configuration', () => {
   });
 
   describe('loadProxmoxConfig', () => {
-    it('should load valid configuration from environment', () => {
-      process.env.PROXMOX_HOST = 'https://proxmox.home.sflab.io:8006';
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+    it('should load valid configuration with all six variables', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_PORT = '8006';
 
       const config = loadProxmoxConfig();
 
       expect(config).to.deep.equal({
-        apiToken: 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
-        host: 'https://proxmox.home.sflab.io:8006',
+        host: 'proxmox.home.sflab.io',
+        port: 8006,
+        realm: 'pam',
+        tokenKey: 'homelabcli',
+        tokenSecret: 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
+        user: 'root',
       });
     });
 
+    it('should use default port 8006 when PROXMOX_PORT is omitted', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.port).to.equal(8006);
+    });
+
+    it('should throw error when PROXMOX_USER is missing', () => {
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_USER environment variable is required');
+    });
+
+    it('should throw error when PROXMOX_REALM is missing', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_REALM environment variable is required');
+    });
+
+    it('should throw error when PROXMOX_TOKEN_KEY is missing', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_TOKEN_KEY environment variable is required');
+    });
+
+    it('should throw error when PROXMOX_TOKEN_SECRET is missing', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_TOKEN_SECRET environment variable is required');
+    });
+
     it('should throw error when PROXMOX_HOST is missing', () => {
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
 
       expect(() => loadProxmoxConfig()).to.throw('PROXMOX_HOST environment variable is required');
     });
 
-    it('should throw error when PROXMOX_API_TOKEN is missing', () => {
-      process.env.PROXMOX_HOST = 'https://proxmox.home.sflab.io:8006';
-
-      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_API_TOKEN environment variable is required');
-    });
-
-    it('should throw error when PROXMOX_HOST is not a valid URL', () => {
-      process.env.PROXMOX_HOST = 'not-a-valid-url';
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+    it('should throw error when PROXMOX_PORT is not a valid integer', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_PORT = 'not-a-number';
 
       expect(() => loadProxmoxConfig()).to.throw('Proxmox configuration validation failed');
-      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_HOST must be a valid URL');
     });
 
-    it('should throw error when PROXMOX_HOST does not start with http:// or https://', () => {
-      process.env.PROXMOX_HOST = 'ftp://proxmox.home.sflab.io:8006';
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+    it('should throw error when PROXMOX_USER is empty', () => {
+      process.env.PROXMOX_USER = '';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      // Empty string is falsy, so it triggers the "required" check
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_USER environment variable is required');
+    });
+
+    it('should throw error when PROXMOX_TOKEN_SECRET is not a valid UUID', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'not-a-valid-uuid';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
 
       expect(() => loadProxmoxConfig()).to.throw('Proxmox configuration validation failed');
-      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_HOST must start with https:// or http://');
+      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_TOKEN_SECRET must be a valid UUID format');
     });
 
-    it('should throw error when PROXMOX_API_TOKEN is missing ! separator', () => {
-      process.env.PROXMOX_HOST = 'https://proxmox.home.sflab.io:8006';
-      process.env.PROXMOX_API_TOKEN = 'root@pam-homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
-
-      expect(() => loadProxmoxConfig()).to.throw('Proxmox configuration validation failed');
-      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_API_TOKEN must be in format user@realm!tokenid=secret');
-    });
-
-    it('should throw error when PROXMOX_API_TOKEN is missing = separator', () => {
-      process.env.PROXMOX_HOST = 'https://proxmox.home.sflab.io:8006';
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli-bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
-
-      expect(() => loadProxmoxConfig()).to.throw('Proxmox configuration validation failed');
-      expect(() => loadProxmoxConfig()).to.throw('PROXMOX_API_TOKEN must be in format user@realm!tokenid=secret');
-    });
-
-    it('should accept http:// URLs for development', () => {
-      process.env.PROXMOX_HOST = 'http://localhost:8006';
-      process.env.PROXMOX_API_TOKEN = 'root@pam!homelabcli=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+    it('should accept custom port configuration', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.local';
+      process.env.PROXMOX_PORT = '8443';
 
       const config = loadProxmoxConfig();
 
-      expect(config.host).to.equal('http://localhost:8006');
+      expect(config.host).to.equal('proxmox.local');
+      expect(config.port).to.equal(8443);
+    });
+
+    it('should accept custom realm configuration', () => {
+      process.env.PROXMOX_USER = 'admin';
+      process.env.PROXMOX_REALM = 'pve';
+      process.env.PROXMOX_TOKEN_KEY = 'mytoken';
+      process.env.PROXMOX_TOKEN_SECRET = '12345678-1234-1234-1234-123456789abc';
+      process.env.PROXMOX_HOST = 'proxmox.example.com';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.user).to.equal('admin');
+      expect(config.realm).to.equal('pve');
+      expect(config.tokenKey).to.equal('mytoken');
     });
   });
 });

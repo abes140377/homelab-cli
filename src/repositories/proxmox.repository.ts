@@ -33,21 +33,12 @@ export class ProxmoxRepository implements IProxmoxRepository {
    */
   async listTemplates(): Promise<Result<ProxmoxTemplateDTO[], RepositoryError>> {
     try {
-      // Parse API token: format is user@realm!tokenid=secret
-      // We need: PVEAPIToken=tokenid=secret
-      const tokenParts = this.config.apiToken.split('!');
-      if (tokenParts.length !== 2) {
-        return failure(
-          new RepositoryError('Invalid API token format', {
-            context: {apiToken: 'Token must contain ! separator'},
-          }),
-        );
-      }
+      // Construct API token: user@realm!tokenid=secret
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const authToken = `PVEAPIToken=${tokenID}=${this.config.tokenSecret}`;
 
-      const authToken = `PVEAPIToken=${tokenParts[1]}`;
-
-      // Build API URL
-      const url = `${this.config.host}/api2/json/cluster/resources?type=vm`;
+      // Build API URL with host and port
+      const url = `https://${this.config.host}:${this.config.port}/api2/json/cluster/resources?type=vm`;
 
       // Set environment variable to accept self-signed certificates
       // This is acceptable for homelab use where self-signed certs are common
