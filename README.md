@@ -42,6 +42,7 @@ USAGE
 * [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
+* [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab workspace list`](#homelab-workspace-list)
 
 ## `homelab hello PERSON`
@@ -395,6 +396,29 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/update.ts)_
+
+## `homelab proxmox template list`
+
+List all Proxmox VM templates
+
+```
+USAGE
+  $ homelab proxmox template list
+
+DESCRIPTION
+  List all Proxmox VM templates
+
+EXAMPLES
+  $ homelab proxmox template list
+  ┌──────┬─────────────────┬──────────┐
+  │ VMID │ Name            │ Template │
+  ├──────┼─────────────────┼──────────┤
+  │ 100  │ ubuntu-22.04    │ Yes      │
+  │ 101  │ debian-12       │ Yes      │
+  └──────┴─────────────────┴──────────┘
+```
+
+_See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
 
 ## `homelab workspace list`
 
