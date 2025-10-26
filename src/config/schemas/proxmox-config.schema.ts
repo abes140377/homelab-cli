@@ -11,6 +11,7 @@ import {z} from 'zod';
  * - PROXMOX_TOKEN_SECRET: Token secret (UUID format)
  * - PROXMOX_HOST: Hostname without protocol (e.g., 'proxmox.home.sflab.io')
  * - PROXMOX_PORT: Port number (defaults to 8006 if not provided)
+ * - PROXMOX_REJECT_UNAUTHORIZED: Verify SSL certificates (defaults to true)
  */
 export const ProxmoxConfigSchema = z.object({
   host: z.string().min(1, 'PROXMOX_HOST must not be empty'),
@@ -20,6 +21,7 @@ export const ProxmoxConfigSchema = z.object({
     .positive('PROXMOX_PORT must be a positive integer')
     .default(8006),
   realm: z.string().min(1, 'PROXMOX_REALM must not be empty'),
+  rejectUnauthorized: z.boolean().default(true),
   tokenKey: z.string().min(1, 'PROXMOX_TOKEN_KEY must not be empty'),
   tokenSecret: z
     .string()

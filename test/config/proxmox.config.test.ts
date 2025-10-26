@@ -14,6 +14,7 @@ describe('Proxmox Configuration', () => {
     delete process.env.PROXMOX_TOKEN_SECRET;
     delete process.env.PROXMOX_HOST;
     delete process.env.PROXMOX_PORT;
+    delete process.env.PROXMOX_REJECT_UNAUTHORIZED;
   });
 
   afterEach(() => {
@@ -36,6 +37,7 @@ describe('Proxmox Configuration', () => {
         host: 'proxmox.home.sflab.io',
         port: 8006,
         realm: 'pam',
+        rejectUnauthorized: true,
         tokenKey: 'homelabcli',
         tokenSecret: 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce',
         user: 'root',
@@ -158,6 +160,70 @@ describe('Proxmox Configuration', () => {
       expect(config.user).to.equal('admin');
       expect(config.realm).to.equal('pve');
       expect(config.tokenKey).to.equal('mytoken');
+    });
+
+    it('should default rejectUnauthorized to true when PROXMOX_REJECT_UNAUTHORIZED is omitted', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.rejectUnauthorized).to.equal(true);
+    });
+
+    it('should set rejectUnauthorized to false when PROXMOX_REJECT_UNAUTHORIZED is "false"', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_REJECT_UNAUTHORIZED = 'false';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.rejectUnauthorized).to.equal(false);
+    });
+
+    it('should set rejectUnauthorized to true when PROXMOX_REJECT_UNAUTHORIZED is "true"', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_REJECT_UNAUTHORIZED = 'true';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.rejectUnauthorized).to.equal(true);
+    });
+
+    it('should set rejectUnauthorized to true for any truthy value', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_REJECT_UNAUTHORIZED = 'yes';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.rejectUnauthorized).to.equal(true);
+    });
+
+    it('should set rejectUnauthorized to false only when explicitly set to "false"', () => {
+      process.env.PROXMOX_USER = 'root';
+      process.env.PROXMOX_REALM = 'pam';
+      process.env.PROXMOX_TOKEN_KEY = 'homelabcli';
+      process.env.PROXMOX_TOKEN_SECRET = 'bd2ed89e-6a09-48e8-8a6e-38da9128c8ce';
+      process.env.PROXMOX_HOST = 'proxmox.home.sflab.io';
+      process.env.PROXMOX_REJECT_UNAUTHORIZED = 'FALSE';
+
+      const config = loadProxmoxConfig();
+
+      expect(config.rejectUnauthorized).to.equal(false);
     });
   });
 });

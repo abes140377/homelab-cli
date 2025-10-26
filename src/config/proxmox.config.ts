@@ -19,6 +19,7 @@ export type ProxmoxConfig = z.infer<typeof ProxmoxConfigSchema>;
  *
  * Optional environment variables:
  * - PROXMOX_PORT: Port number (defaults to 8006)
+ * - PROXMOX_REJECT_UNAUTHORIZED: Verify SSL certificates (defaults to true, set to 'false' for self-signed certs)
  *
  * @returns Validated Proxmox configuration
  * @throws Error if required environment variables are missing or invalid
@@ -30,6 +31,7 @@ export function loadProxmoxConfig(): ProxmoxConfig {
   const tokenSecret = process.env.PROXMOX_TOKEN_SECRET;
   const host = process.env.PROXMOX_HOST;
   const portStr = process.env.PROXMOX_PORT;
+  const rejectUnauthorizedStr = process.env.PROXMOX_REJECT_UNAUTHORIZED;
 
   // Check required variables with specific error messages
   if (!user) {
@@ -55,10 +57,17 @@ export function loadProxmoxConfig(): ProxmoxConfig {
   // Parse port if provided, otherwise use undefined (will trigger default in schema)
   const port = portStr ? Number.parseInt(portStr, 10) : undefined;
 
+  // Parse rejectUnauthorized if provided, otherwise use undefined (will trigger default in schema)
+  const rejectUnauthorized =
+    rejectUnauthorizedStr === undefined
+      ? undefined
+      : rejectUnauthorizedStr.toLowerCase() !== 'false';
+
   const result = ProxmoxConfigSchema.safeParse({
     host,
     port,
     realm,
+    rejectUnauthorized,
     tokenKey,
     tokenSecret,
     user,

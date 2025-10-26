@@ -28,6 +28,11 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
       const {tokenSecret} = this.config;
 
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
       // Create proxmox client with token authentication
       const proxmox = proxmoxApi({
         host: this.config.host,

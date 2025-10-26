@@ -182,6 +182,7 @@ describe('ProxmoxApiRepository Integration Tests', () => {
         host: 'invalid-hostname',
         port: 8006,
         realm: 'pam',
+        rejectUnauthorized: false,
         tokenKey: 'testtoken',
         tokenSecret: '12345678-1234-1234-1234-123456789abc',
         user: 'root',
