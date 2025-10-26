@@ -42,14 +42,38 @@ describe('ProxmoxApiRepository Integration Tests', () => {
 
   describeOrSkip('Connection and Template Listing', () => {
     let repository: ProxmoxApiRepository
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let originalEmit: any
 
     before(() => {
+      // Suppress the NODE_TLS_REJECT_UNAUTHORIZED warning for integration tests
+      originalEmit = process.emit
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      process.emit = function (event: any, ...args: any[]) {
+        if (
+          event === 'warning' &&
+          args[0]?.name === 'Warning' &&
+          args[0]?.message?.includes('NODE_TLS_REJECT_UNAUTHORIZED')
+        ) {
+          return false
+        }
+
+        return originalEmit.call(process, event, ...args)
+      }
+
       // Disable TLS certificate verification for self-signed certs for all tests
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
       // Load configuration from environment
       const config = loadProxmoxConfig()
       repository = new ProxmoxApiRepository(config)
+    })
+
+    after(() => {
+      // Restore original process.emit
+      if (originalEmit) {
+        process.emit = originalEmit
+      }
     })
 
     it('should successfully connect to Proxmox server', async function () {

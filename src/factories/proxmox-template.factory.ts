@@ -1,5 +1,5 @@
 import {loadProxmoxConfig} from '../config/proxmox.config.js'
-import {ProxmoxRepository} from '../repositories/proxmox.repository.js'
+import {ProxmoxApiRepository} from '../repositories/proxmox-api.repository.js'
 import {ProxmoxTemplateService} from '../services/proxmox-template.service.js'
 
 /**
@@ -14,7 +14,7 @@ export const ProxmoxTemplateFactory = {
    */
   createProxmoxTemplateService(): ProxmoxTemplateService {
     const config = loadProxmoxConfig()
-    const repository = new ProxmoxRepository(config)
+    const repository = new ProxmoxApiRepository(config)
     return new ProxmoxTemplateService(repository)
   },
 }

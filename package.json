@@ -30,6 +30,7 @@
     "oclif": "^4",
     "shx": "^0.3.3",
     "ts-node": "^10",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   },
   "engines": {
@@ -69,7 +70,7 @@
     "postpack": "shx rm -f oclif.manifest.json",
     "posttest": "pnpm run lint",
     "prepack": "oclif manifest && oclif readme",
-    "test": "mocha --forbid-only \"test/**/*.test.ts\"",
+    "test": "mocha --forbid-only --exit \"test/**/*.test.ts\"",
     "version": "oclif readme && git add README.md"
   },
   "types": "dist/index.d.ts"
