@@ -1,8 +1,7 @@
-import {Command} from '@oclif/core';
-
 import {WorkspaceFactory} from '../../factories/workspace.factory.js';
+import { BaseCommand } from '../base-command.js';
 
-export default class WorkspaceList extends Command {
+export default class WorkspaceList extends BaseCommand<typeof WorkspaceList> {
   static description = 'List all workspaces';
 static examples = [
     `<%= config.bin %> <%= command.id %>

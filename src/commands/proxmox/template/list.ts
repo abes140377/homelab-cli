@@ -1,9 +1,9 @@
-import {Command} from '@oclif/core'
 import Table from 'cli-table3'
 
 import {ProxmoxTemplateFactory} from '../../../factories/proxmox-template.factory.js'
+import { BaseCommand } from '../../base-command.js'
 
-export default class ProxmoxTemplateList extends Command {
+export default class ProxmoxTemplateList extends BaseCommand<typeof ProxmoxTemplateList> {
   static description = 'List all Proxmox VM templates'
   static examples = [
     `<%= config.bin %> <%= command.id %>
