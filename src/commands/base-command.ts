@@ -18,15 +18,15 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
 protected args!: Args<T>
   protected flags!: Flags<T>
 
-  protected async catch(err: Error & {exitCode?: number}): Promise<any> {
+  protected async catch(err: Error & {exitCode?: number}): Promise<unknown> {
     // add any custom logic to handle errors from the command
     // or simply return the parent class error handling
     return super.catch(err)
   }
 
-  protected async finally(_: Error | undefined): Promise<any> {
+  protected async finally(err: Error | undefined): Promise<unknown> {
     // called after run and catch regardless of whether or not the command errored
-    return super.finally(_)
+    return super.finally(err)
   }
 
   public async init(): Promise<void> {

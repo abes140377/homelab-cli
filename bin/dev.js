@@ -11,6 +11,7 @@ process.emit = function (event, ...args) {
   ) {
     return false
   }
+
   return originalEmit(event, ...args)
 }
 
