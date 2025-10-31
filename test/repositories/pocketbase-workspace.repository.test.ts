@@ -198,7 +198,7 @@ describe('PocketBaseWorkspaceRepository', () => {
       const invalidRecords = [
         {
           created: '2024-01-01T10:00:00.000Z',
-          id: 'not-a-uuid', // Invalid UUID
+          id: '', // Invalid: empty ID
           name: 'Workspace 1',
           updated: '2024-01-01T10:00:00.000Z',
         },

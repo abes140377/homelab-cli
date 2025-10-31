@@ -6,7 +6,7 @@ import {z} from 'zod';
  */
 export const WorkspaceSchema = z.object({
   createdAt: z.date(),
-  id: z.string().uuid(),
+  id: z.string().min(1), // Support both PocketBase IDs (15 chars) and UUIDs
   name: z.string().min(1),
   updatedAt: z.date(),
 });

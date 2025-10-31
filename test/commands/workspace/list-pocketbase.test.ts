@@ -46,7 +46,7 @@ describe('workspace list-pocketbase', () => {
         expect(error.message).to.match(/Failed to list workspaces|Failed to retrieve workspaces/)
       } else {
         // Should contain table headers or "No workspaces found" message
-        const hasHeaders = stdout.includes('ID') && stdout.includes('Name')
+        const hasHeaders = stdout.includes('ID') && stdout.includes('NAME')
         const hasNoWorkspacesMessage = stdout.includes('No workspaces found')
 
         expect(hasHeaders || hasNoWorkspacesMessage).to.be.true
@@ -64,8 +64,8 @@ describe('workspace list-pocketbase', () => {
         // Should either have table headers or empty message
         // eslint-disable-next-line no-lonely-if
         if (stdout.includes('ID')) {
-          expect(stdout).to.contain('Created At')
-          expect(stdout).to.contain('Updated At')
+          expect(stdout).to.contain('CREATED AT')
+          expect(stdout).to.contain('UPDATED AT')
         } else {
           expect(stdout).to.include('No workspaces found')
         }
