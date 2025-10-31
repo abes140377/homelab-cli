@@ -1,7 +1,7 @@
-import {expect} from 'chai'
+import { expect } from 'chai'
 
-import {loadProxmoxConfig} from '../../src/config/proxmox.config.js'
-import {ProxmoxApiRepository} from '../../src/repositories/proxmox-api.repository.js'
+import { loadProxmoxConfig } from '../../src/config/proxmox.config.js'
+import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.repository.js'
 
 /**
  * Integration tests for ProxmoxApiRepository.
@@ -27,10 +27,10 @@ import {ProxmoxApiRepository} from '../../src/repositories/proxmox-api.repositor
 describe('ProxmoxApiRepository Integration Tests', () => {
   // Check if environment variables are set
   const hasEnvVars = process.env.PROXMOX_USER &&
-                     process.env.PROXMOX_REALM &&
-                     process.env.PROXMOX_TOKEN_KEY &&
-                     process.env.PROXMOX_TOKEN_SECRET &&
-                     process.env.PROXMOX_HOST
+    process.env.PROXMOX_REALM &&
+    process.env.PROXMOX_TOKEN_KEY &&
+    process.env.PROXMOX_TOKEN_SECRET &&
+    process.env.PROXMOX_HOST
 
   // Skip all tests if environment variables are not set
   if (!hasEnvVars) {
@@ -99,8 +99,6 @@ describe('ProxmoxApiRepository Integration Tests', () => {
         // Verify we got an array (might be empty if no templates exist)
         expect(result.data).to.be.an('array')
 
-        console.log(`\n✅ Retrieved ${result.data.length} templates from Proxmox server\n`)
-
         // If templates exist, validate their structure
         if (result.data.length > 0) {
           const template = result.data[0]
@@ -128,7 +126,6 @@ describe('ProxmoxApiRepository Integration Tests', () => {
           expect(template.name).to.be.a('string').and.not.to.be.empty
           expect(template.template).to.equal(1)
 
-          console.log(`  - Template ${template.vmid}: ${template.name}`)
         }
       } else if (result.success && result.data.length === 0) {
         console.log('  ℹ️  No templates found on Proxmox server (this is OK)')
