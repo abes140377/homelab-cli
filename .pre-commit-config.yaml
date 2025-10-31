@@ -7,4 +7,5 @@ repos:
     rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
+        exclude: ^tsconfig\.tsbuildinfo$
       - id: trailing-whitespace

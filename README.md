@@ -7,15 +7,14 @@ My homelab CLI
 [![Downloads/week](https://img.shields.io/npm/dw/homelab-cli.svg)](https://npmjs.org/package/homelab-cli)
 
 <!-- toc -->
-
-- [Usage](#usage)
-- [Commands](#commands)
+* [homelab-cli](#homelab-cli)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g homelab-cli
 $ homelab COMMAND
@@ -27,28 +26,27 @@ USAGE
   $ homelab COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`homelab base-command`](#homelab-base-command)
-- [`homelab help [COMMAND]`](#homelab-help-command)
-- [`homelab plugins`](#homelab-plugins)
-- [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
-- [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
-- [`homelab plugins install PLUGIN`](#homelab-plugins-install-plugin)
-- [`homelab plugins link PATH`](#homelab-plugins-link-path)
-- [`homelab plugins remove [PLUGIN]`](#homelab-plugins-remove-plugin)
-- [`homelab plugins reset`](#homelab-plugins-reset)
-- [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
-- [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
-- [`homelab plugins update`](#homelab-plugins-update)
-- [`homelab proxmox template list`](#homelab-proxmox-template-list)
-- [`homelab workspace list`](#homelab-workspace-list)
-- [`homelab workspace list-pocketbase`](#homelab-workspace-list-pocketbase)
+* [`homelab base-command`](#homelab-base-command)
+* [`homelab help [COMMAND]`](#homelab-help-command)
+* [`homelab plugins`](#homelab-plugins)
+* [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
+* [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
+* [`homelab plugins install PLUGIN`](#homelab-plugins-install-plugin)
+* [`homelab plugins link PATH`](#homelab-plugins-link-path)
+* [`homelab plugins remove [PLUGIN]`](#homelab-plugins-remove-plugin)
+* [`homelab plugins reset`](#homelab-plugins-reset)
+* [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
+* [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
+* [`homelab plugins update`](#homelab-plugins-update)
+* [`homelab proxmox template list`](#homelab-proxmox-template-list)
+* [`homelab workspace list`](#homelab-workspace-list)
+* [`homelab workspace list-pocketbase`](#homelab-workspace-list-pocketbase)
+* [`homelab workspace start WORKSPACENAME`](#homelab-workspace-start-workspacename)
 
 ## `homelab base-command`
 
@@ -474,4 +472,37 @@ EXAMPLES
 
 _See code: [src/commands/workspace/list-pocketbase.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list-pocketbase.ts)_
 
+## `homelab workspace start WORKSPACENAME`
+
+Start a workspace in VSCode or terminal
+
+```
+USAGE
+  $ homelab workspace start WORKSPACENAME [--json] [--log-level debug|warn|error|info|trace] [-c <value> -v] [-t | ]
+
+ARGUMENTS
+  WORKSPACENAME  Name of the workspace to start
+
+FLAGS
+  -c, --context=<value>  Context name (required when workspace has multiple contexts)
+  -t, --terminal         Open workspace in terminal
+  -v, --vscode           Open workspace in VSCode
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Start a workspace in VSCode or terminal
+
+EXAMPLES
+  $ homelab workspace start my-project --vscode
+
+  $ homelab workspace start my-project --vscode --context backend
+
+  $ homelab workspace start my-project --terminal
+```
+
+_See code: [src/commands/workspace/start.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/start.ts)_
 <!-- commandsstop -->
