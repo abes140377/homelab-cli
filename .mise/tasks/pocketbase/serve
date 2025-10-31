@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#MISE description="Serve PocketBase application"
+#
+# Usage examples:
+# # Run all tests (default)
+# mise run test
+
+# # Run specific test file
+# mise run test tests/test_dns1.py
+
+# # Run with verbose output
+# mise run test --info
+
+# # Run specific test function
+# mise run test tests/test_dns1.py::test_external_dns_resolution_on_bind9 --info
+
+# echo "dir: ${usage_dir?}"
+# echo "force: ${usage_force}"
+
+echo $@
+
+set -euo pipefail
+
+pocketbase serve --dir $@
