@@ -1,20 +1,21 @@
-homelab-cli
-=================
+# homelab-cli
 
 My homelab CLI
-
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/homelab-cli.svg)](https://npmjs.org/package/homelab-cli)
 [![Downloads/week](https://img.shields.io/npm/dw/homelab-cli.svg)](https://npmjs.org/package/homelab-cli)
 
-
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g homelab-cli
 $ homelab COMMAND
@@ -26,66 +27,54 @@ USAGE
   $ homelab COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`homelab hello PERSON`](#homelab-hello-person)
-* [`homelab hello world`](#homelab-hello-world)
-* [`homelab help [COMMAND]`](#homelab-help-command)
-* [`homelab plugins`](#homelab-plugins)
-* [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
-* [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
-* [`homelab plugins install PLUGIN`](#homelab-plugins-install-plugin)
-* [`homelab plugins link PATH`](#homelab-plugins-link-path)
-* [`homelab plugins remove [PLUGIN]`](#homelab-plugins-remove-plugin)
-* [`homelab plugins reset`](#homelab-plugins-reset)
-* [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
-* [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
-* [`homelab plugins update`](#homelab-plugins-update)
-* [`homelab proxmox template list`](#homelab-proxmox-template-list)
-* [`homelab workspace list`](#homelab-workspace-list)
 
-## `homelab hello PERSON`
+- [`homelab base-command`](#homelab-base-command)
+- [`homelab help [COMMAND]`](#homelab-help-command)
+- [`homelab plugins`](#homelab-plugins)
+- [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
+- [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
+- [`homelab plugins install PLUGIN`](#homelab-plugins-install-plugin)
+- [`homelab plugins link PATH`](#homelab-plugins-link-path)
+- [`homelab plugins remove [PLUGIN]`](#homelab-plugins-remove-plugin)
+- [`homelab plugins reset`](#homelab-plugins-reset)
+- [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
+- [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
+- [`homelab plugins update`](#homelab-plugins-update)
+- [`homelab proxmox template list`](#homelab-proxmox-template-list)
+- [`homelab workspace list`](#homelab-workspace-list)
+- [`homelab workspace list-pocketbase`](#homelab-workspace-list-pocketbase)
 
-Say hello
+## `homelab base-command`
+
+child class that extends BaseCommand
 
 ```
 USAGE
-  $ homelab hello PERSON -f <value>
-
-ARGUMENTS
-  PERSON  Person to say hello to
+  $ homelab base-command -n <value> [--json] [--log-level debug|warn|error|info|trace]
 
 FLAGS
-  -f, --from=<value>  (required) Who is saying hello
+  -n, --name=<value>  (required) Name to print.
 
-DESCRIPTION
-  Say hello
-
-EXAMPLES
-  $ homelab hello friend --from oclif
-  hello friend from oclif! (./src/commands/hello/index.ts)
-```
-
-_See code: [src/commands/hello/index.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/hello/index.ts)_
-
-## `homelab hello world`
-
-Say hello world
-
-```
-USAGE
-  $ homelab hello world
-
-DESCRIPTION
-  Say hello world
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
 
 EXAMPLES
-  $ homelab hello world
-  hello world! (./src/commands/hello/world.ts)
+  $ homelab base-command
+
+  $ homelab base-command --json
+
+  $ homelab base-command --log-level debug
 ```
 
-_See code: [src/commands/hello/world.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/hello/world.ts)_
+_See code: [src/commands/base-command.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/base-command.ts)_
 
 ## `homelab help [COMMAND]`
 
@@ -403,7 +392,12 @@ List all Proxmox VM templates
 
 ```
 USAGE
-  $ homelab proxmox template list
+  $ homelab proxmox template list [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
 
 DESCRIPTION
   List all Proxmox VM templates
@@ -426,18 +420,58 @@ List all workspaces
 
 ```
 USAGE
-  $ homelab workspace list
+  $ homelab workspace list [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
 
 DESCRIPTION
   List all workspaces
 
 EXAMPLES
   $ homelab workspace list
-  ID                                   NAME         CREATED AT           UPDATED AT
-  550e8400-e29b-41d4-a716-446655440001 production   2024-01-15 10:00:00  2024-01-15 10:00:00
-  550e8400-e29b-41d4-a716-446655440002 staging      2024-01-20 14:30:00  2024-02-01 09:15:00
-  550e8400-e29b-41d4-a716-446655440003 development  2024-02-01 08:00:00  2024-02-10 16:45:00
+  ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
+  │ ID                                   │ NAME         │ CREATED AT          │ UPDATED AT          │
+  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
+  │ 550e8400-e29b-41d4-a716-446655440001 │ production   │ 2024-01-15 10:00:00 │ 2024-01-15 10:00:00 │
+  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
+  │ 550e8400-e29b-41d4-a716-446655440002 │ staging      │ 2024-01-20 14:30:00 │ 2024-02-01 09:15:00 │
+  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
+  │ 550e8400-e29b-41d4-a716-446655440003 │ development  │ 2024-02-01 08:00:00 │ 2024-02-10 16:45:00 │
+  └──────────────────────────────────────┴──────────────┴─────────────────────┴─────────────────────┘
 ```
 
 _See code: [src/commands/workspace/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list.ts)_
+
+## `homelab workspace list-pocketbase`
+
+List all workspaces from PocketBase
+
+```
+USAGE
+  $ homelab workspace list-pocketbase [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all workspaces from PocketBase
+
+EXAMPLES
+  $ homelab workspace list-pocketbase
+  ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
+  │ ID                                   │ NAME         │ CREATED AT          │ UPDATED AT          │
+  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
+  │ 550e8400-e29b-41d4-a716-446655440001 │ production   │ 15.01.2024 10:00:00 │ 15.01.2024 10:00:00 │
+  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
+  │ 550e8400-e29b-41d4-a716-446655440002 │ staging      │ 20.01.2024 14:30:00 │ 01.02.2024 09:15:00 │
+  └──────────────────────────────────────┴──────────────┴─────────────────────┴─────────────────────┘
+```
+
+_See code: [src/commands/workspace/list-pocketbase.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list-pocketbase.ts)_
+
 <!-- commandsstop -->
