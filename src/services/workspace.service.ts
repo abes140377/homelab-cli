@@ -12,6 +12,36 @@ export class WorkspaceService {
   constructor(private readonly repository: IWorkspaceRepository) {}
 
   /**
+   * Finds a workspace by name.
+   * @param name - The name of the workspace to find
+   * @returns Result containing the workspace or an error
+   */
+  async findWorkspaceByName(name: string): Promise<Result<WorkspaceDTO, ServiceError>> {
+    const repositoryResult = await this.repository.findByName(name);
+
+    if (!repositoryResult.success) {
+      return failure(
+        new ServiceError('Failed to retrieve workspace from repository', {
+          cause: repositoryResult.error,
+        }),
+      );
+    }
+
+    // Validate the data using Zod schema (defensive validation)
+    const validationResult = WorkspaceSchema.safeParse(repositoryResult.data);
+
+    if (!validationResult.success) {
+      return failure(
+        new ServiceError('Workspace data validation failed', {
+          zodError: validationResult.error,
+        }),
+      );
+    }
+
+    return success(validationResult.data);
+  }
+
+  /**
    * Lists all workspaces.
    * @returns Result containing array of workspaces or an error
    */

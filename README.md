@@ -45,7 +45,6 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab workspace list`](#homelab-workspace-list)
-* [`homelab workspace list-pocketbase`](#homelab-workspace-list-pocketbase)
 * [`homelab workspace start WORKSPACENAME`](#homelab-workspace-start-workspacename)
 
 ## `homelab base-command`
@@ -414,7 +413,7 @@ _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377
 
 ## `homelab workspace list`
 
-List all workspaces
+List all workspaces from PocketBase
 
 ```
 USAGE
@@ -426,7 +425,7 @@ GLOBAL FLAGS
                         <options: debug|warn|error|info|trace>
 
 DESCRIPTION
-  List all workspaces
+  List all workspaces from PocketBase
 
 EXAMPLES
   $ homelab workspace list
@@ -442,35 +441,6 @@ EXAMPLES
 ```
 
 _See code: [src/commands/workspace/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list.ts)_
-
-## `homelab workspace list-pocketbase`
-
-List all workspaces from PocketBase
-
-```
-USAGE
-  $ homelab workspace list-pocketbase [--json] [--log-level debug|warn|error|info|trace]
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  List all workspaces from PocketBase
-
-EXAMPLES
-  $ homelab workspace list-pocketbase
-  ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
-  │ ID                                   │ NAME         │ CREATED AT          │ UPDATED AT          │
-  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-  │ 550e8400-e29b-41d4-a716-446655440001 │ production   │ 15.01.2024 10:00:00 │ 15.01.2024 10:00:00 │
-  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-  │ 550e8400-e29b-41d4-a716-446655440002 │ staging      │ 20.01.2024 14:30:00 │ 01.02.2024 09:15:00 │
-  └──────────────────────────────────────┴──────────────┴─────────────────────┴─────────────────────┘
-```
-
-_See code: [src/commands/workspace/list-pocketbase.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list-pocketbase.ts)_
 
 ## `homelab workspace start WORKSPACENAME`
 

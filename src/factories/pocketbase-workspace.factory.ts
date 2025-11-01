@@ -1,5 +1,5 @@
 import {loadPocketBaseConfig} from '../config/pocketbase.config.js'
-import {PocketBaseWorkspaceRepository} from '../repositories/pocketbase-workspace.repository.js'
+import {WorkspaceRepository} from '../repositories/workspace.repository.js'
 import {WorkspaceService} from '../services/workspace.service.js'
 
 /**
@@ -15,7 +15,7 @@ export const PocketBaseWorkspaceFactory = {
    */
   createWorkspaceService(): WorkspaceService {
     const config = loadPocketBaseConfig()
-    const repository = new PocketBaseWorkspaceRepository(config)
+    const repository = new WorkspaceRepository(config)
     return new WorkspaceService(repository)
   },
 }

@@ -12,4 +12,11 @@ export interface IWorkspaceRepository {
    * @returns Result containing array of workspaces or an error
    */
   findAll(): Promise<Result<WorkspaceDTO[], RepositoryError>>;
+
+  /**
+   * Retrieves a single workspace by name.
+   * @param name - The name of the workspace to find
+   * @returns Result containing the workspace or an error
+   */
+  findByName(name: string): Promise<Result<WorkspaceDTO, RepositoryError>>;
 }

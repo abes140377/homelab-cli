@@ -6,7 +6,7 @@ import {WorkspaceFactory} from '../../factories/workspace.factory.js';
 import { BaseCommand } from '../base-command.js';
 
 export default class WorkspaceList extends BaseCommand<typeof WorkspaceList> {
-  static description = 'List all workspaces';
+  static description = 'List all workspaces from PocketBase';
 static examples = [
     `<%= config.bin %> <%= command.id %>
 ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
@@ -24,7 +24,18 @@ static examples = [
   async run(): Promise<void> {
     await this.parse(WorkspaceList);
 
-    const service = WorkspaceFactory.createWorkspaceService();
+    // Create service with PocketBase repository
+    let service;
+    try {
+      service = WorkspaceFactory.createWorkspaceService();
+    } catch (error) {
+      this.error(
+        `Failed to initialize PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        {exit: 1},
+      );
+    }
+
+    // Fetch workspaces from PocketBase
     const result = await service.listWorkspaces();
 
     if (!result.success) {
