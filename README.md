@@ -46,7 +46,7 @@ USAGE
 * [`homelab project list [WORKSPACENAME]`](#homelab-project-list-workspacename)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab workspace list`](#homelab-workspace-list)
-* [`homelab workspace start WORKSPACENAME`](#homelab-workspace-start-workspacename)
+* [`homelab workspace vscode WORKSPACENAME CONTEXTNAME`](#homelab-workspace-vscode-workspacename-contextname)
 
 ## `homelab base-command`
 
@@ -477,21 +477,17 @@ EXAMPLES
 
 _See code: [src/commands/workspace/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list.ts)_
 
-## `homelab workspace start WORKSPACENAME`
+## `homelab workspace vscode WORKSPACENAME CONTEXTNAME`
 
-Start a workspace in VSCode or terminal
+Open a workspace context in VSCode
 
 ```
 USAGE
-  $ homelab workspace start WORKSPACENAME [--json] [--log-level debug|warn|error|info|trace] [-c <value> -v] [-t | ]
+  $ homelab workspace vscode WORKSPACENAME CONTEXTNAME [--json] [--log-level debug|warn|error|info|trace]
 
 ARGUMENTS
-  WORKSPACENAME  Name of the workspace to start
-
-FLAGS
-  -c, --context=<value>  Context name (required when workspace has multiple contexts)
-  -t, --terminal         Open workspace in terminal
-  -v, --vscode           Open workspace in VSCode
+  WORKSPACENAME  Name of the workspace
+  CONTEXTNAME    Name of the context to open in VSCode
 
 GLOBAL FLAGS
   --json                Format output as json.
@@ -499,15 +495,13 @@ GLOBAL FLAGS
                         <options: debug|warn|error|info|trace>
 
 DESCRIPTION
-  Start a workspace in VSCode or terminal
+  Open a workspace context in VSCode
 
 EXAMPLES
-  $ homelab workspace start my-project --vscode
+  $ homelab workspace vscode my-project backend
 
-  $ homelab workspace start my-project --vscode --context backend
-
-  $ homelab workspace start my-project --terminal
+  $ homelab workspace vscode my-project frontend
 ```
 
-_See code: [src/commands/workspace/start.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/start.ts)_
+_See code: [src/commands/workspace/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/vscode.ts)_
 <!-- commandsstop -->

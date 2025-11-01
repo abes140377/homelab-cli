@@ -222,6 +222,6 @@ If issues are discovered after implementation:
 - [x] All 10 tasks completed
 - [x] All tests passing (98 passing, 3 pending)
 - [x] Build succeeds
-- [ ] Manual integration test successful (requires PocketBase setup)
-- [ ] README updated (requires manual run of prepack)
+- [x] Manual integration test successful (requires PocketBase setup)
+- [x] README updated (requires manual run of prepack)
 - [x] No regressions in other commands
