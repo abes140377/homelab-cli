@@ -43,6 +43,7 @@ USAGE
 * [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
+* [`homelab project list [WORKSPACENAME]`](#homelab-project-list-workspacename)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab workspace list`](#homelab-workspace-list)
 * [`homelab workspace start WORKSPACENAME`](#homelab-workspace-start-workspacename)
@@ -382,6 +383,40 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/update.ts)_
+
+## `homelab project list [WORKSPACENAME]`
+
+List all projects for a workspace
+
+```
+USAGE
+  $ homelab project list [WORKSPACENAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [WORKSPACENAME]  Name of the workspace to list projects for (defaults to current directory basename)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all projects for a workspace
+
+EXAMPLES
+  $ homelab project list
+  ┌─────────────┬─────────────────────────────┬──────────────────────────────────┐
+  │ NAME        │ DESCRIPTION                 │ GIT REPO URL                     │
+  ├─────────────┼─────────────────────────────┼──────────────────────────────────┤
+  │ app         │ Main application repository │ https://github.com/user/app      │
+  ├─────────────┼─────────────────────────────┼──────────────────────────────────┤
+  │ api         │ API service repository      │ https://github.com/user/api      │
+  └─────────────┴─────────────────────────────┴──────────────────────────────────┘
+
+  $ homelab project list my-workspace
+```
+
+_See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
 
 ## `homelab proxmox template list`
 
