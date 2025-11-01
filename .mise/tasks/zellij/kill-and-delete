@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+zellij kill-all-sessions -y
+zellij delete-all-sessions -y
