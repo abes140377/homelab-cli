@@ -1,18 +1,18 @@
 import PocketBase, {ClientResponseError} from 'pocketbase'
 
 import type {PocketBaseConfig} from '../config/pocketbase.config.js'
-import type {ProjectDTO} from '../models/project.dto.js'
-import type {IProjectRepository} from './interfaces/project.repository.interface.js'
+import type {ModuleDTO} from '../models/module.dto.js'
+import type {IModuleRepository} from './interfaces/module.repository.interface.js'
 
 import {RepositoryError} from '../errors/repository.error.js'
-import {ProjectSchema} from '../models/schemas/project.schema.js'
+import {ModuleSchema} from '../models/schemas/module.schema.js'
 import {failure, type Result, success} from '../utils/result.js'
 
 /**
- * Project repository implementation using PocketBase.
- * Fetches project data from a PocketBase 'projects' collection.
+ * Module repository implementation using PocketBase.
+ * Fetches module data from a PocketBase 'projects' collection.
  */
-export class ProjectRepository implements IProjectRepository {
+export class ModuleRepository implements IModuleRepository {
   private client: PocketBase
   private config: PocketBaseConfig
 
@@ -22,13 +22,13 @@ export class ProjectRepository implements IProjectRepository {
   }
 
   /**
-   * Retrieves all projects for a specific workspace from PocketBase.
-   * First fetches the workspace by name, then retrieves its associated projects.
+   * Retrieves all modules for a specific workspace from PocketBase.
+   * First fetches the workspace by name, then retrieves its associated modules.
    * Authenticates with admin credentials if provided in config.
-   * @param workspaceName - The name of the workspace to find projects for
-   * @returns Result containing array of projects or a RepositoryError
+   * @param workspaceName - The name of the workspace to find modules for
+   * @returns Result containing array of modules or a RepositoryError
    */
-  async findByWorkspaceName(workspaceName: string): Promise<Result<ProjectDTO[], RepositoryError>> {
+  async findByWorkspaceName(workspaceName: string): Promise<Result<ModuleDTO[], RepositoryError>> {
     try {
       // Authenticate if credentials are provided
       if (this.config.adminEmail && this.config.adminPassword) {
@@ -45,16 +45,16 @@ export class ProjectRepository implements IProjectRepository {
           expand: 'projects(workspace)',
         })
 
-      // Extract expanded projects from the workspace record
-      const projectRecords = workspaceRecord.expand?.['projects(workspace)'] || []
+      // Extract expanded modules from the workspace record
+      const moduleRecords = workspaceRecord.expand?.['projects(workspace)'] || []
 
-      // Handle empty project list
-      if (!Array.isArray(projectRecords) || projectRecords.length === 0) {
+      // Handle empty module list
+      if (!Array.isArray(moduleRecords) || moduleRecords.length === 0) {
         return success([])
       }
 
-      // Map and validate PocketBase records to ProjectDTO
-      const projects: ProjectDTO[] = projectRecords.map((record: {
+      // Map and validate PocketBase records to ModuleDTO
+      const modules: ModuleDTO[] = moduleRecords.map((record: {
         created: string
         description: string
         gitRepoUrl: string
@@ -63,7 +63,7 @@ export class ProjectRepository implements IProjectRepository {
         updated: string
       }) => {
         // Map PocketBase record structure to our domain model
-        const projectData = {
+        const moduleData = {
           createdAt: new Date(record.created),
           description: record.description,
           gitRepoUrl: record.gitRepoUrl,
@@ -73,10 +73,10 @@ export class ProjectRepository implements IProjectRepository {
         }
 
         // Validate with Zod schema
-        return ProjectSchema.parse(projectData)
+        return ModuleSchema.parse(moduleData)
       })
 
-      return success(projects)
+      return success(modules)
     } catch (error) {
       // Handle PocketBase-specific errors
       if (error instanceof ClientResponseError) {
@@ -116,7 +116,7 @@ export class ProjectRepository implements IProjectRepository {
       // Handle generic errors (network, validation, etc.)
       return failure(
         new RepositoryError(
-          `Failed to fetch projects from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to fetch modules from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
           {
             cause: error instanceof Error ? error : undefined,
             context: {

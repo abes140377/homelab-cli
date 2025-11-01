@@ -4,10 +4,10 @@ import {restore, type SinonStub, stub} from 'sinon'
 
 import type {PocketBaseConfig} from '../../src/config/pocketbase.config.js'
 
-import {ProjectRepository} from '../../src/repositories/project.repository.js'
+import {ModuleRepository} from '../../src/repositories/module.repository.js'
 
-describe('ProjectRepository', () => {
-  let repository: ProjectRepository
+describe('ModuleRepository', () => {
+  let repository: ModuleRepository
   let config: PocketBaseConfig
   let clientStub: {
     admins: {authWithPassword: SinonStub}
@@ -27,7 +27,7 @@ describe('ProjectRepository', () => {
       collection: stub(),
     }
 
-    repository = new ProjectRepository(config)
+    repository = new ModuleRepository(config)
     // Replace the internal client with our stub
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(repository as any).client = clientStub
@@ -120,7 +120,7 @@ describe('ProjectRepository', () => {
         url: 'http://127.0.0.1:8090',
       }
 
-      repository = new ProjectRepository(configWithAuth)
+      repository = new ModuleRepository(configWithAuth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(repository as any).client = clientStub
 
@@ -241,7 +241,7 @@ describe('ProjectRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch modules from PocketBase')
         expect(result.error.message).to.include('Connection refused')
       }
     })
@@ -253,7 +253,7 @@ describe('ProjectRepository', () => {
         url: 'http://127.0.0.1:8090',
       }
 
-      repository = new ProjectRepository(configWithAuth)
+      repository = new ModuleRepository(configWithAuth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(repository as any).client = clientStub
 
@@ -263,7 +263,7 @@ describe('ProjectRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch modules from PocketBase')
         expect(result.error.message).to.include('Invalid credentials')
       }
     })
@@ -319,7 +319,7 @@ describe('ProjectRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch modules from PocketBase')
       }
     })
 

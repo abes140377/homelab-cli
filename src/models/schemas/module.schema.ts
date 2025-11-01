@@ -26,10 +26,10 @@ const gitRepoUrlValidator = z.string().min(1).refine(
 );
 
 /**
- * Zod schema for project validation.
- * Serves as the single source of truth for project data structure.
+ * Zod schema for module validation.
+ * Serves as the single source of truth for module data structure.
  */
-export const ProjectSchema = z.object({
+export const ModuleSchema = z.object({
   createdAt: z.date(),
   description: z.string().min(1),
   gitRepoUrl: gitRepoUrlValidator,

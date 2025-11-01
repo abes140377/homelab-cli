@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(openspec spec list:*)",
-      "Bash(openspec validate:*)"
+      "Bash(openspec validate:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

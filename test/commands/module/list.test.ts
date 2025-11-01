@@ -2,7 +2,7 @@ import {runCommand} from '@oclif/test';
 import {expect} from 'chai';
 import {afterEach, beforeEach, describe, it} from 'mocha';
 
-describe('project list', () => {
+describe('module list', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
