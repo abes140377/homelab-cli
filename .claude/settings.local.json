@@ -1,15 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(pnpm exec mocha:*)",
-      "Bash(pnpm run build:*)",
-      "Bash(pnpm test:*)",
-      "Bash(pnpm run lint:*)",
-      "Bash(pnpm exec eslint:*)",
-      "Bash(pnpm run prepack:*)",
-      "Bash(openspec list:*)",
-      "Bash(openspec show:*)",
-      "Bash(test *)"
+      "Bash(openspec spec list:*)",
+      "Bash(openspec validate:*)"
     ],
     "deny": [],
     "ask": []
