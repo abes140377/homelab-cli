@@ -2,11 +2,11 @@ import Table from 'cli-table3';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
-import {WorkspaceFactory} from '../../factories/workspace.factory.js';
+import {ProjectFactory} from '../../factories/project.factory.js';
 import { BaseCommand } from '../base-command.js';
 
-export default class WorkspaceList extends BaseCommand<typeof WorkspaceList> {
-  static description = 'List all workspaces from PocketBase';
+export default class ProjectList extends BaseCommand<typeof ProjectList> {
+  static description = 'List all projects from PocketBase';
 static examples = [
     `<%= config.bin %> <%= command.id %>
 ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
@@ -22,12 +22,12 @@ static examples = [
   ];
 
   async run(): Promise<void> {
-    await this.parse(WorkspaceList);
+    await this.parse(ProjectList);
 
     // Create service with PocketBase repository
     let service;
     try {
-      service = WorkspaceFactory.createWorkspaceService();
+      service = ProjectFactory.createProjectService();
     } catch (error) {
       this.error(
         `Failed to initialize PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -35,19 +35,19 @@ static examples = [
       );
     }
 
-    // Fetch workspaces from PocketBase
-    const result = await service.listWorkspaces();
+    // Fetch projects from PocketBase
+    const result = await service.listProjects();
 
     if (!result.success) {
-      this.error(`Failed to list workspaces: ${result.error.message}`, {
+      this.error(`Failed to list projects: ${result.error.message}`, {
         exit: 1,
       });
     }
 
-    const workspaces = result.data;
+    const projects = result.data;
 
-    if (workspaces.length === 0) {
-      this.log('No workspaces found.');
+    if (projects.length === 0) {
+      this.log('No projects found.');
       return;
     }
 
@@ -57,11 +57,11 @@ static examples = [
     })
 
     // Add template rows
-    for (const workspace of workspaces) {
-        const id = workspace.id.padEnd(36);
-        const name = workspace.name.padEnd(12);
-        const createdAt = format(workspace.createdAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
-        const updatedAt = format(workspace.updatedAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
+    for (const project of projects) {
+        const id = project.id.padEnd(36);
+        const name = project.name.padEnd(12);
+        const createdAt = format(project.createdAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
+        const updatedAt = format(project.updatedAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
 
         table.push([id, name, createdAt, updatedAt]);
     }

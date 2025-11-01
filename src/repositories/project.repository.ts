@@ -1,18 +1,18 @@
 import PocketBase, {ClientResponseError} from 'pocketbase'
 
 import type {PocketBaseConfig} from '../config/pocketbase.config.js'
-import type {WorkspaceDTO} from '../models/workspace.dto.js'
-import type {IWorkspaceRepository} from './interfaces/workspace.repository.interface.js'
+import type {ProjectDTO} from '../models/project.dto.js'
+import type {IProjectRepository} from './interfaces/project.repository.interface.js'
 
 import {RepositoryError} from '../errors/repository.error.js'
-import {WorkspaceSchema} from '../models/schemas/workspace.schema.js'
+import {ProjectSchema} from '../models/schemas/project.schema.js'
 import {failure, type Result, success} from '../utils/result.js'
 
 /**
- * Workspace repository implementation using PocketBase.
- * Fetches workspace data from a PocketBase 'workspaces' collection.
+ * Project repository implementation using PocketBase.
+ * Fetches project data from a PocketBase 'projects' collection.
  */
-export class WorkspaceRepository implements IWorkspaceRepository {
+export class ProjectRepository implements IProjectRepository {
   private client: PocketBase
   private config: PocketBaseConfig
 
@@ -22,11 +22,11 @@ export class WorkspaceRepository implements IWorkspaceRepository {
   }
 
   /**
-   * Retrieves all workspaces from PocketBase 'workspaces' collection.
+   * Retrieves all projects from PocketBase 'projects' collection.
    * Authenticates with admin credentials if provided in config.
-   * @returns Result containing array of workspaces or a RepositoryError
+   * @returns Result containing array of projects or a RepositoryError
    */
-  async findAll(): Promise<Result<WorkspaceDTO[], RepositoryError>> {
+  async findAll(): Promise<Result<ProjectDTO[], RepositoryError>> {
     try {
       // Authenticate if credentials are provided
       if (this.config.adminEmail && this.config.adminPassword) {
@@ -36,13 +36,13 @@ export class WorkspaceRepository implements IWorkspaceRepository {
         )
       }
 
-      // Fetch all records from 'workspaces' collection
-      const records = await this.client.collection('workspaces').getFullList()
+      // Fetch all records from 'projects' collection
+      const records = await this.client.collection('projects').getFullList()
 
-      // Map and validate PocketBase records to WorkspaceDTO
-      const workspaces: WorkspaceDTO[] = records.map((record) => {
+      // Map and validate PocketBase records to ProjectDTO
+      const projects: ProjectDTO[] = records.map((record) => {
         // Map PocketBase record structure to our domain model
-        const workspaceData = {
+        const projectData = {
           createdAt: new Date(record.created),
           id: record.id,
           name: record.name,
@@ -50,10 +50,10 @@ export class WorkspaceRepository implements IWorkspaceRepository {
         }
 
         // Validate with Zod schema
-        return WorkspaceSchema.parse(workspaceData)
+        return ProjectSchema.parse(projectData)
       })
 
-      return success(workspaces)
+      return success(projects)
     } catch (error) {
       // Handle PocketBase-specific errors
       if (error instanceof ClientResponseError) {
@@ -75,7 +75,7 @@ export class WorkspaceRepository implements IWorkspaceRepository {
       // Handle generic errors (network, validation, etc.)
       return failure(
         new RepositoryError(
-          `Failed to fetch workspaces from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to fetch projects from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
           {
             cause: error instanceof Error ? error : undefined,
             context: {
@@ -88,12 +88,12 @@ export class WorkspaceRepository implements IWorkspaceRepository {
   }
 
   /**
-   * Retrieves a single workspace by name from PocketBase 'workspaces' collection.
+   * Retrieves a single project by name from PocketBase 'projects' collection.
    * Expands the 'contexts' relation to include associated contexts.
-   * @param name - The name of the workspace to find
-   * @returns Result containing the workspace with contexts or a RepositoryError
+   * @param name - The name of the project to find
+   * @returns Result containing the project with contexts or a RepositoryError
    */
-  async findByName(name: string): Promise<Result<WorkspaceDTO, RepositoryError>> {
+  async findByName(name: string): Promise<Result<ProjectDTO, RepositoryError>> {
     try {
       // Authenticate if credentials are provided
       if (this.config.adminEmail && this.config.adminPassword) {
@@ -103,15 +103,15 @@ export class WorkspaceRepository implements IWorkspaceRepository {
         )
       }
 
-      // Fetch workspace by name with contexts expanded
+      // Fetch project by name with contexts expanded
       const record = await this.client
-        .collection('workspaces')
+        .collection('projects')
         .getFirstListItem(`name="${name}"`, {
           expand: 'contexts',
         })
 
       // Map PocketBase record structure to our domain model
-      const workspaceData = {
+      const projectData = {
         contexts: record.expand?.contexts?.map((ctx: {created: string; id: string; name: string; updated: string}) => ({
           createdAt: new Date(ctx.created),
           id: ctx.id,
@@ -125,17 +125,17 @@ export class WorkspaceRepository implements IWorkspaceRepository {
       }
 
       // Validate with Zod schema
-      const workspace = WorkspaceSchema.parse(workspaceData)
+      const project = ProjectSchema.parse(projectData)
 
-      return success(workspace)
+      return success(project)
     } catch (error) {
       // Handle PocketBase-specific errors
       if (error instanceof ClientResponseError) {
-        // Special handling for 404 (workspace not found)
+        // Special handling for 404 (project not found)
         if (error.status === 404) {
           return failure(
             new RepositoryError(
-              `Workspace '${name}' not found`,
+              `Project '${name}' not found`,
               {
                 cause: error,
                 context: {
@@ -167,7 +167,7 @@ export class WorkspaceRepository implements IWorkspaceRepository {
       // Handle generic errors (network, validation, etc.)
       return failure(
         new RepositoryError(
-          `Failed to fetch workspace from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to fetch project from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
           {
             cause: error instanceof Error ? error : undefined,
             context: {

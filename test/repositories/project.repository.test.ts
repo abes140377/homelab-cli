@@ -4,10 +4,10 @@ import {restore, type SinonStub, stub} from 'sinon'
 
 import type {PocketBaseConfig} from '../../src/config/pocketbase.config.js'
 
-import {WorkspaceRepository} from '../../src/repositories/workspace.repository.js'
+import {ProjectRepository} from '../../src/repositories/project.repository.js'
 
-describe('WorkspaceRepository', () => {
-  let repository: WorkspaceRepository
+describe('ProjectRepository', () => {
+  let repository: ProjectRepository
   let config: PocketBaseConfig
   let clientStub: {
     admins: {authWithPassword: SinonStub}
@@ -27,7 +27,7 @@ describe('WorkspaceRepository', () => {
       collection: stub(),
     }
 
-    repository = new WorkspaceRepository(config)
+    repository = new ProjectRepository(config)
     // Replace the internal client with our stub
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(repository as any).client = clientStub
@@ -38,17 +38,17 @@ describe('WorkspaceRepository', () => {
   })
 
   describe('findAll', () => {
-    it('should return success Result with workspaces', async () => {
+    it('should return success Result with projects', async () => {
       const mockRecords = [
         {
           created: '2024-01-01T10:00:00.000Z',
           id: '550e8400-e29b-41d4-a716-446655440000',
-          name: 'Workspace 1',
+          name: 'Project1',
           updated: '2024-01-01T10:00:00.000Z',
         },
       ]
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves(mockRecords),
       })
 
@@ -58,7 +58,7 @@ describe('WorkspaceRepository', () => {
       if (result.success) {
         expect(result.data).to.have.lengthOf(1)
         expect(result.data[0].id).to.equal('550e8400-e29b-41d4-a716-446655440000')
-        expect(result.data[0].name).to.equal('Workspace 1')
+        expect(result.data[0].name).to.equal('Project1')
         expect(result.data[0].createdAt).to.be.instanceOf(Date)
         expect(result.data[0].updatedAt).to.be.instanceOf(Date)
       }
@@ -74,18 +74,18 @@ describe('WorkspaceRepository', () => {
         },
       ]
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves(mockRecords),
       })
 
       const result = await repository.findAll()
 
       if (result.success) {
-        const workspace = result.data[0]
-        expect(workspace.id).to.equal('123e4567-e89b-12d3-a456-426614174000')
-        expect(workspace.name).to.equal('Test Workspace')
-        expect(workspace.createdAt.toISOString()).to.equal('2024-01-15T14:30:00.000Z')
-        expect(workspace.updatedAt.toISOString()).to.equal('2024-01-16T10:00:00.000Z')
+        const project = result.data[0]
+        expect(project.id).to.equal('123e4567-e89b-12d3-a456-426614174000')
+        expect(project.name).to.equal('Test Workspace')
+        expect(project.createdAt.toISOString()).to.equal('2024-01-15T14:30:00.000Z')
+        expect(project.updatedAt.toISOString()).to.equal('2024-01-16T10:00:00.000Z')
       }
     })
 
@@ -96,11 +96,11 @@ describe('WorkspaceRepository', () => {
         url: 'http://127.0.0.1:8090',
       }
 
-      repository = new WorkspaceRepository(configWithAuth)
+      repository = new ProjectRepository(configWithAuth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(repository as any).client = clientStub
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves([]),
       })
 
@@ -113,7 +113,7 @@ describe('WorkspaceRepository', () => {
     })
 
     it('should not authenticate when credentials are not provided', async () => {
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves([]),
       })
 
@@ -123,7 +123,7 @@ describe('WorkspaceRepository', () => {
     })
 
     it('should return empty array when collection is empty', async () => {
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves([]),
       })
 
@@ -136,7 +136,7 @@ describe('WorkspaceRepository', () => {
     })
 
     it('should return failure Result on connection error', async () => {
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().rejects(new Error('Connection refused')),
       })
 
@@ -144,7 +144,7 @@ describe('WorkspaceRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch workspaces from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
         expect(result.error.message).to.include('Connection refused')
       }
     })
@@ -156,7 +156,7 @@ describe('WorkspaceRepository', () => {
         url: 'http://127.0.0.1:8090',
       }
 
-      repository = new WorkspaceRepository(configWithAuth)
+      repository = new ProjectRepository(configWithAuth)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(repository as any).client = clientStub
 
@@ -166,7 +166,7 @@ describe('WorkspaceRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch workspaces from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
         expect(result.error.message).to.include('Invalid credentials')
       }
     })
@@ -179,10 +179,10 @@ describe('WorkspaceRepository', () => {
         // eslint-disable-next-line n/no-unsupported-features/node-builtins
         response: {} as Response,
         status: 404,
-        url: 'http://127.0.0.1:8090/api/collections/workspaces/records',
+        url: 'http://127.0.0.1:8090/api/collections/projects/records',
       })
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().rejects(error),
       })
 
@@ -199,12 +199,12 @@ describe('WorkspaceRepository', () => {
         {
           created: '2024-01-01T10:00:00.000Z',
           id: '', // Invalid: empty ID
-          name: 'Workspace 1',
+          name: 'Project1',
           updated: '2024-01-01T10:00:00.000Z',
         },
       ]
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves(invalidRecords),
       })
 
@@ -212,33 +212,33 @@ describe('WorkspaceRepository', () => {
 
       expect(result.success).to.be.false
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to fetch workspaces from PocketBase')
+        expect(result.error.message).to.include('Failed to fetch projects from PocketBase')
       }
     })
 
-    it('should handle multiple workspaces', async () => {
+    it('should handle multiple projects', async () => {
       const mockRecords = [
         {
           created: '2024-01-01T10:00:00.000Z',
           id: '550e8400-e29b-41d4-a716-446655440001',
-          name: 'Workspace 1',
+          name: 'Project1',
           updated: '2024-01-01T10:00:00.000Z',
         },
         {
           created: '2024-01-02T10:00:00.000Z',
           id: '550e8400-e29b-41d4-a716-446655440002',
-          name: 'Workspace 2',
+          name: 'Project2',
           updated: '2024-01-02T10:00:00.000Z',
         },
         {
           created: '2024-01-03T10:00:00.000Z',
           id: '550e8400-e29b-41d4-a716-446655440003',
-          name: 'Workspace 3',
+          name: 'Project3',
           updated: '2024-01-03T10:00:00.000Z',
         },
       ]
 
-      clientStub.collection.withArgs('workspaces').returns({
+      clientStub.collection.withArgs('projects').returns({
         getFullList: stub().resolves(mockRecords),
       })
 
@@ -247,9 +247,9 @@ describe('WorkspaceRepository', () => {
       expect(result.success).to.be.true
       if (result.success) {
         expect(result.data).to.have.lengthOf(3)
-        expect(result.data[0].name).to.equal('Workspace 1')
-        expect(result.data[1].name).to.equal('Workspace 2')
-        expect(result.data[2].name).to.equal('Workspace 3')
+        expect(result.data[0].name).to.equal('Project1')
+        expect(result.data[1].name).to.equal('Project2')
+        expect(result.data[2].name).to.equal('Project3')
       }
     })
   })

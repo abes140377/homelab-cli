@@ -7,44 +7,44 @@ import {ServiceError} from '../errors/service.error.js';
 import {failure, type Result, success} from '../utils/result.js';
 
 /**
- * Service for launching workspaces in VSCode or terminal.
- * Handles system command execution for workspace environments.
+ * Service for launching projects in VSCode or terminal.
+ * Handles system command execution for project environments.
  */
-export class WorkspaceLauncherService {
+export class ProjectLauncherService {
   /**
-   * Launches VSCode with the specified workspace context file.
-   * @param workspaceName - The name of the workspace
+   * Launches VSCode with the specified project context file.
+   * @param projectName - The name of the project
    * @param contextName - The name of the context to open
    * @returns Result indicating success or an error
    */
   async launchVSCode(
-    workspaceName: string,
+    projectName: string,
     contextName: string,
   ): Promise<Result<void, ServiceError>> {
-    // Construct workspace file path
-    const workspacePath = path.join(
+    // Construct project file path
+    const projectPath = path.join(
       os.homedir(),
       'projects',
-      workspaceName,
+      projectName,
       `${contextName}.code-workspace`,
     );
 
     // Verify file exists
-    if (!fs.existsSync(workspacePath)) {
+    if (!fs.existsSync(projectPath)) {
       return failure(
-        new ServiceError(`Workspace file not found: ${workspacePath}`, {
+        new ServiceError(`Project file not found: ${projectPath}`, {
           context: {
             contextName,
-            workspaceName,
-            workspacePath,
+            projectName,
+            projectPath,
           },
         }),
       );
     }
 
     try {
-      // Execute VSCode with workspace file
-      execSync(`code "${workspacePath}"`, {stdio: 'inherit'});
+      // Execute VSCode with project file
+      execSync(`code "${projectPath}"`, {stdio: 'inherit'});
       return success(undefined as void);
     } catch (error) {
       return failure(
@@ -53,8 +53,8 @@ export class WorkspaceLauncherService {
           context: {
             contextName,
             message: error instanceof Error ? error.message : String(error),
-            workspaceName,
-            workspacePath,
+            projectName,
+            projectPath,
           },
         }),
       );
@@ -62,21 +62,21 @@ export class WorkspaceLauncherService {
   }
 
   /**
-   * Opens an interactive terminal at the workspace directory.
-   * @param workspaceName - The name of the workspace
+   * Opens an interactive terminal at the project directory.
+   * @param projectName - The name of the project
    * @returns Result indicating success or an error
    */
-  async openTerminal(workspaceName: string): Promise<Result<void, ServiceError>> {
-    // Construct workspace directory path
-    const workspaceDir = path.join(os.homedir(), 'projects', workspaceName);
+  async openTerminal(projectName: string): Promise<Result<void, ServiceError>> {
+    // Construct project directory path
+    const projectDir = path.join(os.homedir(), 'projects', projectName);
 
     // Verify directory exists
-    if (!fs.existsSync(workspaceDir)) {
+    if (!fs.existsSync(projectDir)) {
       return failure(
-        new ServiceError(`Workspace directory not found: ${workspaceDir}`, {
+        new ServiceError(`Project directory not found: ${projectDir}`, {
           context: {
-            workspaceDir,
-            workspaceName,
+            projectDir,
+            projectName,
           },
         }),
       );
@@ -86,9 +86,9 @@ export class WorkspaceLauncherService {
       // Get shell from environment or use default
       const shell = process.env.SHELL || '/bin/bash';
 
-      // Spawn interactive shell at workspace directory
+      // Spawn interactive shell at project directory
       spawnSync(shell, [], {
-        cwd: workspaceDir,
+        cwd: projectDir,
         stdio: 'inherit',
       });
 
@@ -99,8 +99,8 @@ export class WorkspaceLauncherService {
           cause: error instanceof Error ? error : undefined,
           context: {
             message: error instanceof Error ? error.message : String(error),
-            workspaceDir,
-            workspaceName,
+            projectDir,
+            projectName,
           },
         }),
       );
