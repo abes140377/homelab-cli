@@ -13,9 +13,9 @@ export abstract class BaseCommand<T extends typeof Command> extends Command {
       summary: 'Specify level for logging.',
     })(),
   }
-// add the --json flag
+  // add the --json flag
   static enableJsonFlag = true
-protected args!: Args<T>
+  protected args!: Args<T>
   protected flags!: Flags<T>
 
   protected async catch(err: Error & {exitCode?: number}): Promise<unknown> {
@@ -40,31 +40,5 @@ protected args!: Args<T>
     })
     this.flags = flags as Flags<T>
     this.args = args as Args<T>
-  }
-}
-
-// src/commands/my-command.ts
-
-export default class MyCommand extends BaseCommand<typeof MyCommand> {
-  static examples = [
-    '<%= config.bin %> <%= command.id %>',
-    '<%= config.bin %> <%= command.id %> --json',
-    '<%= config.bin %> <%= command.id %> --log-level debug',
-  ]
-static flags = {
-    name: Flags.string({
-      char: 'n',
-      required: true,
-      summary: 'Name to print.',
-    }),
-  }
-static summary = 'child class that extends BaseCommand'
-
-  public async run(): Promise<Flags<typeof MyCommand>> {
-    for (const [flag, value] of Object.entries(this.flags)) {
-      this.log(`${flag}: ${value}`)
-    }
-
-    return this.flags
   }
 }

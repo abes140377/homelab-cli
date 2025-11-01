@@ -3,7 +3,7 @@ import Table from 'cli-table3';
 import {basename} from 'node:path';
 
 import {ModuleFactory} from '../../factories/module.factory.js';
-import {BaseCommand} from '../base-command.js';
+import {BaseCommand} from '../../lib/base-command.js';
 
 export default class ModuleList extends BaseCommand<typeof ModuleList> {
   static args = {

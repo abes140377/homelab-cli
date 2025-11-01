@@ -2,7 +2,7 @@ import {Args} from '@oclif/core'
 
 import {ProjectFactory} from '../../factories/project.factory.js'
 import {ProjectLauncherService} from '../../services/project-launcher.service.js'
-import {BaseCommand} from '../base-command.js'
+import {BaseCommand} from '../../lib/base-command.js'
 
 export default class ProjectVscode extends BaseCommand<typeof ProjectVscode> {
   /* eslint-disable perfectionist/sort-objects */

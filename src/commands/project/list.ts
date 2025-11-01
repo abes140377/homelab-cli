@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
 import {ProjectFactory} from '../../factories/project.factory.js';
-import { BaseCommand } from '../base-command.js';
+import { BaseCommand } from '../../lib/base-command.js';
 
 export default class ProjectList extends BaseCommand<typeof ProjectList> {
   static description = 'List all projects from PocketBase';
