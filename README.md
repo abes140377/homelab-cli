@@ -45,6 +45,7 @@ USAGE
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
+* [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 
 ## `homelab help [COMMAND]`
 
@@ -450,4 +451,33 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
+
+## `homelab proxmox vm list`
+
+List all Proxmox VMs (non-templates)
+
+```
+USAGE
+  $ homelab proxmox vm list [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all Proxmox VMs (non-templates)
+
+EXAMPLES
+  $ homelab proxmox vm list
+  ┌──────┬─────────────────┬──────────┬───────────────┐
+  │ VMID │ Name            │ Status   │ IPv4 Address  │
+  ├──────┼─────────────────┼──────────┼───────────────┤
+  │ 100  │ web-server      │ running  │ 192.168.1.10  │
+  │ 101  │ database        │ running  │ 192.168.1.11  │
+  │ 102  │ backup          │ stopped  │ N/A           │
+  └──────┴─────────────────┴──────────┴───────────────┘
+```
+
+_See code: [src/commands/proxmox/vm/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/list.ts)_
 <!-- commandsstop -->

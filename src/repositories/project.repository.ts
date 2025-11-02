@@ -40,7 +40,8 @@ export class ProjectRepository implements IProjectRepository {
       const records = await this.client.collection('projects').getFullList()
 
       // Map and validate PocketBase records to ProjectDTO
-      const projects: ProjectDTO[] = records.map((record) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const projects: ProjectDTO[] = records.map((record: any) => {
         // Map PocketBase record structure to our domain model
         const projectData = {
           createdAt: new Date(record.created),
@@ -54,18 +55,18 @@ export class ProjectRepository implements IProjectRepository {
       })
 
       return success(projects)
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle PocketBase-specific errors
       if (error instanceof ClientResponseError) {
         return failure(
           new RepositoryError(
-            `PocketBase API error (${error.status}): ${error.message}`,
+            `PocketBase API error (${(error as ClientResponseError).status}): ${(error as ClientResponseError).message}`,
             {
-              cause: error,
+              cause: error as Error,
               context: {
-                message: error.message,
-                status: error.status,
-                url: error.url,
+                message: (error as ClientResponseError).message,
+                status: (error as ClientResponseError).status,
+                url: (error as ClientResponseError).url,
               },
             },
           ),
@@ -73,9 +74,10 @@ export class ProjectRepository implements IProjectRepository {
       }
 
       // Handle generic errors (network, validation, etc.)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       return failure(
         new RepositoryError(
-          `Failed to fetch projects from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to fetch projects from PocketBase: ${errorMessage}`,
           {
             cause: error instanceof Error ? error : undefined,
             context: {
@@ -128,20 +130,21 @@ export class ProjectRepository implements IProjectRepository {
       const project = ProjectSchema.parse(projectData)
 
       return success(project)
-    } catch (error) {
+    } catch (error: unknown) {
       // Handle PocketBase-specific errors
       if (error instanceof ClientResponseError) {
+        const clientError = error as ClientResponseError
         // Special handling for 404 (project not found)
-        if (error.status === 404) {
+        if (clientError.status === 404) {
           return failure(
             new RepositoryError(
               `Project '${name}' not found`,
               {
-                cause: error,
+                cause: error as Error,
                 context: {
-                  message: error.message,
+                  message: clientError.message,
                   name,
-                  status: error.status,
+                  status: clientError.status,
                 },
               },
             ),
@@ -150,14 +153,14 @@ export class ProjectRepository implements IProjectRepository {
 
         return failure(
           new RepositoryError(
-            `PocketBase API error (${error.status}): ${error.message}`,
+            `PocketBase API error (${clientError.status}): ${clientError.message}`,
             {
-              cause: error,
+              cause: error as Error,
               context: {
-                message: error.message,
+                message: clientError.message,
                 name,
-                status: error.status,
-                url: error.url,
+                status: clientError.status,
+                url: clientError.url,
               },
             },
           ),
@@ -165,9 +168,10 @@ export class ProjectRepository implements IProjectRepository {
       }
 
       // Handle generic errors (network, validation, etc.)
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       return failure(
         new RepositoryError(
-          `Failed to fetch project from PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Failed to fetch project from PocketBase: ${errorMessage}`,
           {
             cause: error instanceof Error ? error : undefined,
             context: {
