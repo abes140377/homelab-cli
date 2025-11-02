@@ -22,18 +22,6 @@ export default class ProjectList extends BaseCommand<typeof ProjectList> {
   async run(): Promise<void> {
     await this.parse(ProjectList);
 
-    // Create service with filesystem repository
-    // To use PocketBase instead, uncomment the following lines and comment out the filesystem lines:
-    // let service;
-    // try {
-    //   service = ProjectFactory.createProjectService();
-    // } catch (error) {
-    //   this.error(
-    //     `Failed to initialize PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    //     {exit: 1},
-    //   );
-    // }
-
     let service;
     try {
       service = ProjectFactory.createProjectFsService();

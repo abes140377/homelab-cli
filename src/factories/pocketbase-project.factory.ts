@@ -1,6 +1,3 @@
-import {loadPocketBaseConfig} from '../config/pocketbase.config.js'
-import {ProjectRepository} from '../repositories/project.repository.js'
-import {ProjectService} from '../services/project.service.js'
 
 /**
  * Factory for creating project service instances with PocketBase repository.
@@ -13,9 +10,4 @@ export const PocketBaseProjectFactory = {
    * @returns ProjectService with PocketBase repository
    * @throws Error if POCKETBASE_URL is missing or configuration is invalid
    */
-  createProjectService(): ProjectService {
-    const config = loadPocketBaseConfig()
-    const repository = new ProjectRepository(config)
-    return new ProjectService(repository)
-  },
 }
