@@ -15,9 +15,6 @@ describe('project list', () => {
     process.env = originalEnv
   })
 
-  // NOTE: These tests are for the filesystem-based implementation.
-  // If switching back to PocketBase, update these tests to check for POCKETBASE_URL instead.
-
   it('runs with default PROJECTS_DIR when not set', async () => {
     delete process.env.PROJECTS_DIR
 
