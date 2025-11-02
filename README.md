@@ -43,6 +43,7 @@ USAGE
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
+* [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
 * [`homelab project vscode PROJECTNAME CONTEXTNAME`](#homelab-project-vscode-projectname-contextname)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 
@@ -386,6 +387,42 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
+
+## `homelab project module list [PROJECT-NAME]`
+
+List all modules for a project from filesystem
+
+```
+USAGE
+  $ homelab project module list [PROJECT-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [PROJECT-NAME]  Name of the project to list modules for (defaults to current project)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all modules for a project from filesystem
+
+EXAMPLES
+  $ homelab project module list sflab
+  ┌──────────────┬──────────────────────────────────────┐
+  │ NAME         │ GIT REPOSITORY URL                   │
+  ├──────────────┼──────────────────────────────────────┤
+  │ module1      │ git@github.com:user/module1.git      │
+  ├──────────────┼──────────────────────────────────────┤
+  │ module2      │ git@github.com:user/module2.git      │
+  └──────────────┴──────────────────────────────────────┘
+
+  # List modules for current project (auto-detect from working directory)
+
+    $ homelab project module list
+```
+
+_See code: [src/commands/project/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/module/list.ts)_
 
 ## `homelab project vscode PROJECTNAME CONTEXTNAME`
 
