@@ -44,7 +44,6 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
-* [`homelab project vscode PROJECTNAME CONTEXTNAME`](#homelab-project-vscode-projectname-contextname)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 
 ## `homelab help [COMMAND]`
@@ -423,34 +422,6 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/module/list.ts)_
-
-## `homelab project vscode PROJECTNAME CONTEXTNAME`
-
-Open a project context in VSCode
-
-```
-USAGE
-  $ homelab project vscode PROJECTNAME CONTEXTNAME [--json] [--log-level debug|warn|error|info|trace]
-
-ARGUMENTS
-  PROJECTNAME  Name of the project
-  CONTEXTNAME  Name of the context to open in VSCode
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  Open a project context in VSCode
-
-EXAMPLES
-  $ homelab project vscode my-project backend
-
-  $ homelab project vscode my-project frontend
-```
-
-_See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
 
 ## `homelab proxmox template list`
 
