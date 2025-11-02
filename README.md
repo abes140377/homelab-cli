@@ -44,6 +44,7 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
+* [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 
@@ -423,6 +424,35 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/module/list.ts)_
+
+## `homelab proxmox container list`
+
+List all Proxmox LXC containers
+
+```
+USAGE
+  $ homelab proxmox container list [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all Proxmox LXC containers
+
+EXAMPLES
+  $ homelab proxmox container list
+  ┌──────┬─────────────────┬──────────┬───────────────┐
+  │ VMID │ Name            │ Status   │ IPv4 Address  │
+  ├──────┼─────────────────┼──────────┼───────────────┤
+  │ 100  │ web-container   │ running  │ 192.168.1.10  │
+  │ 101  │ db-container    │ running  │ 192.168.1.11  │
+  │ 102  │ test-container  │ stopped  │ N/A           │
+  └──────┴─────────────────┴──────────┴───────────────┘
+```
+
+_See code: [src/commands/proxmox/container/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/container/list.ts)_
 
 ## `homelab proxmox template list`
 
