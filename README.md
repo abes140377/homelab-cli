@@ -31,7 +31,6 @@ USAGE
 # Commands
 
 <!-- commands -->
-* [`homelab base-command`](#homelab-base-command)
 * [`homelab help [COMMAND]`](#homelab-help-command)
 * [`homelab plugins`](#homelab-plugins)
 * [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
@@ -43,36 +42,9 @@ USAGE
 * [`homelab plugins uninstall [PLUGIN]`](#homelab-plugins-uninstall-plugin)
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
-* [`homelab project list [WORKSPACENAME]`](#homelab-project-list-workspacename)
+* [`homelab project list`](#homelab-project-list)
+* [`homelab project vscode PROJECTNAME CONTEXTNAME`](#homelab-project-vscode-projectname-contextname)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
-* [`homelab workspace list`](#homelab-workspace-list)
-* [`homelab workspace vscode WORKSPACENAME CONTEXTNAME`](#homelab-workspace-vscode-workspacename-contextname)
-
-## `homelab base-command`
-
-child class that extends BaseCommand
-
-```
-USAGE
-  $ homelab base-command -n <value> [--json] [--log-level debug|warn|error|info|trace]
-
-FLAGS
-  -n, --name=<value>  (required) Name to print.
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-EXAMPLES
-  $ homelab base-command
-
-  $ homelab base-command --json
-
-  $ homelab base-command --log-level debug
-```
-
-_See code: [src/commands/base-command.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/base-command.ts)_
 
 ## `homelab help [COMMAND]`
 
@@ -384,16 +356,13 @@ DESCRIPTION
 
 _See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.51/src/commands/plugins/update.ts)_
 
-## `homelab project list [WORKSPACENAME]`
+## `homelab project list`
 
-List all projects for a workspace
+List all projects from filesystem
 
 ```
 USAGE
-  $ homelab project list [WORKSPACENAME] [--json] [--log-level debug|warn|error|info|trace]
-
-ARGUMENTS
-  [WORKSPACENAME]  Name of the workspace to list projects for (defaults to current directory basename)
+  $ homelab project list [--json] [--log-level debug|warn|error|info|trace]
 
 GLOBAL FLAGS
   --json                Format output as json.
@@ -401,22 +370,50 @@ GLOBAL FLAGS
                         <options: debug|warn|error|info|trace>
 
 DESCRIPTION
-  List all projects for a workspace
+  List all projects from filesystem
 
 EXAMPLES
   $ homelab project list
-  ┌─────────────┬─────────────────────────────┬──────────────────────────────────┐
-  │ NAME        │ DESCRIPTION                 │ GIT REPO URL                     │
-  ├─────────────┼─────────────────────────────┼──────────────────────────────────┤
-  │ app         │ Main application repository │ https://github.com/user/app      │
-  ├─────────────┼─────────────────────────────┼──────────────────────────────────┤
-  │ api         │ API service repository      │ https://github.com/user/api      │
-  └─────────────┴─────────────────────────────┴──────────────────────────────────┘
-
-  $ homelab project list my-workspace
+  ┌──────────────┬──────────────────────────────────────┐
+  │ NAME         │ GIT REPOSITORY URL                   │
+  ├──────────────┼──────────────────────────────────────┤
+  │ project1     │ git@github.com:user/project1.git     │
+  ├──────────────┼──────────────────────────────────────┤
+  │ project2     │ git@github.com:user/project2.git     │
+  ├──────────────┼──────────────────────────────────────┤
+  │ project3     │ git@github.com:user/project3.git     │
+  └──────────────┴──────────────────────────────────────┘
 ```
 
 _See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
+
+## `homelab project vscode PROJECTNAME CONTEXTNAME`
+
+Open a project context in VSCode
+
+```
+USAGE
+  $ homelab project vscode PROJECTNAME CONTEXTNAME [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  PROJECTNAME  Name of the project
+  CONTEXTNAME  Name of the context to open in VSCode
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Open a project context in VSCode
+
+EXAMPLES
+  $ homelab project vscode my-project backend
+
+  $ homelab project vscode my-project frontend
+```
+
+_See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
 
 ## `homelab proxmox template list`
 
@@ -445,63 +442,4 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
-
-## `homelab workspace list`
-
-List all workspaces from PocketBase
-
-```
-USAGE
-  $ homelab workspace list [--json] [--log-level debug|warn|error|info|trace]
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  List all workspaces from PocketBase
-
-EXAMPLES
-  $ homelab workspace list
-  ┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
-  │ ID                                   │ NAME         │ CREATED AT          │ UPDATED AT          │
-  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-  │ 550e8400-e29b-41d4-a716-446655440001 │ production   │ 2024-01-15 10:00:00 │ 2024-01-15 10:00:00 │
-  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-  │ 550e8400-e29b-41d4-a716-446655440002 │ staging      │ 2024-01-20 14:30:00 │ 2024-02-01 09:15:00 │
-  ├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-  │ 550e8400-e29b-41d4-a716-446655440003 │ development  │ 2024-02-01 08:00:00 │ 2024-02-10 16:45:00 │
-  └──────────────────────────────────────┴──────────────┴─────────────────────┴─────────────────────┘
-```
-
-_See code: [src/commands/workspace/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/list.ts)_
-
-## `homelab workspace vscode WORKSPACENAME CONTEXTNAME`
-
-Open a workspace context in VSCode
-
-```
-USAGE
-  $ homelab workspace vscode WORKSPACENAME CONTEXTNAME [--json] [--log-level debug|warn|error|info|trace]
-
-ARGUMENTS
-  WORKSPACENAME  Name of the workspace
-  CONTEXTNAME    Name of the context to open in VSCode
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  Open a workspace context in VSCode
-
-EXAMPLES
-  $ homelab workspace vscode my-project backend
-
-  $ homelab workspace vscode my-project frontend
-```
-
-_See code: [src/commands/workspace/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/workspace/vscode.ts)_
 <!-- commandsstop -->
