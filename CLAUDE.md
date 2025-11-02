@@ -81,42 +81,72 @@ Uses ESLint with oclif and prettier configurations. Runs automatically after tes
 
 ```
 src/
-├── commands/         # CLI command implementations
-│   ├── proxmox/     # Proxmox-related commands
-│   │   └── template/
-│   │       └── list.ts
-│   └── workspace/   # Workspace management commands
-│       └── list.ts
-├── config/          # Configuration management
-│   ├── schemas/     # Zod schemas for configs
-│   └── proxmox.config.ts
-├── errors/          # Custom error types
+├── commands/             # CLI command implementations
+│   ├── project/         # Project-related commands
+│   │   ├── list.ts      # List all projects
+│   │   ├── vscode.ts    # Open project/workspace in VS Code
+│   │   └── module/
+│   │       └── list.ts  # List modules for a project
+│   └── proxmox/         # Proxmox-related commands
+│       ├── container/
+│       │   └── list.ts  # List LXC containers
+│       ├── template/
+│       │   └── list.ts  # List VM templates
+│       └── vm/
+│           └── list.ts  # List VMs
+├── config/              # Configuration management
+│   ├── schemas/         # Zod schemas for configs
+│   │   ├── proxmox-config.schema.ts
+│   │   └── projects-dir.schema.ts
+│   ├── proxmox.config.ts
+│   └── projects-dir.config.ts
+├── errors/              # Custom error types
 │   ├── base.error.ts
 │   ├── repository.error.ts
 │   └── service.error.ts
-├── factories/       # Entity factories
-│   ├── proxmox-template.factory.ts
-│   └── workspace.factory.ts
-├── models/          # DTOs and schemas
-│   ├── schemas/     # Zod validation schemas
-│   └── *.dto.ts     # Data Transfer Objects
-├── repositories/    # Data access layer
-│   ├── interfaces/  # Repository contracts
-│   ├── proxmox-api.repository.ts
-│   └── workspace.repository.ts
-├── services/        # Business logic layer
+├── factories/           # Entity factories
+│   ├── module.factory.ts
+│   ├── project.factory.ts
+│   └── proxmox-vm.factory.ts
+├── lib/                 # Shared libraries
+│   └── base-command.ts  # Base command class
+├── models/              # DTOs and schemas
+│   ├── schemas/         # Zod validation schemas
+│   └── *.dto.ts         # Data Transfer Objects
+├── repositories/        # Data access layer
+│   ├── interfaces/      # Repository contracts
+│   │   ├── module-fs.repository.interface.ts
+│   │   ├── project-fs.repository.interface.ts
+│   │   ├── project.repository.interface.ts
+│   │   └── proxmox.repository.interface.ts
+│   ├── module-fs.repository.ts
+│   ├── project-fs.repository.ts
+│   └── proxmox-api.repository.ts
+├── services/            # Business logic layer
+│   ├── module-fs.service.ts
+│   ├── project-fs.service.ts
+│   ├── project.service.ts
 │   ├── proxmox-template.service.ts
-│   └── workspace.service.ts
-├── utils/           # Utility functions
-│   └── result.ts    # Result type for error handling
-└── index.ts         # Entry point
+│   └── proxmox-vm.service.ts
+├── utils/               # Utility functions
+│   ├── result.ts        # Result type for error handling
+│   └── detect-current-project.ts  # Project detection utility
+└── index.ts             # Entry point
 
 test/
-├── commands/        # Command tests
-├── config/          # Config tests
-├── integration/     # Integration tests
-├── repositories/    # Repository tests
-└── services/        # Service tests
+├── commands/            # Command tests
+│   ├── project/
+│   │   ├── list.test.ts
+│   │   ├── vscode.test.ts
+│   │   └── module/
+│   │       └── list.test.ts
+│   └── proxmox/
+│       ├── container/
+│       ├── template/
+│       └── vm/
+├── config/              # Config tests
+├── repositories/        # Repository tests
+└── services/            # Service tests
 ```
 
 ### Command Structure
@@ -127,14 +157,23 @@ Commands follow oclif conventions and are organized in `src/commands/`:
 - After building, commands are loaded from `dist/commands/`
 
 **Implemented Commands:**
-- `homelab workspace list` - Lists all workspaces
-- `homelab proxmox template list` - Lists Proxmox VM templates
+
+*Project Management:*
+- `homelab project list` - Lists all projects from filesystem
+- `homelab project module list [project-name]` - Lists modules for a project (auto-detects current project if not specified)
+- `homelab project vscode [project-name] [workspace-name]` - Opens VS Code for a project or workspace (supports auto-detection)
+
+*Proxmox Infrastructure:*
+- `homelab proxmox container list` - Lists all LXC containers
+- `homelab proxmox vm list` - Lists all VMs (non-templates)
+- `homelab proxmox template list` - Lists VM templates
 
 **Command Anatomy:**
 ```typescript
-import {Args, Command, Flags} from '@oclif/core'
+import {Args, Flags} from '@oclif/core'
+import {BaseCommand} from '../../lib/base-command.js'
 
-export default class MyCommand extends Command {
+export default class MyCommand extends BaseCommand<typeof MyCommand> {
   static description = 'Brief description'
 
   static args = {
@@ -146,11 +185,18 @@ export default class MyCommand extends Command {
   }
 
   async run(): Promise<void> {
-    const {args, flags} = await this.parse(MyCommand)
+    await this.parse(MyCommand)
+    // this.args and this.flags are available from BaseCommand
     // Implementation
   }
 }
 ```
+
+**Note**: Commands extend `BaseCommand` which provides:
+- Automatic parsing of args and flags in `init()`
+- Access to parsed values via `this.args` and `this.flags`
+- Global flags like `--log-level` and `--json`
+- Consistent error handling
 
 ### Testing Pattern
 
@@ -220,11 +266,54 @@ import {loadProxmoxConfig} from './config/proxmox.config.js'
 const config = loadProxmoxConfig() // Throws if validation fails
 ```
 
+**Projects Directory Configuration** (see `src/config/projects-dir.config.ts`):
+
+Optional environment variable:
+- `PROJECTS_DIR`: Path to projects directory (defaults to `~/projects/`)
+
+**Loading Configuration:**
+```typescript
+import {loadProjectsDirConfig} from './config/projects-dir.config.js'
+
+const config = loadProjectsDirConfig() // Returns {projectsDir: '/absolute/path'}
+```
+
+**Utilities:**
+
+*Project Detection* (see `src/utils/detect-current-project.ts`):
+```typescript
+import {detectCurrentProject} from './utils/detect-current-project.js'
+
+const projectName = detectCurrentProject(process.cwd(), '/Users/user/projects')
+// Returns 'myproject' if cwd is '/Users/user/projects/myproject/src/foo'
+// Returns null if cwd is outside the projects directory
+```
+
 ## Key Patterns
 
-### Adding a New Command
+### Architecture Decision: When to Use Service/Repository Layers
 
-When adding a new command, follow the layered architecture:
+The project supports two architectural patterns depending on command complexity:
+
+**Layered Architecture** (Service + Repository):
+- Use when the command interacts with external APIs or databases
+- Use when business logic is complex or reusable
+- Examples: Proxmox commands, project/module listing
+
+**Command-Only Architecture**:
+- Use for simple shell/filesystem operations
+- Use when there's no reusable business logic
+- Examples: `project vscode` command (just spawns VS Code process)
+
+**Decision Criteria:**
+- Does the command need to interact with external services? → Use layers
+- Is there reusable business logic? → Use layers
+- Is it a simple one-off operation? → Command-only
+- Will other commands need similar functionality? → Use layers
+
+### Adding a New Command with Layered Architecture
+
+When adding a new command that requires service/repository layers, follow this pattern:
 
 1. **Define the Model** (`src/models/`):
    ```typescript
@@ -302,21 +391,22 @@ When adding a new command, follow the layered architecture:
 7. **Create Command** (`src/commands/`):
    ```typescript
    // src/commands/myentity/list.ts
-   import {Command} from '@oclif/core'
    import Table from 'cli-table3'
-   import {MyEntityRepository} from '../../repositories/my-entity.repository.js'
-   import {MyEntityService} from '../../services/my-entity.service.js'
+   import {BaseCommand} from '../../lib/base-command.js'
+   import {MyEntityFactory} from '../../factories/my-entity.factory.js'
 
-   export default class MyEntityList extends Command {
+   export default class MyEntityList extends BaseCommand<typeof MyEntityList> {
      static description = 'List all my entities'
 
      async run(): Promise<void> {
-       const repository = new MyEntityRepository()
-       const service = new MyEntityService(repository)
+       await this.parse(MyEntityList)
+
+       // Use factory to get fully-wired service
+       const service = MyEntityFactory.createMyEntityService()
        const result = await service.list()
 
        if (!result.success) {
-         this.error(result.error.message)
+         this.error(result.error.message, {exit: 1})
        }
 
        const table = new Table({head: ['ID', 'Name']})
@@ -405,19 +495,20 @@ When making significant changes (new features, architecture changes, breaking ch
 
 ## Environment Setup
 
-Create a `.env` file or set environment variables for Proxmox integration:
+Create a `.env` file or set environment variables:
 
 ```bash
-# Required
+# Proxmox Configuration (for proxmox commands)
 PROXMOX_USER=root
 PROXMOX_REALM=pam
 PROXMOX_TOKEN_KEY=homelabcli
 PROXMOX_TOKEN_SECRET=your-token-secret-uuid
 PROXMOX_HOST=proxmox.home.sflab.io
+PROXMOX_PORT=8006  # Optional, defaults to 8006
+PROXMOX_REJECT_UNAUTHORIZED=false  # Optional, set to false for self-signed certificates
 
-# Optional
-PROXMOX_PORT=8006
-PROXMOX_REJECT_UNAUTHORIZED=false  # Set to false for self-signed certificates
+# Project Configuration (for project commands)
+PROJECTS_DIR=~/projects/  # Optional, defaults to ~/projects/
 ```
 
 ## Requirements

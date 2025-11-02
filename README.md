@@ -44,6 +44,7 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
+* [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
@@ -424,6 +425,46 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/module/list.ts)_
+
+## `homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`
+
+Open a project or workspace in Visual Studio Code
+
+```
+USAGE
+  $ homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [PROJECT-NAME]    Name of the project (defaults to current project)
+  [WORKSPACE-NAME]  Name of the workspace file (without .code-workspace extension)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Open a project or workspace in Visual Studio Code
+
+EXAMPLES
+  # Open current project in VS Code (auto-detect project from working directory)
+
+    $ homelab project vscode
+
+  # Open workspace for current project (auto-detect project)
+
+    $ homelab project vscode myworkspace
+
+  # Open specific project in VS Code
+
+    $ homelab project vscode sflab
+
+  # Open specific workspace in specific project
+
+    $ homelab project vscode sflab homelab
+```
+
+_See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
 
 ## `homelab proxmox container list`
 

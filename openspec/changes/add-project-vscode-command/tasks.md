@@ -1,140 +1,82 @@
-# Tasks: add-project-vscode-command
+# Tasks: Add Project VSCode Command
 
-## Implementation Tasks
+## Implementation Checklist
 
-### 1. Create command file structure
+- [x] **Create command file structure**
+  - Create file `src/commands/project/vscode.ts`
+  - Extend `BaseCommand<typeof ProjectVscode>`
+  - Add static `description`, `args`, and `examples` properties
+  - Verify: File compiles successfully with `pnpm run build`
 
-**File**: `src/commands/project/vscode.ts`
+- [x] **Implement project name resolution logic**
+  - Parse arguments using `this.parse(ProjectVscode)`
+  - Load projects directory config with `loadProjectsDirConfig()`
+  - If project name not provided, call `detectCurrentProject(process.cwd(), config.projectsDir)`
+  - Handle detection failure with error message and exit code 1
+  - Verify: Project detection works from within project directories
 
-Create the basic command class extending `BaseCommand` with:
-- Static description
-- Static args definitions (both optional)
-- Static examples showing all usage patterns
-- Empty `run()` method
+- [x] **Implement path construction logic**
+  - If workspace name provided: construct `join(config.projectsDir, projectName, workspaceName + '.code-workspace')`
+  - If workspace name omitted: construct `join(config.projectsDir, projectName)` for project root
+  - Use `join` from `node:path` for cross-platform compatibility
+  - Verify: Paths are constructed correctly for all argument combinations
 
-**Validation**: File exists and compiles (`pnpm run build`)
+- [x] **Implement VS Code process execution**
+  - Import `spawn` from `node:child_process`
+  - Execute `code` binary with appropriate arguments (workspace path or `.`)
+  - Set `cwd` option when opening project root
+  - Use `detached: true` and `stdio: 'ignore'` options
+  - Wait for spawn event before unreferencing process
+  - Display success message after spawn
+  - Verify: VS Code launches correctly and CLI returns immediately
 
----
+- [x] **Add error handling for all failure cases**
+  - Handle configuration loading errors
+  - Handle project detection failures (outside projects directory)
+  - Handle spawn errors with ENOENT (code binary not found)
+  - Handle generic spawn errors
+  - All errors display clear, actionable messages and exit with code 1
+  - Verify: Error messages are helpful and follow project conventions
 
-### 2. Implement project name resolution logic
+- [x] **Write comprehensive command tests**
+  - Create test file `test/commands/project/vscode.test.ts`
+  - Test explicit project and workspace arguments
+  - Test auto-detected project with explicit workspace
+  - Test explicit project without workspace (opens project root)
+  - Test auto-detected project without workspace
+  - Test error: project cannot be detected (outside projects directory)
+  - Test error: invalid projects directory config
+  - Test argument handling: both positional arguments
+  - Test output format: workspace vs project messages
+  - Test with custom PROJECTS_DIR environment variable
+  - Verify: All tests pass with `pnpm test`
 
-In the `run()` method:
-- Parse arguments using `this.parse(ProjectVscode)`
-- Load projects directory config with `loadProjectsDirConfig()`
-- If project name provided, use it; otherwise call `detectCurrentProject(process.cwd(), config.projectsDir)`
-- Handle detection failure with appropriate error message and exit code 1
+- [x] **Build and verify command registration**
+  - Run `pnpm run build` successfully
+  - Run `pnpm exec oclif manifest` to generate command manifest
+  - Verify `./bin/run.js project --help` lists vscode subcommand
+  - Verify `./bin/run.js project vscode --help` shows full help with examples
+  - Verify: Command appears in help output correctly
 
-**Validation**: Unit test for project detection logic
+- [x] **Manual integration testing**
+  - Test `./bin/dev.js project vscode` from within a project (auto-detect project, open root)
+  - Test `./bin/dev.js project vscode sflab` (explicit project, open root)
+  - Test `./bin/dev.js project vscode sflab homelab-cli` (explicit both, open workspace)
+  - Test from `/tmp` to verify error when outside projects directory
+  - Verify: VS Code launches correctly for each scenario
 
----
+- [x] **Update README documentation**
+  - Run `pnpm run prepack` to generate manifest and update README
+  - Verify `project vscode` command appears in README table of contents
+  - Verify command documentation includes description, usage, arguments, and examples
+  - Verify command list is updated with new command
+  - Verify: README accurately reflects the new command
 
-### 3. Implement path construction logic
-
-Add logic to construct paths based on arguments:
-- If workspace name provided: `join(config.projectsDir, projectName, workspaceName + '.code-workspace')`
-- If workspace name omitted: `join(config.projectsDir, projectName)`
-- Use `join` from `node:path` for cross-platform compatibility
-
-**Validation**: Unit test for path construction with various inputs
-
----
-
-### 4. Implement VS Code process execution
-
-Add function to execute `code` binary:
-- Import `spawn` from `node:child_process`
-- For workspace file: execute `spawn('code', [workspacePath], {detached: true, stdio: 'ignore'})`
-- For project directory: execute `spawn('code', ['.'], {cwd: projectPath, detached: true, stdio: 'ignore'})`
-- Unref the process so CLI doesn't wait for VS Code to close
-- Handle ENOENT error (command not found) with helpful message
-
-**Validation**: Command executes without errors (manual test with actual VS Code)
-
----
-
-### 5. Add error handling for all failure cases
-
-Implement error handlers for:
-- Configuration loading failure
-- Project detection failure (outside projects directory)
-- Code binary not found (ENOENT)
-- Generic spawn errors
-
-Each error should:
-- Display clear, actionable error message
-- Exit with status code 1
-- Follow error message format from other commands
-
-**Validation**: Unit tests for each error case
-
----
-
-### 6. Write comprehensive command tests
-
-**File**: `test/commands/project/vscode.test.ts`
-
-Test cases:
-- Explicit project and workspace arguments
-- Auto-detected project with explicit workspace
-- Explicit project without workspace (opens project root)
-- Auto-detected project without workspace
-- Error: missing code binary (mock ENOENT)
-- Error: project detection failure (cwd outside projects)
-- Error: config loading failure
-
-Use mocking for:
-- `child_process.spawn` to avoid launching VS Code during tests
-- `detectCurrentProject` to control detection results
-- `loadProjectsDirConfig` to control config
-
-**Validation**: All tests pass (`pnpm test`)
-
----
-
-### 7. Build and verify command registration
-
-Build the project and verify command appears in help:
-- Run `pnpm run build`
-- Run `./bin/run.js project --help` to see vscode subcommand listed
-- Run `./bin/run.js project vscode --help` to see full command help
-
-**Validation**: Command shows in help output, examples display correctly
-
----
-
-### 8. Manual integration testing
-
-Test command with actual VS Code installation:
-- `./bin/dev.js project vscode` (from within a project)
-- `./bin/dev.js project vscode myworkspace` (auto-detect project)
-- `./bin/dev.js project vscode myproject` (open project root)
-- `./bin/dev.js project vscode myproject myworkspace` (explicit both)
-
-**Validation**: VS Code launches correctly for each scenario
-
----
-
-### 9. Update README documentation
-
-Run oclif's README generator:
-- Execute `pnpm run prepack`
-- Verify `project vscode` command appears in README with correct description and examples
-- Verify command list is updated
-
-**Validation**: README contains new command documentation
-
----
-
-### 10. Run full test suite and linting
-
-Final verification:
-- Run `pnpm test` to ensure all tests pass
-- Run `pnpm run lint` to ensure code meets style guidelines
-- Fix any linting issues or test failures
-
-**Validation**: All tests pass, no linting errors
-
----
+- [x] **Run full test suite and linting**
+  - Run `pnpm test` to ensure all 118 tests pass
+  - Run `pnpm run lint` to ensure code meets style guidelines
+  - Fix any linting issues (import sorting, line spacing, negated conditions)
+  - Verify: All tests pass, no linting errors
 
 ## Task Dependencies
 
@@ -152,11 +94,11 @@ Final verification:
                                                                     10 (final verification)
 ```
 
-Tasks 2-5 can be worked on incrementally with tests added alongside (task 6). After core implementation (tasks 1-6), tasks 7-10 are sequential verification steps.
+## Implementation Notes
 
-## Notes
-
-- This command requires no service/repository layer - all logic lives in the command class
-- Reuses existing utilities (`detectCurrentProject`, `loadProjectsDirConfig`)
-- Uses native Node.js `child_process` for execution
+- This command follows the "command-only" architecture pattern - no service/repository layer needed
+- Reuses existing utilities: `detectCurrentProject` and `loadProjectsDirConfig`
+- Uses native Node.js `child_process.spawn` for executing VS Code
 - Process is detached so CLI returns immediately after launching VS Code
+- Handles both workspace files (`.code-workspace`) and project root directories
+- All tests pass including edge cases for error handling
