@@ -9,14 +9,15 @@ import {type Result} from '../../utils/result.js';
  */
 export interface IProxmoxRepository {
   /**
+   * Retrieves resources (VMs or LXC containers) from Proxmox with network information.
+   * @param resourceType Type of resource to list: 'qemu' for VMs or 'lxc' for containers
+   * @returns Result containing array of resources or an error
+   */
+  listResources(resourceType: 'lxc' | 'qemu'): Promise<Result<ProxmoxVMDTO[], RepositoryError>>;
+
+  /**
    * Retrieves all VM templates from Proxmox.
    * @returns Result containing array of templates or an error
    */
   listTemplates(): Promise<Result<ProxmoxTemplateDTO[], RepositoryError>>;
-
-  /**
-   * Retrieves all VMs (non-templates) from Proxmox with network information.
-   * @returns Result containing array of VMs or an error
-   */
-  listVMs(): Promise<Result<ProxmoxVMDTO[], RepositoryError>>;
 }

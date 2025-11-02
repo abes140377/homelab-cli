@@ -21,7 +21,7 @@ export default class ProxmoxVMList extends BaseCommand<typeof ProxmoxVMList> {
     await this.parse(ProxmoxVMList)
 
     const service = ProxmoxVMFactory.createProxmoxVMService()
-    const result = await service.listVMs()
+    const result = await service.listVMs('qemu')
 
     if (!result.success) {
       this.error(`Failed to list VMs: ${result.error.message}`, {

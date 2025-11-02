@@ -36,14 +36,14 @@ describe('ProxmoxVMService', () => {
       ];
 
       const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
         listTemplates: async () => success([]),
-        listVMs: async () => success(mockVMs),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.true;
@@ -68,14 +68,14 @@ describe('ProxmoxVMService', () => {
       ];
 
       const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
         listTemplates: async () => success([]),
-        listVMs: async () => success(mockVMs),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.true;
@@ -88,19 +88,19 @@ describe('ProxmoxVMService', () => {
     it('should return ServiceError when repository fails', async () => {
       // Arrange
       const mockRepository: IProxmoxRepository = {
+        listResources: async () => failure(new RepositoryError('Connection failed')),
         listTemplates: async () => success([]),
-        listVMs: async () => failure(new RepositoryError('Connection failed')),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.false;
       if (!result.success) {
-        expect(result.error.message).to.include('Failed to retrieve VMs from Proxmox');
+        expect(result.error.message).to.include('Failed to retrieve qemu resources from Proxmox');
       }
     });
 
@@ -114,34 +114,34 @@ describe('ProxmoxVMService', () => {
       ];
 
       const mockRepository: IProxmoxRepository = {
-        listTemplates: async () => success([]),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        listVMs: async () => success(invalidVMs as any),
+        listResources: async () => success(invalidVMs as any),
+        listTemplates: async () => success([]),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.false;
       if (!result.success) {
-        expect(result.error.message).to.include('VM data validation failed');
+        expect(result.error.message).to.include('Resource data validation failed');
       }
     });
 
     it('should return empty array when no VMs exist', async () => {
       // Arrange
       const mockRepository: IProxmoxRepository = {
+        listResources: async () => success([]),
         listTemplates: async () => success([]),
-        listVMs: async () => success([]),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.true;
@@ -177,14 +177,14 @@ describe('ProxmoxVMService', () => {
       ];
 
       const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
         listTemplates: async () => success([]),
-        listVMs: async () => success(mockVMs),
       };
 
       const service = new ProxmoxVMService(mockRepository);
 
       // Act
-      const result = await service.listVMs();
+      const result = await service.listVMs('qemu');
 
       // Assert
       expect(result.success).to.be.true;

@@ -12,15 +12,16 @@ export class ProxmoxVMService {
   constructor(private readonly repository: IProxmoxRepository) {}
 
   /**
-   * Lists all Proxmox VMs (non-templates), sorted by VMID ascending.
-   * @returns Result containing array of VMs or an error
+   * Lists Proxmox resources (VMs or LXC containers), sorted by VMID ascending.
+   * @param resourceType Type of resource to list: 'qemu' for VMs or 'lxc' for containers
+   * @returns Result containing array of resources or an error
    */
-  async listVMs(): Promise<Result<ProxmoxVMDTO[], ServiceError>> {
-    const repositoryResult = await this.repository.listVMs();
+  async listVMs(resourceType: 'lxc' | 'qemu'): Promise<Result<ProxmoxVMDTO[], ServiceError>> {
+    const repositoryResult = await this.repository.listResources(resourceType);
 
     if (!repositoryResult.success) {
       return failure(
-        new ServiceError('Failed to retrieve VMs from Proxmox', {
+        new ServiceError(`Failed to retrieve ${resourceType} resources from Proxmox`, {
           cause: repositoryResult.error,
         }),
       );
@@ -31,15 +32,15 @@ export class ProxmoxVMService {
 
     if (!validationResult.success) {
       return failure(
-        new ServiceError('VM data validation failed', {
+        new ServiceError('Resource data validation failed', {
           zodError: validationResult.error,
         }),
       );
     }
 
-    // Sort VMs by vmid ascending
-    const sortedVMs = validationResult.data.sort((a, b) => a.vmid - b.vmid);
+    // Sort resources by vmid ascending
+    const sortedResources = validationResult.data.sort((a, b) => a.vmid - b.vmid);
 
-    return success(sortedVMs);
+    return success(sortedResources);
   }
 }
