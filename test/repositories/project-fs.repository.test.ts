@@ -36,7 +36,7 @@ describe('ProjectFsRepository', () => {
 
   describe('findAll', () => {
     it('should return success Result with Git repositories', async () => {
-      // Create test Git repositories
+      // Create test Git repositories with .git/config files
       await mkdir(join(testDir, 'project1', '.git'), {recursive: true})
       await mkdir(join(testDir, 'project2', '.git'), {recursive: true})
       await writeFile(join(testDir, 'file.txt'), 'not a directory')
@@ -48,10 +48,9 @@ describe('ProjectFsRepository', () => {
         expect(result.data).to.have.lengthOf(2)
         const names = result.data.map((p) => p.name).sort()
         expect(names).to.deep.equal(['project1', 'project2'])
-        expect(result.data[0].id).to.be.a('string')
-        expect(result.data[0].id).to.have.lengthOf(15)
-        expect(result.data[0].createdAt).to.be.instanceOf(Date)
-        expect(result.data[0].updatedAt).to.be.instanceOf(Date)
+        expect(result.data[0]).to.have.property('name')
+        expect(result.data[0]).to.have.property('gitRepoUrl')
+        expect(result.data[0].gitRepoUrl).to.be.a('string')
       }
     })
 
@@ -119,16 +118,15 @@ describe('ProjectFsRepository', () => {
       }
     })
 
-    it('should generate deterministic IDs based on path', async () => {
+    it('should return empty string for gitRepoUrl when no remote is configured', async () => {
       await mkdir(join(testDir, 'project1', '.git'), {recursive: true})
 
-      const result1 = await repository.findAll()
-      const result2 = await repository.findAll()
+      const result = await repository.findAll()
 
-      expect(result1.success).to.be.true
-      expect(result2.success).to.be.true
-      if (result1.success && result2.success) {
-        expect(result1.data[0].id).to.equal(result2.data[0].id)
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data).to.have.lengthOf(1)
+        expect(result.data[0].gitRepoUrl).to.equal('')
       }
     })
   })
@@ -142,10 +140,8 @@ describe('ProjectFsRepository', () => {
       expect(result.success).to.be.true
       if (result.success) {
         expect(result.data.name).to.equal('myproject')
-        expect(result.data.id).to.be.a('string')
-        expect(result.data.id).to.have.lengthOf(15)
-        expect(result.data.createdAt).to.be.instanceOf(Date)
-        expect(result.data.updatedAt).to.be.instanceOf(Date)
+        expect(result.data).to.have.property('gitRepoUrl')
+        expect(result.data.gitRepoUrl).to.be.a('string')
       }
     })
 
@@ -180,16 +176,14 @@ describe('ProjectFsRepository', () => {
       }
     })
 
-    it('should generate same ID for same path', async () => {
+    it('should return empty string for gitRepoUrl when no remote is configured', async () => {
       await mkdir(join(testDir, 'project1', '.git'), {recursive: true})
 
-      const result1 = await repository.findByName('project1')
-      const result2 = await repository.findByName('project1')
+      const result = await repository.findByName('project1')
 
-      expect(result1.success).to.be.true
-      expect(result2.success).to.be.true
-      if (result1.success && result2.success) {
-        expect(result1.data.id).to.equal(result2.data.id)
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data.gitRepoUrl).to.equal('')
       }
     })
   })

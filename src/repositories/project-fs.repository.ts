@@ -1,20 +1,23 @@
-import {createHash} from 'node:crypto'
+import {exec} from 'node:child_process'
 import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
+import {promisify} from 'node:util'
 
 import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
-import type {ProjectDTO} from '../models/project.dto.js'
-import type {IProjectRepository} from './interfaces/project.repository.interface.js'
+import type {ProjectFsDto} from '../models/project-fs.dto.js'
+import type {IProjectFsRepository} from './interfaces/project-fs.repository.interface.js'
 
 import {RepositoryError} from '../errors/repository.error.js'
-import {ProjectSchema} from '../models/schemas/project.schema.js'
+import {ProjectFsSchema} from '../models/schemas/project-fs.schema.js'
 import {failure, type Result, success} from '../utils/result.js'
+
+const execAsync = promisify(exec)
 
 /**
  * Project repository implementation using filesystem.
  * Scans a directory for Git repositories and treats them as projects.
  */
-export class ProjectFsRepository implements IProjectRepository {
+export class ProjectFsRepository implements IProjectFsRepository {
   private config: ProjectsDirConfig
 
   constructor(config: ProjectsDirConfig) {
@@ -26,7 +29,7 @@ export class ProjectFsRepository implements IProjectRepository {
    * Only scans direct subdirectories (no recursion).
    * @returns Result containing array of projects or a RepositoryError
    */
-  async findAll(): Promise<Result<ProjectDTO[], RepositoryError>> {
+  async findAll(): Promise<Result<ProjectFsDto[], RepositoryError>> {
     try {
       // Check if projects directory exists
       await access(this.config.projectsDir)
@@ -40,17 +43,28 @@ export class ProjectFsRepository implements IProjectRepository {
       )
 
       // Check which directories are Git repositories and create DTOs
-      const gitChecks = await Promise.all(
+      const projectResults = await Promise.all(
         directories.map(async (dir) => {
           const dirPath = join(this.config.projectsDir, dir.name)
           const isGit = await this.isGitRepository(dirPath)
-          return {dir, dirPath, isGit}
+          if (!isGit) {
+            return null
+          }
+
+          return this.createProjectDto(dirPath, dir.name)
         }),
       )
 
-      const projects = gitChecks
-        .filter((check) => check.isGit)
-        .map((check) => this.createProjectDto(check.dirPath, check.dir.name))
+      // Filter out null values (non-git directories) and unwrap Results
+      const projects: ProjectFsDto[] = []
+      for (const result of projectResults) {
+        if (result === null) continue
+
+        if (result.success) {
+          projects.push(result.data)
+        }
+        // Silently skip projects where we couldn't get the git remote URL
+      }
 
       return success(projects)
     } catch (error) {
@@ -75,7 +89,7 @@ export class ProjectFsRepository implements IProjectRepository {
    * @param name - The name of the project (directory name) to find
    * @returns Result containing the project or a RepositoryError
    */
-  async findByName(name: string): Promise<Result<ProjectDTO, RepositoryError>> {
+  async findByName(name: string): Promise<Result<ProjectFsDto, RepositoryError>> {
     try {
       const dirPath = join(this.config.projectsDir, name)
 
@@ -109,8 +123,7 @@ export class ProjectFsRepository implements IProjectRepository {
         )
       }
 
-      const project = this.createProjectDto(dirPath, name)
-      return success(project)
+      return this.createProjectDto(dirPath, name)
     } catch (error) {
       // Handle specific ENOENT error (file/directory not found)
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
@@ -141,30 +154,58 @@ export class ProjectFsRepository implements IProjectRepository {
   }
 
   /**
-   * Creates a ProjectDTO from a directory path
+   * Creates a ProjectFsDto from a directory path
    * @param dirPath - The absolute path to the project directory
    * @param name - The directory name
-   * @returns A validated ProjectDTO
+   * @returns A validated ProjectFsDto wrapped in a Result
    */
-  private createProjectDto(dirPath: string, name: string): ProjectDTO {
-    const now = new Date()
-    const projectData = {
-      createdAt: now,
-      id: this.generateId(dirPath),
-      name,
-      updatedAt: now,
-    }
+  private async createProjectDto(
+    dirPath: string,
+    name: string,
+  ): Promise<Result<ProjectFsDto, RepositoryError>> {
+    try {
+      const gitRepoUrl = await this.getGitRemoteUrl(dirPath)
 
-    return ProjectSchema.parse(projectData)
+      const projectData = {
+        gitRepoUrl,
+        name,
+      }
+
+      const validated = ProjectFsSchema.parse(projectData)
+      return success(validated)
+    } catch (error) {
+      return failure(
+        new RepositoryError(
+          `Failed to create project DTO for '${name}': ${error instanceof Error ? error.message : 'Unknown error'}`,
+          {
+            cause: error instanceof Error ? error : undefined,
+            context: {
+              dirPath,
+              name,
+            },
+          },
+        ),
+      )
+    }
   }
 
   /**
-   * Generates a deterministic ID from a path using SHA-256 hash
-   * @param path - The absolute path to hash
-   * @returns A hex string representing the hash
+   * Gets the Git remote URL (origin) for a repository
+   * @param dirPath - The absolute path to the Git repository
+   * @returns The remote URL or empty string if not found
    */
-  private generateId(path: string): string {
-    return createHash('sha256').update(path).digest('hex').slice(0, 15)
+  private async getGitRemoteUrl(dirPath: string): Promise<string> {
+    try {
+      const {stdout} = await execAsync('git remote get-url origin', {
+        cwd: dirPath,
+        encoding: 'utf8',
+      })
+
+      return stdout.trim()
+    } catch {
+      // Return empty string if git remote doesn't exist
+      return ''
+    }
   }
 
   /**

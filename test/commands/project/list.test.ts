@@ -15,57 +15,75 @@ describe('project list', () => {
     process.env = originalEnv
   })
 
-  it('should show error when POCKETBASE_URL is missing', async () => {
-    delete process.env.POCKETBASE_URL
+  // NOTE: These tests are for the filesystem-based implementation.
+  // If switching back to PocketBase, update these tests to check for POCKETBASE_URL instead.
 
-    const {error} = await runCommand('project list')
+  it('runs with default PROJECTS_DIR when not set', async () => {
+    delete process.env.PROJECTS_DIR
 
-    expect(error).to.exist
-    expect(error?.message).to.include('POCKETBASE_URL')
+    const {error, stdout} = await runCommand('project list')
+
+    // Should use default ~/projects/ directory
+    // Error is acceptable if directory doesn't exist or is empty
+    if (error) {
+      expect(error.message).to.match(/Failed to list projects|Failed to retrieve projects|Failed to initialize filesystem/)
+    } else {
+      // Should contain table headers or "No projects found" message
+      const hasHeaders = stdout.includes('NAME') && stdout.includes('GIT REPOSITORY URL')
+      const hasNoProjectsMessage = stdout.includes('No projects found')
+
+      expect(hasHeaders || hasNoProjectsMessage).to.be.true
+    }
   })
 
-  it('should show error when POCKETBASE_URL is invalid', async () => {
-    process.env.POCKETBASE_URL = 'not-a-valid-url'
+  it('runs with custom PROJECTS_DIR when set', async () => {
+    // Use tmpdir as a safe test location
+    process.env.PROJECTS_DIR = '/tmp/test-projects'
 
-    const {error} = await runCommand('project list')
+    const {error, stdout} = await runCommand('project list')
 
-    expect(error).to.exist
-    expect(error?.message).to.include('Invalid PocketBase configuration')
+    // Error is acceptable if directory doesn't exist or is empty
+    if (error) {
+      expect(error.message).to.match(/Failed to list projects|Failed to retrieve projects/)
+    } else {
+      // Should contain table headers or "No projects found" message
+      const hasHeaders = stdout.includes('NAME') && stdout.includes('GIT REPOSITORY URL')
+      const hasNoProjectsMessage = stdout.includes('No projects found')
+
+      expect(hasHeaders || hasNoProjectsMessage).to.be.true
+    }
   })
 
-  // Integration test - only runs if POCKETBASE_URL is set
-  // This test requires a real PocketBase instance to be running
-  ;(process.env.POCKETBASE_URL ? describe : describe.skip)('with PocketBase configured', () => {
-    it('runs project list with valid config', async () => {
+  // Integration test - tests the actual filesystem implementation
+  describe('with filesystem', () => {
+    it('runs project list', async () => {
       const {error, stdout} = await runCommand('project list')
 
-      // If PocketBase is accessible, should have output
-      // If PocketBase is not accessible, should have error
+      // Filesystem may not exist or be empty
       if (error) {
-        // Connection error is acceptable if PocketBase isn't running
+        // Error is acceptable if directory doesn't exist or can't be read
         expect(error.message).to.match(/Failed to list projects|Failed to retrieve projects/)
       } else {
         // Should contain table headers or "No projects found" message
-        const hasHeaders = stdout.includes('ID') && stdout.includes('NAME')
-        const hasNoWorkspacesMessage = stdout.includes('No projects found')
+        const hasHeaders = stdout.includes('NAME') && stdout.includes('GIT REPOSITORY URL')
+        const hasNoProjectsMessage = stdout.includes('No projects found')
 
-        expect(hasHeaders || hasNoWorkspacesMessage).to.be.true
+        expect(hasHeaders || hasNoProjectsMessage).to.be.true
       }
     })
 
-    it('formats output correctly when PocketBase is accessible', async () => {
+    it('formats output correctly when filesystem is accessible', async () => {
       const {error, stdout} = await runCommand('project list')
 
-      // Only check formatting if no error (PocketBase is running)
+      // Only check formatting if no error
       if (error) {
-        // Skip test if PocketBase isn't accessible
+        // Skip test if filesystem isn't accessible
         expect(error.message).to.match(/Failed to list projects|Failed to retrieve projects/)
       } else {
         // Should either have table headers or empty message
         // eslint-disable-next-line no-lonely-if
-        if (stdout.includes('ID')) {
-          expect(stdout).to.contain('CREATED AT')
-          expect(stdout).to.contain('UPDATED AT')
+        if (stdout.includes('NAME')) {
+          expect(stdout).to.contain('GIT REPOSITORY URL')
         } else {
           expect(stdout).to.include('No projects found')
         }

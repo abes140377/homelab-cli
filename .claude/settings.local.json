@@ -4,7 +4,10 @@
       "Bash(openspec spec list:*)",
       "Bash(openspec validate:*)",
       "Bash(mv:*)",
-      "Bash(pnpm exec mocha:*)"
+      "Bash(pnpm exec mocha:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm run lint:*)",
+      "Bash(pnpm run build:*)"
     ],
     "deny": [],
     "ask": []

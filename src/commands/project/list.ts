@@ -1,41 +1,50 @@
 import Table from 'cli-table3';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 
-import {ProjectFactory} from '../../factories/project.factory.js';
+import { ProjectFactory } from '../../factories/project.factory.js';
 import { BaseCommand } from '../../lib/base-command.js';
 
 export default class ProjectList extends BaseCommand<typeof ProjectList> {
-  static description = 'List all projects from PocketBase';
-static examples = [
+  static description = 'List all projects from filesystem';
+  static examples = [
     `<%= config.bin %> <%= command.id %>
-┌──────────────────────────────────────┬──────────────┬─────────────────────┬─────────────────────┐
-│ ID                                   │ NAME         │ CREATED AT          │ UPDATED AT          │
-├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-│ 550e8400-e29b-41d4-a716-446655440001 │ production   │ 2024-01-15 10:00:00 │ 2024-01-15 10:00:00 │
-├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-│ 550e8400-e29b-41d4-a716-446655440002 │ staging      │ 2024-01-20 14:30:00 │ 2024-02-01 09:15:00 │
-├──────────────────────────────────────┼──────────────┼─────────────────────┼─────────────────────┤
-│ 550e8400-e29b-41d4-a716-446655440003 │ development  │ 2024-02-01 08:00:00 │ 2024-02-10 16:45:00 │
-└──────────────────────────────────────┴──────────────┴─────────────────────┴─────────────────────┘
+┌──────────────┬──────────────────────────────────────┐
+│ NAME         │ GIT REPOSITORY URL                   │
+├──────────────┼──────────────────────────────────────┤
+│ project1     │ git@github.com:user/project1.git     │
+├──────────────┼──────────────────────────────────────┤
+│ project2     │ git@github.com:user/project2.git     │
+├──────────────┼──────────────────────────────────────┤
+│ project3     │ git@github.com:user/project3.git     │
+└──────────────┴──────────────────────────────────────┘
 `,
   ];
 
   async run(): Promise<void> {
     await this.parse(ProjectList);
 
-    // Create service with PocketBase repository
+    // Create service with filesystem repository
+    // To use PocketBase instead, uncomment the following lines and comment out the filesystem lines:
+    // let service;
+    // try {
+    //   service = ProjectFactory.createProjectService();
+    // } catch (error) {
+    //   this.error(
+    //     `Failed to initialize PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    //     {exit: 1},
+    //   );
+    // }
+
     let service;
     try {
-      service = ProjectFactory.createProjectService();
+      service = ProjectFactory.createProjectFsService();
     } catch (error) {
       this.error(
-        `Failed to initialize PocketBase: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        {exit: 1},
+        `Failed to initialize filesystem repository: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        { exit: 1 },
       );
     }
 
-    // Fetch projects from PocketBase
+    // Fetch projects from filesystem
     const result = await service.listProjects();
 
     if (!result.success) {
@@ -53,17 +62,15 @@ static examples = [
 
     // Create table using cli-table3
     const table = new Table({
-      head: ['ID', 'NAME', 'CREATED AT', 'UPDATED AT'],
+      head: ['NAME', 'GIT REPOSITORY URL'],
     })
 
-    // Add template rows
+    // Add project rows
     for (const project of projects) {
-        const id = project.id.padEnd(36);
-        const name = project.name.padEnd(12);
-        const createdAt = format(project.createdAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
-        const updatedAt = format(project.updatedAt, 'dd.MM.yyyy HH:mm:ss', { locale: de });
+      const name = project.name.padEnd(12);
+      const gitRepoUrl = project.gitRepoUrl || '(no remote)';
 
-        table.push([id, name, createdAt, updatedAt]);
+      table.push([name, gitRepoUrl]);
     }
 
     // Output table
