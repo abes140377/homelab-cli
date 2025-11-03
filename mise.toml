@@ -8,18 +8,21 @@ PROJECT_NAME = "{{ config_root | basename }}"
 _.file = [
   { path = "{{env.HOME}}/.env", optional = true },
   { path = ".env", optional = true },
-  { path = ".creds.env.yaml", redact = true }
+  { path = ".creds.env.yaml", redact = true },
 ]
-_.path = [
-  "./scripts"
-]
+_.path = ["./scripts"]
 
 [hooks]
 enter = [
-'echo ""',
-'echo "[MISE] Setup $PROJECT_NAME project..."',
-#
-'mise i -q',
-#
-'pre-commit install'
+  'echo ""',
+  'echo "[MISE] Setup $PROJECT_NAME project..."',
+  #
+  'mise i -q',
+  #
+  'echo "$ADMIN_SSH_PRIVATE_KEY" > keys/admin_id_ecdsa',
+  'chmod 600 keys/admin_id_ecdsa',
+  'echo "$ADMIN_SSH_PUBLIC_KEY" > keys/admin_id_ecdsa.pub',
+  'chmod 644 keys/admin_id_ecdsa.pub',
+  #
+  'pre-commit install',
 ]
