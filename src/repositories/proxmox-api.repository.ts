@@ -20,6 +20,145 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
   }
 
   /**
+   * Clones a VM template to create a new VM using full clone mode.
+   * @param node Node where template resides
+   * @param templateVmid VMID of the template to clone
+   * @param newVmid VMID for the new VM
+   * @param vmName Name for the new VM
+   * @returns Result containing task UPID or an error
+   */
+  async cloneFromTemplate(
+    node: string,
+    templateVmid: number,
+    newVmid: number,
+    vmName: string,
+  ): Promise<Result<string, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const {tokenSecret} = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      // Clone the template: POST /nodes/{node}/qemu/{vmid}/clone
+      // Using full clone mode (full: true)
+      const response = await proxmox.nodes.$(node).qemu.$(templateVmid).clone.$post({
+        full: true,
+        name: vmName,
+        newid: newVmid,
+      });
+
+      // Response should contain task UPID
+      if (!response || typeof response !== 'string') {
+        return failure(new RepositoryError('Unexpected API response format from clone operation'));
+      }
+
+      return success(response);
+    } catch (error) {
+      return failure(
+        new RepositoryError('Failed to clone VM from template', {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            newVmid,
+            node,
+            templateVmid,
+            vmName,
+          },
+        }),
+      );
+    }
+  }
+
+  /**
+   * Finds the next available VMID in the Proxmox cluster.
+   * Searches for gaps in the VMID sequence starting from 100 (Proxmox convention).
+   * @returns Result containing next available VMID or an error
+   */
+  async getNextAvailableVmid(): Promise<Result<number, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const {tokenSecret} = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      // Get all VMs and templates from cluster resources
+      const response = await proxmox.cluster.resources.$get({type: 'vm'});
+
+      // Validate response
+      if (!response || !Array.isArray(response)) {
+        return failure(new RepositoryError('Unexpected API response format when fetching cluster resources'));
+      }
+
+      // Extract all VMIDs and sort them
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const vmids = (response as any[])
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((resource: any) => resource.vmid)
+        .filter((vmid: number) => typeof vmid === 'number')
+        .sort((a: number, b: number) => a - b);
+
+      // If no VMs exist, start from 100 (Proxmox convention)
+      if (vmids.length === 0) {
+        return success(100);
+      }
+
+      // Find first gap >= 100, or return max + 1
+      const minVmid = 100;
+      for (let i = 0; i < vmids.length; i++) {
+        const currentVmid = vmids[i];
+        const expectedVmid = i === 0 ? minVmid : vmids[i - 1] + 1;
+
+        // If there's a gap and the gap is >= minVmid, use it
+        if (currentVmid > expectedVmid && expectedVmid >= minVmid) {
+          return success(expectedVmid);
+        }
+
+        // If current VMID is below min, check if next slot (min) is available
+        if (currentVmid < minVmid && (i === vmids.length - 1 || vmids[i + 1] > minVmid)) {
+          return success(minVmid);
+        }
+      }
+
+      // No gaps found, return max + 1
+      const maxVmid = vmids.at(-1);
+      return success(Math.max(maxVmid + 1, minVmid));
+    } catch (error) {
+      return failure(
+        new RepositoryError('Failed to fetch cluster resources for VMID allocation', {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+          },
+        }),
+      );
+    }
+  }
+
+  /**
    * Retrieves resources (VMs or LXC containers) from Proxmox API with network information.
    * @param resourceType Type of resource to list: 'qemu' for VMs or 'lxc' for containers
    * @returns Result containing array of resources or an error
@@ -132,6 +271,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((resource: any) => ({
           name: resource.name || '',
+          node: resource.node || '',
           template: 1 as const,
           vmid: resource.vmid || 0,
         }));
@@ -143,6 +283,106 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
           cause: error instanceof Error ? error : undefined,
           context: {
             message: error instanceof Error ? error.message : 'Unknown error',
+          },
+        }),
+      );
+    }
+  }
+
+  /**
+   * Waits for a Proxmox task to complete with timeout support.
+   * Polls the task status endpoint every 2 seconds until completion or timeout.
+   * @param node Node where task is running
+   * @param upid Task UPID
+   * @param timeoutMs Timeout in milliseconds (default 300000 = 5 minutes)
+   * @returns Result indicating success or error
+   */
+  async waitForTask(node: string, upid: string, timeoutMs = 300_000): Promise<Result<void, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const {tokenSecret} = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      const startTime = Date.now();
+      const pollInterval = 2000; // 2 seconds
+
+      // Poll until task completes or timeout
+      while (true) {
+        // Check timeout
+        if (Date.now() - startTime > timeoutMs) {
+          return failure(
+            new RepositoryError(`Task timed out after ${timeoutMs}ms`, {
+              context: {
+                node,
+                timeoutMs,
+                upid,
+              },
+            }),
+          );
+        }
+
+        // Get task status: GET /nodes/{node}/tasks/{upid}/status
+        // eslint-disable-next-line no-await-in-loop
+        const taskStatus = await proxmox.nodes.$(node).tasks.$(upid).status.$get();
+
+        // Check if task is still running
+        if (!taskStatus || !taskStatus.data) {
+          // Wait before next poll if no task status
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve, pollInterval);
+          });
+          continue;
+        }
+
+        const {exitstatus, status} = taskStatus.data;
+
+        // If task is still running, continue polling
+        if (status === 'running') {
+          // Wait before next poll
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve, pollInterval);
+          });
+          continue;
+        }
+
+        // Task is not running anymore, check exit status
+        if (exitstatus === 'OK') {
+          return success();
+        }
+
+        return failure(
+          new RepositoryError(`Task failed: ${exitstatus || 'unknown error'}`, {
+            context: {
+              exitstatus,
+              node,
+              upid,
+            },
+          }),
+        );
+      }
+    } catch (error) {
+      return failure(
+        new RepositoryError('Failed to poll task status', {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            message: error instanceof Error ? error.message : 'Unknown error',
+            node,
+            upid,
           },
         }),
       );

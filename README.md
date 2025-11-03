@@ -47,6 +47,7 @@ USAGE
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
+* [`homelab proxmox vm create VM-NAME TEMPLATE-NAME`](#homelab-proxmox-vm-create-vm-name-template-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 
 ## `homelab help [COMMAND]`
@@ -522,6 +523,34 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
+
+## `homelab proxmox vm create VM-NAME TEMPLATE-NAME`
+
+Create a new VM from a template
+
+```
+USAGE
+  $ homelab proxmox vm create VM-NAME TEMPLATE-NAME [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  VM-NAME        Name for the new VM
+  TEMPLATE-NAME  Name of the template to clone from
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Create a new VM from a template
+
+EXAMPLES
+  $ homelab proxmox vm create my-server ubuntu-22.04
+  Creating VM 'my-server' from template 'ubuntu-22.04'...
+  Successfully created VM 200 'my-server' on node 'pve'
+```
+
+_See code: [src/commands/proxmox/vm/create.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/create.ts)_
 
 ## `homelab proxmox vm list`
 

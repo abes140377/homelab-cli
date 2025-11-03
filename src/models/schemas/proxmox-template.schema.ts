@@ -6,6 +6,7 @@ import {z} from 'zod';
  */
 export const ProxmoxTemplateSchema = z.object({
   name: z.string().min(1, 'Template name must not be empty'),
+  node: z.string().min(1, 'Node name must not be empty'),
   template: z.literal(1),
   vmid: z.number().int().positive('VMID must be a positive integer'),
 });
