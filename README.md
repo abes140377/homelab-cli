@@ -45,6 +45,7 @@ USAGE
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
+* [`homelab prompt demo`](#homelab-prompt-demo)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
@@ -467,6 +468,28 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
+
+## `homelab prompt demo`
+
+Demonstrate interactive prompts (text, password, select, multi-select)
+
+```
+USAGE
+  $ homelab prompt demo [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Demonstrate interactive prompts (text, password, select, multi-select)
+
+EXAMPLES
+  $ homelab prompt demo
+```
+
+_See code: [src/commands/prompt/demo.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/prompt/demo.ts)_
 
 ## `homelab proxmox container list`
 

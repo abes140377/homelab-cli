@@ -11,10 +11,10 @@ This document outlines the implementation tasks for integrating enquirer and cre
 **Description**: Add enquirer npm package as a production dependency
 
 **Validation**:
-- [ ] enquirer appears in package.json dependencies (not devDependencies)
-- [ ] pnpm-lock.yaml is updated
-- [ ] `pnpm install` completes successfully
-- [ ] No security vulnerabilities reported
+- [x] enquirer appears in package.json dependencies (not devDependencies)
+- [x] pnpm-lock.yaml is updated
+- [x] `pnpm install` completes successfully
+- [x] No security vulnerabilities reported
 
 **Dependencies**: None
 
@@ -31,10 +31,10 @@ pnpm add enquirer
 - `src/utils/prompts.types.ts`
 
 **Validation**:
-- [ ] `PromptOptions<T>` interface defined with message, initial, validate, skip
-- [ ] `SelectionOptions<T>` interface extends PromptOptions with choices array
-- [ ] All interfaces exported
-- [ ] TypeScript compilation succeeds
+- [x] `PromptOptions<T>` interface defined with message, initial, validate, skip
+- [x] `SelectionOptions<T>` interface extends PromptOptions with choices array
+- [x] All interfaces exported
+- [x] TypeScript compilation succeeds
 
 **Dependencies**: Task 1
 
@@ -51,13 +51,13 @@ pnpm add enquirer
 - `src/utils/prompts.ts` (new)
 
 **Validation**:
-- [ ] Function signature: `promptForText(options: PromptOptions<string>): Promise<Result<string>>`
-- [ ] Wraps enquirer's Input prompt
-- [ ] Returns Result<string> on success
-- [ ] Returns error Result on cancellation/failure
-- [ ] Supports default values via `initial` option
-- [ ] Supports validation via `validate` option
-- [ ] TypeScript compilation succeeds
+- [x] Function signature: `promptForText(options: PromptOptions<string>): Promise<Result<string>>`
+- [x] Wraps enquirer's Input prompt
+- [x] Returns Result<string> on success
+- [x] Returns error Result on cancellation/failure
+- [x] Supports default values via `initial` option
+- [x] Supports validation via `validate` option
+- [x] TypeScript compilation succeeds
 
 **Dependencies**: Task 2
 
@@ -75,12 +75,12 @@ pnpm add enquirer
 - `src/utils/prompts.ts` (edit)
 
 **Validation**:
-- [ ] Function signature: `promptForPassword(options: PromptOptions<string>): Promise<Result<string>>`
-- [ ] Wraps enquirer's Password prompt
-- [ ] Returns Result<string> on success
-- [ ] Masks input characters
-- [ ] Supports default values
-- [ ] TypeScript compilation succeeds
+- [x] Function signature: `promptForPassword(options: PromptOptions<string>): Promise<Result<string>>`
+- [x] Wraps enquirer's Password prompt
+- [x] Returns Result<string> on success
+- [x] Masks input characters
+- [x] Supports default values
+- [x] TypeScript compilation succeeds
 
 **Dependencies**: Task 3
 
@@ -96,12 +96,12 @@ pnpm add enquirer
 - `src/utils/prompts.ts` (edit)
 
 **Validation**:
-- [ ] Function signature: `promptForSelection<T>(options: SelectionOptions<T>): Promise<Result<T>>`
-- [ ] Wraps enquirer's Select prompt
-- [ ] Returns Result<T> on success
-- [ ] Supports generic types
-- [ ] Supports default selection via `initial`
-- [ ] TypeScript compilation succeeds with type inference
+- [x] Function signature: `promptForSelection<T>(options: SelectionOptions<T>): Promise<Result<T>>`
+- [x] Wraps enquirer's Select prompt
+- [x] Returns Result<T> on success
+- [x] Supports generic types
+- [x] Supports default selection via `initial`
+- [x] TypeScript compilation succeeds with type inference
 
 **Dependencies**: Task 4
 
@@ -118,12 +118,12 @@ pnpm add enquirer
 - `src/utils/prompts.ts` (edit)
 
 **Validation**:
-- [ ] Function signature: `promptForMultipleSelections<T>(options: SelectionOptions<T[]>): Promise<Result<T[]>>`
-- [ ] Wraps enquirer's MultiSelect prompt
-- [ ] Returns Result<T[]> on success
-- [ ] Supports default selections via `initial` array
-- [ ] Handles empty selection (returns empty array)
-- [ ] TypeScript compilation succeeds
+- [x] Function signature: `promptForMultipleSelections<T>(options: SelectionOptions<T[]>): Promise<Result<T[]>>`
+- [x] Wraps enquirer's MultiSelect prompt
+- [x] Returns Result<T[]> on success
+- [x] Supports default selections via `initial` array
+- [x] Handles empty selection (returns empty array)
+- [x] TypeScript compilation succeeds
 
 **Dependencies**: Task 5
 
@@ -140,10 +140,10 @@ pnpm add enquirer
 - `src/utils/prompts.types.ts` (edit)
 
 **Validation**:
-- [ ] Every exported function has JSDoc with @description, @param, @returns, @example
-- [ ] Every interface has JSDoc with property descriptions
-- [ ] Examples show common usage patterns
-- [ ] TypeScript compiles and generates declaration files
+- [x] Every exported function has JSDoc with @description, @param, @returns, @example
+- [x] Every interface has JSDoc with property descriptions
+- [x] Examples show common usage patterns
+- [x] TypeScript compiles and generates declaration files
 
 **Dependencies**: Task 6
 
@@ -160,12 +160,12 @@ pnpm add enquirer
 - `test/utils/prompts.test.ts` (new)
 
 **Validation**:
-- [ ] Test successful text input
-- [ ] Test with default value
-- [ ] Test with validation function
-- [ ] Test user cancellation
-- [ ] Test skip functionality
-- [ ] All tests pass: `pnpm test test/utils/prompts.test.ts`
+- [x] Test successful text input
+- [x] Test with default value
+- [x] Test with validation function
+- [x] Test user cancellation
+- [x] Test skip functionality
+- [x] All tests pass: `pnpm test test/utils/prompts.test.ts`
 
 **Dependencies**: Task 3, Task 7
 
@@ -182,10 +182,10 @@ pnpm add enquirer
 - `test/utils/prompts.test.ts` (edit)
 
 **Validation**:
-- [ ] Test successful password input
-- [ ] Test with default value
-- [ ] Test user cancellation
-- [ ] All tests pass
+- [x] Test successful password input
+- [x] Test with default value
+- [x] Test user cancellation
+- [x] All tests pass
 
 **Dependencies**: Task 4, Task 8
 
@@ -201,14 +201,14 @@ pnpm add enquirer
 - `test/utils/prompts.test.ts` (edit)
 
 **Validation**:
-- [ ] Test single selection with string choices
-- [ ] Test single selection with generic types
-- [ ] Test single selection with default
-- [ ] Test multiple selections
-- [ ] Test multiple selections with defaults
-- [ ] Test multiple selections with empty result
-- [ ] Test user cancellation for both
-- [ ] All tests pass
+- [x] Test single selection with string choices
+- [x] Test single selection with generic types
+- [x] Test single selection with default
+- [x] Test multiple selections
+- [x] Test multiple selections with defaults
+- [x] Test multiple selections with empty result
+- [x] Test user cancellation for both
+- [x] All tests pass
 
 **Dependencies**: Task 5, Task 6, Task 9
 
@@ -224,12 +224,12 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (new)
 
 **Validation**:
-- [ ] Command extends BaseCommand
-- [ ] Static description property defined
-- [ ] Static examples property with usage examples
-- [ ] async run() method defined
-- [ ] Command compiles: `pnpm run build`
-- [ ] Command appears in help: `./bin/dev.js prompt --help`
+- [x] Command extends BaseCommand
+- [x] Static description property defined
+- [x] Static examples property with usage examples
+- [x] async run() method defined
+- [x] Command compiles: `pnpm run build`
+- [x] Command appears in help: `./bin/dev.js prompt --help`
 
 **Dependencies**: Task 1
 
@@ -246,11 +246,11 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Calls promptForText with message "What is your name?"
-- [ ] Sets default value to "Guest"
-- [ ] Handles Result error case
-- [ ] Stores result for summary display
-- [ ] Command runs: `./bin/dev.js prompt demo`
+- [x] Calls promptForText with message "What is your name?"
+- [x] Sets default value to "Guest"
+- [x] Handles Result error case
+- [x] Stores result for summary display
+- [x] Command runs: `./bin/dev.js prompt demo`
 
 **Dependencies**: Task 3, Task 11
 
@@ -267,11 +267,11 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Calls promptForPassword with message "Enter your password:"
-- [ ] Executes after name prompt
-- [ ] Handles Result error case
-- [ ] Stores password for summary (masked)
-- [ ] Command runs successfully
+- [x] Calls promptForPassword with message "Enter your password:"
+- [x] Executes after name prompt
+- [x] Handles Result error case
+- [x] Stores password for summary (masked)
+- [x] Command runs successfully
 
 **Dependencies**: Task 4, Task 12
 
@@ -287,12 +287,12 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Single select with choices: "option 1", "option 2", "option 3"
-- [ ] Multi-select with choices: "option A", "option B", "option C"
-- [ ] Both execute sequentially
-- [ ] Handles Result error cases
-- [ ] Stores results for summary
-- [ ] Command runs through all prompts
+- [x] Single select with choices: "option 1", "option 2", "option 3"
+- [x] Multi-select with choices: "option A", "option B", "option C"
+- [x] Both execute sequentially
+- [x] Handles Result error cases
+- [x] Stores results for summary
+- [x] Command runs through all prompts
 
 **Dependencies**: Task 5, Task 6, Task 13
 
@@ -308,11 +308,11 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Displays "Demo Results:" header
-- [ ] Shows name, password (masked), selected option, multi-select options
-- [ ] Handles empty multi-select (displays "None")
-- [ ] Output is clear and formatted
-- [ ] Command completes successfully
+- [x] Displays "Demo Results:" header
+- [x] Shows name, password (masked), selected option, multi-select options
+- [x] Handles empty multi-select (displays "None")
+- [x] Output is clear and formatted
+- [x] Command completes successfully
 
 **Dependencies**: Task 14
 
@@ -330,10 +330,10 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Checks for --json flag at command start
-- [ ] Displays error: "Interactive prompts are not compatible with --json output mode"
-- [ ] Exits with code 1
-- [ ] Test: `./bin/dev.js prompt demo --json` shows error
+- [x] Checks for --json flag at command start
+- [x] Displays error: "Interactive prompts are not compatible with --json output mode"
+- [x] Exits with code 1
+- [x] Test: `./bin/dev.js prompt demo --json` shows error
 
 **Dependencies**: Task 15
 
@@ -349,10 +349,10 @@ pnpm add enquirer
 - `src/commands/prompt/demo.ts` (edit)
 
 **Validation**:
-- [ ] Checks process.stdin.isTTY
-- [ ] Shows error if not TTY: "This command requires an interactive terminal"
-- [ ] Exits with code 1
-- [ ] Can be tested in non-TTY environment
+- [x] Checks process.stdin.isTTY
+- [x] Shows error if not TTY: "This command requires an interactive terminal"
+- [x] Exits with code 1
+- [x] Can be tested in non-TTY environment
 
 **Dependencies**: Task 16
 
@@ -368,12 +368,12 @@ pnpm add enquirer
 - `test/commands/prompt/demo.test.ts` (new)
 
 **Validation**:
-- [ ] Uses `runCommand` from `@oclif/test`
-- [ ] Mocks prompt utilities (not enquirer directly)
-- [ ] Tests successful execution path
-- [ ] Tests error handling
-- [ ] Tests JSON mode error
-- [ ] All tests pass: `pnpm test test/commands/prompt/demo.test.ts`
+- [x] Uses `runCommand` from `@oclif/test`
+- [x] Mocks prompt utilities (not enquirer directly)
+- [x] Tests successful execution path
+- [x] Tests error handling
+- [x] Tests JSON mode error
+- [x] All tests pass: `pnpm test test/commands/prompt/demo.test.ts`
 
 **Dependencies**: Task 17
 
@@ -392,10 +392,10 @@ pnpm test
 ```
 
 **Validation**:
-- [ ] All tests pass (utils + commands)
-- [ ] No test is marked with `.only()`
-- [ ] Code coverage is reasonable (aim for >80% on new code)
-- [ ] No linting errors: `pnpm run lint`
+- [x] All tests pass (utils + commands)
+- [x] No test is marked with `.only()`
+- [x] Code coverage is reasonable (aim for >80% on new code)
+- [x] No linting errors: `pnpm run lint`
 
 **Dependencies**: Task 18
 
@@ -414,10 +414,10 @@ pnpm run build
 ```
 
 **Validation**:
-- [ ] Build completes without errors
-- [ ] Command appears in `./bin/run.js --help`
-- [ ] Command runs from compiled dist/
-- [ ] All prompts work in production build
+- [x] Build completes without errors
+- [x] Command appears in `./bin/run.js --help`
+- [x] Command runs from compiled dist/
+- [x] All prompts work in production build
 
 **Dependencies**: Task 19
 
@@ -435,10 +435,10 @@ pnpm run prepack
 ```
 
 **Validation**:
-- [ ] README.md includes `prompt demo` command
-- [ ] Command description appears
-- [ ] Usage examples are shown
-- [ ] No git changes outside README and manifest
+- [x] README.md includes `prompt demo` command
+- [x] Command description appears
+- [x] Usage examples are shown
+- [x] No git changes outside README and manifest
 
 **Dependencies**: Task 20
 
@@ -456,9 +456,9 @@ openspec validate add-enquirer-interactive-prompts --strict
 ```
 
 **Validation**:
-- [ ] Validation passes with no errors
-- [ ] All spec requirements are addressed
-- [ ] All tasks are marked complete
+- [x] Validation passes with no errors
+- [x] All spec requirements are addressed
+- [x] All tasks are marked complete
 
 **Dependencies**: Task 21
 
@@ -485,11 +485,11 @@ If issues arise during implementation:
 ## Success Criteria
 
 All tasks completed AND:
-- [ ] `pnpm test` passes
-- [ ] `pnpm run lint` passes
-- [ ] `pnpm run build` succeeds
-- [ ] `openspec validate add-enquirer-interactive-prompts --strict` passes
-- [ ] `homelab prompt demo` runs successfully in interactive terminal
-- [ ] `homelab prompt demo --json` shows appropriate error
-- [ ] All four prompt types work correctly
-- [ ] Documentation is complete
+- [x] `pnpm test` passes
+- [x] `pnpm run lint` passes
+- [x] `pnpm run build` succeeds
+- [x] `openspec validate add-enquirer-interactive-prompts --strict` passes
+- [x] `homelab prompt demo` runs successfully in interactive terminal
+- [x] `homelab prompt demo --json` shows appropriate error
+- [x] All four prompt types work correctly
+- [x] Documentation is complete

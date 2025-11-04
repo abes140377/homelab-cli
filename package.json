@@ -13,6 +13,7 @@
     "@oclif/plugin-plugins": "^5",
     "cli-table3": "^0.6.5",
     "date-fns": "^4.1.0",
+    "enquirer": "^2.4.1",
     "proxmox-api": "^1.1.1",
     "zod": "^4.1.12"
   },
