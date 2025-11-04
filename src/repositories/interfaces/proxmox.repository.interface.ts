@@ -44,6 +44,20 @@ export interface IProxmoxRepository {
   listTemplates(): Promise<Result<ProxmoxTemplateDTO[], RepositoryError>>;
 
   /**
+   * Sets configuration parameters for a VM.
+   * Used for cloud-init and other VM configuration settings.
+   * @param node Node where VM resides
+   * @param vmid VM ID
+   * @param config Configuration parameters as key-value pairs
+   * @returns Result indicating success or error
+   */
+  setVMConfig(
+    node: string,
+    vmid: number,
+    config: Record<string, boolean | number | string>,
+  ): Promise<Result<void, RepositoryError>>;
+
+  /**
    * Waits for a Proxmox task to complete with timeout support.
    * Polls the task status endpoint until completion or timeout.
    * @param node Node where task is running

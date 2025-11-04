@@ -1,6 +1,8 @@
 import {ServiceError} from '../errors/service.error.js';
+import {type CloudInitConfigDTO} from '../models/cloud-init-config.dto.js';
 import {type ProxmoxTemplateDTO} from '../models/proxmox-template.dto.js';
 import {type ProxmoxVMDTO} from '../models/proxmox-vm.dto.js';
+import {CloudInitConfigSchema} from '../models/schemas/cloud-init-config.schema.js';
 import {ProxmoxVMSchema} from '../models/schemas/proxmox-vm.schema.js';
 import {type IProxmoxRepository} from '../repositories/interfaces/proxmox.repository.interface.js';
 import {failure, type Result, success} from '../utils/result.js';
@@ -11,6 +13,59 @@ import {failure, type Result, success} from '../utils/result.js';
  */
 export class ProxmoxVMService {
   constructor(private readonly repository: IProxmoxRepository) {}
+
+  /**
+   * Configures cloud-init settings for an existing VM.
+   * Validates configuration, resolves node, formats parameters, and calls repository.
+   * @param vmid VM ID to configure
+   * @param config Cloud-init configuration parameters
+   * @returns Result indicating success or an error
+   */
+  async configureCloudInit(vmid: number, config: CloudInitConfigDTO): Promise<Result<void, ServiceError>> {
+    // Step 1: Validate config with Zod schema
+    const validationResult = CloudInitConfigSchema.safeParse(config);
+    if (!validationResult.success) {
+      return failure(
+        new ServiceError('Cloud-init configuration validation failed', {
+          zodError: validationResult.error,
+        }),
+      );
+    }
+
+    // Step 2: Resolve node name from VMID
+    const nodeResult = await this.resolveNodeForVmid(vmid);
+    if (!nodeResult.success) {
+      return failure(nodeResult.error);
+    }
+
+    const node = nodeResult.data;
+
+    // Step 3: Format parameters for Proxmox API
+    const apiParams: Record<string, boolean | number | string> = {
+      cipassword: config.password,
+      ciupgrade: config.upgrade ? 1 : 0,
+      ciuser: config.user,
+      ipconfig0: config.ipconfig0,
+      // URL-encode SSH keys for API (Proxmox requires this)
+      sshkeys: encodeURIComponent(config.sshKeys),
+    };
+
+    // Step 4: Call repository to set VM config
+    const setConfigResult = await this.repository.setVMConfig(node, vmid, apiParams);
+    if (!setConfigResult.success) {
+      return failure(
+        new ServiceError('Failed to configure cloud-init', {
+          cause: setConfigResult.error,
+          context: {
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+
+    return success();
+  }
 
   /**
    * Creates a new VM from a template by name.
@@ -115,6 +170,40 @@ export class ProxmoxVMService {
     const sortedResources = validationResult.data.sort((a, b) => a.vmid - b.vmid);
 
     return success(sortedResources);
+  }
+
+  /**
+   * Resolves node name for a given VMID by querying cluster resources.
+   * @param vmid VM ID to resolve
+   * @returns Result containing node name or an error
+   */
+  private async resolveNodeForVmid(vmid: number): Promise<Result<string, ServiceError>> {
+    // Get all QEMU VMs from repository
+    const vmsResult = await this.repository.listResources('qemu');
+
+    if (!vmsResult.success) {
+      return failure(
+        new ServiceError('Failed to query cluster resources', {
+          cause: vmsResult.error,
+        }),
+      );
+    }
+
+    // Find VM with matching VMID
+    const vm = vmsResult.data.find((v) => v.vmid === vmid);
+
+    if (!vm) {
+      return failure(
+        new ServiceError(`VM ${vmid} not found`, {
+          context: {
+            availableVmids: vmsResult.data.map((v) => v.vmid),
+            vmid,
+          },
+        }),
+      );
+    }
+
+    return success(vm.node);
   }
 
   /**

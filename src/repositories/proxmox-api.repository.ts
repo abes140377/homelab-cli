@@ -1,11 +1,11 @@
 import proxmoxApi from 'proxmox-api';
 
-import {type ProxmoxConfig} from '../config/proxmox.config.js';
-import {RepositoryError} from '../errors/repository.error.js';
-import {type ProxmoxTemplateDTO} from '../models/proxmox-template.dto.js';
-import {type ProxmoxVMDTO} from '../models/proxmox-vm.dto.js';
-import {failure, type Result, success} from '../utils/result.js';
-import {type IProxmoxRepository} from './interfaces/proxmox.repository.interface.js';
+import { type ProxmoxConfig } from '../config/proxmox.config.js';
+import { RepositoryError } from '../errors/repository.error.js';
+import { type ProxmoxTemplateDTO } from '../models/proxmox-template.dto.js';
+import { type ProxmoxVMDTO } from '../models/proxmox-vm.dto.js';
+import { failure, type Result, success } from '../utils/result.js';
+import { type IProxmoxRepository } from './interfaces/proxmox.repository.interface.js';
 
 
 /**
@@ -36,7 +36,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
     try {
       // Construct tokenID from user@realm!tokenKey format
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
-      const {tokenSecret} = this.config;
+      const { tokenSecret } = this.config;
 
       // Disable SSL verification for self-signed certificates if configured
       if (!this.config.rejectUnauthorized) {
@@ -90,7 +90,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
     try {
       // Construct tokenID from user@realm!tokenKey format
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
-      const {tokenSecret} = this.config;
+      const { tokenSecret } = this.config;
 
       // Disable SSL verification for self-signed certificates if configured
       if (!this.config.rejectUnauthorized) {
@@ -106,7 +106,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       });
 
       // Get all VMs and templates from cluster resources
-      const response = await proxmox.cluster.resources.$get({type: 'vm'});
+      const response = await proxmox.cluster.resources.$get({ type: 'vm' });
 
       // Validate response
       if (!response || !Array.isArray(response)) {
@@ -167,7 +167,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
     try {
       // Construct tokenID from user@realm!tokenKey format
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
-      const {tokenSecret} = this.config;
+      const { tokenSecret } = this.config;
 
       // Disable SSL verification for self-signed certificates if configured
       if (!this.config.rejectUnauthorized) {
@@ -183,14 +183,14 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       });
 
       // Get cluster resources (type=vm)
-      const response = await proxmox.cluster.resources.$get({type: 'vm'});
+      const response = await proxmox.cluster.resources.$get({ type: 'vm' });
 
       // Validate response - proxmox-api returns array directly
       if (!response || !Array.isArray(response)) {
         return failure(new RepositoryError('Unexpected API response format'));
       }
 
-      console.log('Fetched resources from Proxmox API:', response);
+      // console.log('Fetched resources from Proxmox API:', response);
 
       // Filter resources based on type
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -240,7 +240,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
     try {
       // Construct tokenID from user@realm!tokenKey format
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
-      const {tokenSecret} = this.config;
+      const { tokenSecret } = this.config;
 
       // Disable SSL verification for self-signed certificates if configured
       if (!this.config.rejectUnauthorized) {
@@ -256,7 +256,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       });
 
       // Get cluster resources (type=vm)
-      const response = await proxmox.cluster.resources.$get({type: 'vm'});
+      const response = await proxmox.cluster.resources.$get({ type: 'vm' });
 
       // Validate response - proxmox-api returns array directly
       if (!response || !Array.isArray(response)) {
@@ -290,6 +290,56 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
   }
 
   /**
+   * Sets configuration parameters for a VM via Proxmox API.
+   * Used for cloud-init and other VM configuration settings.
+   * @param node Node where VM resides
+   * @param vmid VM ID
+   * @param config Configuration parameters as key-value pairs
+   * @returns Result indicating success or error
+   */
+  async setVMConfig(
+    node: string,
+    vmid: number,
+    config: Record<string, boolean | number | string>,
+  ): Promise<Result<void, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const { tokenSecret } = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      // Set VM configuration: PUT /nodes/{node}/qemu/{vmid}/config
+      await proxmox.nodes.$(node).qemu.$(vmid).config.$put(config);
+
+      return success();
+    } catch (error) {
+      return failure(
+        new RepositoryError('Failed to set VM configuration', {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            config,
+            message: error instanceof Error ? error.message : 'Unknown error',
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+  }
+
+  /**
    * Waits for a Proxmox task to complete with timeout support.
    * Polls the task status endpoint every 2 seconds until completion or timeout.
    * @param node Node where task is running
@@ -301,7 +351,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
     try {
       // Construct tokenID from user@realm!tokenKey format
       const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
-      const {tokenSecret} = this.config;
+      const { tokenSecret } = this.config;
 
       // Disable SSL verification for self-signed certificates if configured
       if (!this.config.rejectUnauthorized) {
@@ -348,7 +398,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
           continue;
         }
 
-        const {exitstatus, status} = taskStatus.data;
+        const { exitstatus, status } = taskStatus.data;
 
         // If task is still running, continue polling
         if (status === 'running') {

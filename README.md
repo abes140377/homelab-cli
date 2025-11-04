@@ -47,7 +47,8 @@ USAGE
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
-* [`homelab proxmox vm create VM-NAME TEMPLATE-NAME`](#homelab-proxmox-vm-create-vm-name-template-name)
+* [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
+* [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 
 ## `homelab help [COMMAND]`
@@ -524,17 +525,61 @@ EXAMPLES
 
 _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
 
-## `homelab proxmox vm create VM-NAME TEMPLATE-NAME`
+## `homelab proxmox vm cloudinit VMID`
+
+Configure cloud-init settings for a Proxmox VM
+
+```
+USAGE
+  $ homelab proxmox vm cloudinit VMID [--json] [--log-level debug|warn|error|info|trace] [--ipconfig <value>] [--password
+    <value>] [--ssh-key <value>] [--upgrade] [--user <value>]
+
+ARGUMENTS
+  VMID  VM ID to configure
+
+FLAGS
+  --ipconfig=<value>  [default: dhcp] IPv4 configuration for eth0 (dhcp or ip=X.X.X.X/YY[,gw=X.X.X.X])
+  --password=<value>  Password for the default user (empty = no password)
+  --ssh-key=<value>   [default: ./keys/admin_id_ecdsa.pub] SSH public key or path to key file
+  --upgrade           Automatically upgrade packages on first boot
+  --user=<value>      [default: admin] Username for the default user
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Configure cloud-init settings for a Proxmox VM
+
+EXAMPLES
+  $ homelab proxmox vm cloudinit 100
+  Configuring cloud-init for VM 100...
+  Successfully configured cloud-init for VM 100
+
+  $ homelab proxmox vm cloudinit 100 --ipconfig ip=192.168.1.100/24
+  Configure VM with static IP address
+
+  $ homelab proxmox vm cloudinit 100 --ipconfig ip=10.0.10.123/24,gw=10.0.10.1 --upgrade
+  Configure VM with static IP, gateway, and enable package upgrades
+
+  $ homelab proxmox vm cloudinit 100 --user ubuntu --password mypassword
+  Configure VM with custom user credentials
+```
+
+_See code: [src/commands/proxmox/vm/cloudinit.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/cloudinit.ts)_
+
+## `homelab proxmox vm create TEMPLATE-NAME VM-NAME`
 
 Create a new VM from a template
 
 ```
 USAGE
-  $ homelab proxmox vm create VM-NAME TEMPLATE-NAME [--json] [--log-level debug|warn|error|info|trace]
+  $ homelab proxmox vm create TEMPLATE-NAME VM-NAME [--json] [--log-level debug|warn|error|info|trace]
 
 ARGUMENTS
-  VM-NAME        Name for the new VM
   TEMPLATE-NAME  Name of the template to clone from
+  VM-NAME        Name for the new VM
 
 GLOBAL FLAGS
   --json                Format output as json.
