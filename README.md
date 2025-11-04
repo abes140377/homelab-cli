@@ -538,7 +538,7 @@ ARGUMENTS
   VMID  VM ID to configure
 
 FLAGS
-  --ipconfig=<value>  [default: dhcp] IPv4 configuration for eth0 (dhcp or ip=X.X.X.X/YY[,gw=X.X.X.X])
+  --ipconfig=<value>  [default: ip=dhcp] IPv4 configuration for eth0 (ip=dhcp or ip=X.X.X.X/YY[,gw=X.X.X.X])
   --password=<value>  Password for the default user (empty = no password)
   --ssh-key=<value>   [default: ./keys/admin_id_ecdsa.pub] SSH public key or path to key file
   --upgrade           Automatically upgrade packages on first boot

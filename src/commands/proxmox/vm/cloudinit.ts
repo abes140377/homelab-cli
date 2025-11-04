@@ -26,8 +26,8 @@ Configure VM with custom user credentials`,
   ];
   static flags = {
     ipconfig: Flags.string({
-      default: 'dhcp',
-      description: 'IPv4 configuration for eth0 (dhcp or ip=X.X.X.X/YY[,gw=X.X.X.X])',
+      default: 'ip=dhcp',
+      description: 'IPv4 configuration for eth0 (ip=dhcp or ip=X.X.X.X/YY[,gw=X.X.X.X])',
     }),
     password: Flags.string({
       default: '',
@@ -77,7 +77,39 @@ Configure VM with custom user credentials`,
     const result = await service.configureCloudInit(vmid, config);
 
     if (!result.success) {
-      this.error(`Failed to configure cloud-init: ${result.error.message}`, {
+      // Build detailed error message
+      let errorMsg = `Failed to configure cloud-init: ${result.error.message}`;
+
+      // Include Zod validation errors if available
+      if (result.error.context?.zodError) {
+        const zodError = result.error.context.zodError as {
+          errors?: Array<{message: string; path: string[]}>;
+        };
+        if (zodError.errors && zodError.errors.length > 0) {
+          errorMsg += '\nValidation errors:';
+          for (const err of zodError.errors) {
+            errorMsg += `\n  - ${err.path.join('.')}: ${err.message}`;
+          }
+        }
+      }
+
+      // Include cause if available
+      if (result.error.context?.cause) {
+        const cause = result.error.context.cause as {context?: Record<string, unknown>; message: string};
+        errorMsg += `\nCause: ${cause.message}`;
+
+        // Include cause's context if available
+        if (cause.context) {
+          errorMsg += `\nCause Context: ${JSON.stringify(cause.context, null, 2)}`;
+        }
+      }
+
+      // Include context details if available
+      if (result.error.context?.context) {
+        errorMsg += `\nContext: ${JSON.stringify(result.error.context.context, null, 2)}`;
+      }
+
+      this.error(errorMsg, {
         exit: 1,
       });
     }

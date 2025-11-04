@@ -323,7 +323,8 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       // Set VM configuration: PUT /nodes/{node}/qemu/{vmid}/config
       await proxmox.nodes.$(node).qemu.$(vmid).config.$put(config);
 
-      return success();
+      // eslint-disable-next-line unicorn/no-useless-undefined
+      return success(undefined);
     } catch (error) {
       return failure(
         new RepositoryError('Failed to set VM configuration', {
@@ -412,7 +413,8 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
 
         // Task is not running anymore, check exit status
         if (exitstatus === 'OK') {
-          return success();
+          // eslint-disable-next-line unicorn/no-useless-undefined
+          return success(undefined);
         }
 
         return failure(

@@ -54,7 +54,7 @@ describe('ProxmoxApiRepository', () => {
       if (!result.success) {
         expect(result.error).to.exist;
         expect(result.error.message).to.equal('Failed to set VM configuration');
-        // expect(result.error).to.have.property('cause');
+        expect(result.error.context?.cause).to.exist;
       }
     });
 
@@ -74,10 +74,10 @@ describe('ProxmoxApiRepository', () => {
       expect(result.success).to.be.false;
       if (!result.success) {
         expect(result.error.context).to.exist;
-        // expect(result.error.context?.node).to.equal(node);
-        // expect(result.error.context?.vmid).to.equal(vmid);
-        // expect(result.error.context?.config).to.deep.equal(configParams);
-        // expect(result.error.context?.message).to.be.a('string');
+        expect(result.error.context?.context?.node).to.equal(node);
+        expect(result.error.context?.context?.vmid).to.equal(vmid);
+        expect(result.error.context?.context?.config).to.deep.equal(configParams);
+        expect(result.error.context?.context?.message).to.be.a('string');
       }
     });
 
@@ -94,7 +94,7 @@ describe('ProxmoxApiRepository', () => {
       expect(result.success).to.be.false;
       if (!result.success) {
         expect(result.error.context).to.exist;
-        // expect(context.config).to.deep.equal({});
+        expect(result.error.context?.context?.config).to.deep.equal({});
       }
     });
 
@@ -116,9 +116,10 @@ describe('ProxmoxApiRepository', () => {
       expect(result.success).to.be.false;
       if (!result.success) {
         expect(result.error.context).to.exist;
-        // expect(context.config.sshkeys).to.equal(encodedSshKey);
-        // expect(context.config.sshkeys).to.include('%20'); // Space should be encoded
-        // expect(context.config.sshkeys).to.not.include(' '); // No raw spaces
+        const config = result.error.context?.context?.config as Record<string, string>;
+        expect(config.sshkeys).to.equal(encodedSshKey);
+        expect(config.sshkeys).to.include('%20'); // Space should be encoded
+        expect(config.sshkeys).to.not.include(' '); // No raw spaces
       }
     });
 
@@ -141,11 +142,12 @@ describe('ProxmoxApiRepository', () => {
       expect(result.success).to.be.false;
       if (!result.success) {
         expect(result.error.context).to.exist;
-        // expect(context.config).to.deep.equal(configParams);
-        // expect(context.config.ciuser).to.equal('ubuntu');
-        // expect(context.config.cipassword).to.equal('secure-password');
-        // expect(context.config.ciupgrade).to.equal(1);
-        // expect(context.config.ipconfig0).to.equal('ip=10.0.10.123/24,gw=10.0.10.1');
+        const config = result.error.context?.context?.config as Record<string, number | string>;
+        expect(config).to.deep.equal(configParams);
+        expect(config.ciuser).to.equal('ubuntu');
+        expect(config.cipassword).to.equal('secure-password');
+        expect(config.ciupgrade).to.equal(1);
+        expect(config.ipconfig0).to.equal('ip=10.0.10.123/24,gw=10.0.10.1');
       }
     });
 
@@ -166,9 +168,10 @@ describe('ProxmoxApiRepository', () => {
       expect(result.success).to.be.false;
       if (!result.success) {
         expect(result.error.context).to.exist;
-        // expect(typeof context.config.ciupgrade).to.equal('number');
-        // expect(typeof context.config.ciuser).to.equal('string');
-        // expect(typeof context.config.ipconfig0).to.equal('string');
+        const config = result.error.context?.context?.config as Record<string, number | string>;
+        expect(typeof config.ciupgrade).to.equal('number');
+        expect(typeof config.ciuser).to.equal('string');
+        expect(typeof config.ipconfig0).to.equal('string');
       }
     });
 
@@ -185,8 +188,8 @@ describe('ProxmoxApiRepository', () => {
         expect(result.success).to.be.false;
         if (!result.success) {
           expect(result.error.context).to.exist;
-          // expect(context.vmid).to.equal(vmid);
-          // expect(typeof context.vmid).to.equal('number');
+          expect(result.error.context?.context?.vmid).to.equal(vmid);
+          expect(typeof result.error.context?.context?.vmid).to.equal('number');
         }
       }
     });

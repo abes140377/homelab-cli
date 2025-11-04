@@ -74,14 +74,14 @@
 **Deliverable**: Unit tests for setVMConfig method
 
 **Steps**:
-- [ ] Open `test/repositories/proxmox-api.repository.test.ts`
-- [ ] Add test suite for `setVMConfig()`:
+- [x] Open `test/repositories/proxmox-api.repository.test.ts`
+- [x] Add test suite for `setVMConfig()`:
   - Test successful config update with all parameters
   - Test URL-encoding of SSH keys (verify encodeURIComponent called)
   - Test upgrade boolean to integer conversion
   - Test API error handling (mock API failure)
   - Test missing config parameters (empty object)
-- [ ] Use mock proxmox-api client (follow existing test patterns)
+- [x] Use mock proxmox-api client (follow existing test patterns)
 
 **Validation**:
 - Run `pnpm exec mocha --forbid-only "test/repositories/proxmox-api.repository.test.ts"`
@@ -145,19 +145,19 @@
 **Deliverable**: Unit tests for cloud-init service methods
 
 **Steps**:
-- [ ] Open `test/services/proxmox-vm.service.test.ts`
-- [ ] Add test suite for `configureCloudInit()`:
+- [x] Open `test/services/proxmox-vm.service.test.ts`
+- [x] Add test suite for `configureCloudInit()`:
   - Test successful configuration (happy path)
   - Test Zod validation failure (empty username)
   - Test Zod validation failure (invalid IP format)
   - Test node resolution failure (VM not found)
   - Test repository error handling
-- [ ] Add test suite for `resolveNodeForVmid()`:
+- [x] Add test suite for `resolveNodeForVmid()`:
   - Test successful node resolution
   - Test VM not found
   - Test repository error
-- [ ] Mock repository via interface (follow existing patterns)
-- [ ] Mock repository.listResources() to return test VMs
+- [x] Mock repository via interface (follow existing patterns)
+- [x] Mock repository.listResources() to return test VMs
 
 **Validation**:
 - Run `pnpm exec mocha --forbid-only "test/services/proxmox-vm.service.test.ts"`
@@ -215,8 +215,8 @@
 **Deliverable**: Integration tests for cloud-init command
 
 **Steps**:
-- [ ] Create `test/commands/proxmox/vm/cloudinit.test.ts`
-- [ ] Add test suite using `runCommand()` from `@oclif/test`:
+- [x] Create `test/commands/proxmox/vm/cloudinit.test.ts`
+- [x] Add test suite using `runCommand()` from `@oclif/test`:
   - Test successful configuration with DHCP (default values)
   - Test successful configuration with static IP (no gateway)
   - Test successful configuration with static IP and gateway
@@ -228,9 +228,9 @@
   - Test validation error (invalid IP format)
   - Test VM not found error
   - Test missing VMID argument (oclif should handle)
-- [ ] Mock service or use integration test approach
-- [ ] Verify stdout contains expected messages
-- [ ] Verify exit codes
+- [x] Mock service or use integration test approach
+- [x] Verify stdout contains expected messages
+- [x] Verify exit codes
 
 **Validation**:
 - Run `pnpm exec mocha --forbid-only "test/commands/proxmox/vm/cloudinit.test.ts"`
@@ -285,16 +285,16 @@
 **Deliverable**: Verified working command against real Proxmox instance
 
 **Steps**:
-- [ ] Build the project: `pnpm run build`
-- [ ] Ensure Proxmox credentials are configured in environment
-- [ ] Create a test VM from template (use existing `vm create` command)
-- [ ] Test command with DHCP: `./bin/dev.js proxmox vm cloudinit <vmid>`
-- [ ] Verify cloud-init settings in Proxmox UI (Hardware → Cloud-Init)
-- [ ] Test with static IP: `./bin/dev.js proxmox vm cloudinit <vmid> --ipconfig ip=192.168.1.100/24`
-- [ ] Verify IP config in Proxmox UI
-- [ ] Test with upgrade: `./bin/dev.js proxmox vm cloudinit <vmid> --upgrade`
-- [ ] Test with custom user/password
-- [ ] Test error cases:
+- [x] Build the project: `pnpm run build`
+- [x] Ensure Proxmox credentials are configured in environment
+- [x] Create a test VM from template (use existing `vm create` command)
+- [x] Test command with DHCP: `./bin/dev.js proxmox vm cloudinit <vmid>`
+- [x] Verify cloud-init settings in Proxmox UI (Hardware → Cloud-Init)
+- [x] Test with static IP: `./bin/dev.js proxmox vm cloudinit <vmid> --ipconfig ip=192.168.1.100/24`
+- [x] Verify IP config in Proxmox UI
+- [x] Test with upgrade: `./bin/dev.js proxmox vm cloudinit <vmid> --upgrade`
+- [x] Test with custom user/password
+- [x] Test error cases:
   - Non-existent VMID
   - Invalid IP format
   - SSH key file not found

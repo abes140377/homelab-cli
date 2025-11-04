@@ -64,7 +64,8 @@ export class ProxmoxVMService {
       );
     }
 
-    return success();
+    // eslint-disable-next-line unicorn/no-useless-undefined
+    return success(undefined);
   }
 
   /**
