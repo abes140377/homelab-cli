@@ -45,6 +45,7 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
+* [`homelab project zellij [CONFIG-NAME] [PROJECT-NAME]`](#homelab-project-zellij-config-name-project-name)
 * [`homelab prompt demo`](#homelab-prompt-demo)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
@@ -468,6 +469,46 @@ EXAMPLES
 ```
 
 _See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
+
+## `homelab project zellij [CONFIG-NAME] [PROJECT-NAME]`
+
+Open a Zellij session for a project with a specific configuration
+
+```
+USAGE
+  $ homelab project zellij [CONFIG-NAME] [PROJECT-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [CONFIG-NAME]   Name of the Zellij config file (without .kdl extension, defaults to current directory basename)
+  [PROJECT-NAME]  Name of the project (defaults to current project)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Open a Zellij session for a project with a specific configuration
+
+EXAMPLES
+  # Open Zellij session with auto-detected project and config (from current directory basename)
+
+    $ homelab project zellij
+
+  # Open Zellij session with auto-detected project and explicit config
+
+    $ homelab project zellij myconfig
+
+  # Open Zellij session with explicit project and auto-detected config
+
+    $ homelab project zellij sflab
+
+  # Open Zellij session with explicit project and config
+
+    $ homelab project zellij sflab homelab-cli
+```
+
+_See code: [src/commands/project/zellij.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/zellij.ts)_
 
 ## `homelab prompt demo`
 
