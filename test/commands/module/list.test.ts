@@ -2,7 +2,7 @@ import {runCommand} from '@oclif/test'
 import {expect} from 'chai'
 import {afterEach, beforeEach, describe, it} from 'mocha'
 
-describe('project module list', () => {
+describe('module list', () => {
   const originalEnv = process.env
   const originalCwd = process.cwd()
 
@@ -18,7 +18,7 @@ describe('project module list', () => {
   })
 
   it('runs with explicit project name', async () => {
-    const {error, stdout} = await runCommand('project module list sflab')
+    const {error, stdout} = await runCommand('module list sflab')
 
     // Error is acceptable if project doesn't exist or has no modules
     if (error) {
@@ -35,7 +35,7 @@ describe('project module list', () => {
   })
 
   it('runs without project name (auto-detect from cwd)', async () => {
-    const {error, stdout} = await runCommand('project module list')
+    const {error, stdout} = await runCommand('module list')
 
     // Error is acceptable if:
     // - Not in a project directory
@@ -58,7 +58,7 @@ describe('project module list', () => {
     // Use tmpdir as a safe test location
     process.env.PROJECTS_DIR = '/tmp/test-projects'
 
-    const {error, stdout} = await runCommand('project module list testproject')
+    const {error, stdout} = await runCommand('module list testproject')
 
     // Error is acceptable if directory doesn't exist
     if (error) {
@@ -74,7 +74,7 @@ describe('project module list', () => {
 
   describe('with filesystem', () => {
     it('formats output correctly when modules are found', async () => {
-      const {error, stdout} = await runCommand('project module list sflab')
+      const {error, stdout} = await runCommand('module list sflab')
 
       // Only check formatting if no error
       if (error) {
@@ -94,7 +94,7 @@ describe('project module list', () => {
     })
 
     it('shows error when project does not exist', async () => {
-      const {error} = await runCommand('project module list nonexistent-project-xyz')
+      const {error} = await runCommand('module list nonexistent-project-xyz')
 
       expect(error).to.exist
       if (error) {
@@ -106,7 +106,7 @@ describe('project module list', () => {
       // Change to a directory that's definitely not a project
       process.chdir('/tmp')
 
-      const {error} = await runCommand('project module list')
+      const {error} = await runCommand('module list')
 
       expect(error).to.exist
       if (error) {
@@ -117,7 +117,7 @@ describe('project module list', () => {
 
   describe('output format', () => {
     it('displays module name and git URL in table', async () => {
-      const {error, stdout} = await runCommand('project module list sflab')
+      const {error, stdout} = await runCommand('module list sflab')
 
       if (!error && stdout.includes('NAME')) {
         // Check that both columns are present
