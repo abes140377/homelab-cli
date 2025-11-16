@@ -24,5 +24,5 @@ enter = [
   'echo "$ADMIN_SSH_PUBLIC_KEY" > keys/admin_id_ecdsa.pub',
   'chmod 644 keys/admin_id_ecdsa.pub',
   #
-  'pre-commit install',
+  'pre-commit install -f --hook-type pre-commit',
 ]

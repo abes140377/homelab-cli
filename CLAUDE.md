@@ -41,6 +41,8 @@ The project follows a layered architecture pattern:
 - **cli-table3**: Terminal tables for formatted output
 - **zod**: Runtime type validation and schema definitions
 - **tsx**: Fast TypeScript execution for testing
+- **enquirer**: Interactive command-line prompts
+- **date-fns**: Modern JavaScript date utility library
 
 ## Development Commands
 
@@ -82,18 +84,22 @@ Uses ESLint with oclif and prettier configurations. Runs automatically after tes
 ```
 src/
 ├── commands/             # CLI command implementations
+│   ├── module/          # Module-related commands
+│   │   └── list.ts      # List modules for a project
 │   ├── project/         # Project-related commands
 │   │   ├── list.ts      # List all projects
-│   │   ├── vscode.ts    # Open project/workspace in VS Code
-│   │   └── module/
-│   │       └── list.ts  # List modules for a project
+│   │   └── vscode.ts    # Open project/workspace in VS Code
+│   ├── prompt/          # Interactive prompt demos
+│   │   └── demo.ts      # Demonstrate interactive prompts
 │   └── proxmox/         # Proxmox-related commands
 │       ├── container/
 │       │   └── list.ts  # List LXC containers
 │       ├── template/
 │       │   └── list.ts  # List VM templates
 │       └── vm/
-│           └── list.ts  # List VMs
+│           ├── cloudinit.ts  # Configure cloud-init for VMs
+│           ├── create.ts     # Create VM from template
+│           └── list.ts       # List VMs
 ├── config/              # Configuration management
 │   ├── schemas/         # Zod schemas for configs
 │   │   ├── proxmox-config.schema.ts
@@ -107,12 +113,19 @@ src/
 ├── factories/           # Entity factories
 │   ├── module.factory.ts
 │   ├── project.factory.ts
+│   ├── proxmox-template.factory.ts
 │   └── proxmox-vm.factory.ts
 ├── lib/                 # Shared libraries
 │   └── base-command.ts  # Base command class
 ├── models/              # DTOs and schemas
 │   ├── schemas/         # Zod validation schemas
-│   └── *.dto.ts         # Data Transfer Objects
+│   ├── cloud-init-config.dto.ts
+│   ├── module-fs.dto.ts
+│   ├── project-context.dto.ts
+│   ├── project-fs.dto.ts
+│   ├── project.dto.ts
+│   ├── proxmox-template.dto.ts
+│   └── proxmox-vm.dto.ts
 ├── repositories/        # Data access layer
 │   ├── interfaces/      # Repository contracts
 │   │   ├── module-fs.repository.interface.ts
@@ -129,24 +142,26 @@ src/
 │   ├── proxmox-template.service.ts
 │   └── proxmox-vm.service.ts
 ├── utils/               # Utility functions
-│   ├── result.ts        # Result type for error handling
-│   └── detect-current-project.ts  # Project detection utility
+│   ├── detect-current-project.ts  # Project detection utility
+│   ├── prompts.ts       # Interactive prompt utilities
+│   ├── prompts.types.ts # Prompt type definitions
+│   └── result.ts        # Result type for error handling
 └── index.ts             # Entry point
 
 test/
 ├── commands/            # Command tests
+│   ├── module/
 │   ├── project/
-│   │   ├── list.test.ts
-│   │   ├── vscode.test.ts
-│   │   └── module/
-│   │       └── list.test.ts
+│   ├── prompt/
 │   └── proxmox/
 │       ├── container/
 │       ├── template/
 │       └── vm/
 ├── config/              # Config tests
+├── integration/         # Integration tests
 ├── repositories/        # Repository tests
-└── services/            # Service tests
+├── services/            # Service tests
+└── utils/               # Utility tests
 ```
 
 ### Command Structure
@@ -160,12 +175,19 @@ Commands follow oclif conventions and are organized in `src/commands/`:
 
 *Project Management:*
 - `homelab project list` - Lists all projects from filesystem
-- `homelab project module list [project-name]` - Lists modules for a project (auto-detects current project if not specified)
 - `homelab project vscode [project-name] [workspace-name]` - Opens VS Code for a project or workspace (supports auto-detection)
+
+*Module Management:*
+- `homelab module list [project-name]` - Lists modules for a project (auto-detects current project if not specified)
+
+*Interactive Prompts:*
+- `homelab prompt demo` - Demonstrates interactive prompts (text, password, select, multi-select)
 
 *Proxmox Infrastructure:*
 - `homelab proxmox container list` - Lists all LXC containers
 - `homelab proxmox vm list` - Lists all VMs (non-templates)
+- `homelab proxmox vm create <template-name> <vm-name>` - Creates a new VM from a template
+- `homelab proxmox vm cloudinit <vmid>` - Configures cloud-init settings for a VM
 - `homelab proxmox template list` - Lists VM templates
 
 **Command Anatomy:**
@@ -288,6 +310,25 @@ const projectName = detectCurrentProject(process.cwd(), '/Users/user/projects')
 // Returns 'myproject' if cwd is '/Users/user/projects/myproject/src/foo'
 // Returns null if cwd is outside the projects directory
 ```
+
+*Interactive Prompts* (see `src/utils/prompts.ts`):
+```typescript
+import {promptText, promptPassword, promptSelect, promptMultiSelect} from './utils/prompts.js'
+
+// Text input
+const name = await promptText('Enter your name')
+
+// Password input (hidden)
+const password = await promptPassword('Enter password')
+
+// Single selection
+const choice = await promptSelect('Choose an option', ['Option 1', 'Option 2', 'Option 3'])
+
+// Multiple selection
+const choices = await promptMultiSelect('Select features', ['Feature A', 'Feature B', 'Feature C'])
+```
+
+The prompt utilities are built on top of the `enquirer` library and provide a consistent interface for interactive command-line prompts. See `src/commands/prompt/demo.ts` for examples.
 
 ## Key Patterns
 

@@ -76,7 +76,7 @@ export default class ProjectVscode extends BaseCommand<typeof ProjectVscode> {
     // Execute VS Code
     // We need to wait briefly for spawn to either succeed or fail before detaching
     await new Promise<void>((resolve, reject) => {
-      const child = spawn('code', [targetPath], {
+      const child = spawn('code', [targetPath, "--profile", `${workspaceName}`], {
         cwd,
         detached: true,
         stdio: 'ignore',

@@ -1,10 +1,10 @@
 import {Args} from '@oclif/core'
 import Table from 'cli-table3'
 
-import {loadProjectsDirConfig} from '../../../config/projects-dir.config.js'
-import {ModuleFactory} from '../../../factories/module.factory.js'
-import {BaseCommand} from '../../../lib/base-command.js'
-import {detectCurrentProject} from '../../../utils/detect-current-project.js'
+import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
+import {ModuleFactory} from '../../factories/module.factory.js'
+import {BaseCommand} from '../../lib/base-command.js'
+import {detectCurrentProject} from '../../utils/detect-current-project.js'
 
 export default class ProjectModuleList extends BaseCommand<typeof ProjectModuleList> {
   static args = {

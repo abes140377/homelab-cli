@@ -32,6 +32,7 @@ USAGE
 
 <!-- commands -->
 * [`homelab help [COMMAND]`](#homelab-help-command)
+* [`homelab module list [PROJECT-NAME]`](#homelab-module-list-project-name)
 * [`homelab plugins`](#homelab-plugins)
 * [`homelab plugins add PLUGIN`](#homelab-plugins-add-plugin)
 * [`homelab plugins:inspect PLUGIN...`](#homelab-pluginsinspect-plugin)
@@ -43,7 +44,6 @@ USAGE
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
-* [`homelab project module list [PROJECT-NAME]`](#homelab-project-module-list-project-name)
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
 * [`homelab prompt demo`](#homelab-prompt-demo)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
@@ -71,6 +71,42 @@ DESCRIPTION
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.34/src/commands/help.ts)_
+
+## `homelab module list [PROJECT-NAME]`
+
+List all modules for a project from filesystem
+
+```
+USAGE
+  $ homelab module list [PROJECT-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [PROJECT-NAME]  Name of the project to list modules for (defaults to current project)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  List all modules for a project from filesystem
+
+EXAMPLES
+  $ homelab module list sflab
+  ┌──────────────┬──────────────────────────────────────┐
+  │ NAME         │ GIT REPOSITORY URL                   │
+  ├──────────────┼──────────────────────────────────────┤
+  │ module1      │ git@github.com:user/module1.git      │
+  ├──────────────┼──────────────────────────────────────┤
+  │ module2      │ git@github.com:user/module2.git      │
+  └──────────────┴──────────────────────────────────────┘
+
+  # List modules for current project (auto-detect from working directory)
+
+    $ homelab module list
+```
+
+_See code: [src/commands/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/module/list.ts)_
 
 ## `homelab plugins`
 
@@ -393,42 +429,6 @@ EXAMPLES
 
 _See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
 
-## `homelab project module list [PROJECT-NAME]`
-
-List all modules for a project from filesystem
-
-```
-USAGE
-  $ homelab project module list [PROJECT-NAME] [--json] [--log-level debug|warn|error|info|trace]
-
-ARGUMENTS
-  [PROJECT-NAME]  Name of the project to list modules for (defaults to current project)
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  List all modules for a project from filesystem
-
-EXAMPLES
-  $ homelab project module list sflab
-  ┌──────────────┬──────────────────────────────────────┐
-  │ NAME         │ GIT REPOSITORY URL                   │
-  ├──────────────┼──────────────────────────────────────┤
-  │ module1      │ git@github.com:user/module1.git      │
-  ├──────────────┼──────────────────────────────────────┤
-  │ module2      │ git@github.com:user/module2.git      │
-  └──────────────┴──────────────────────────────────────┘
-
-  # List modules for current project (auto-detect from working directory)
-
-    $ homelab project module list
-```
-
-_See code: [src/commands/project/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/module/list.ts)_
-
 ## `homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`
 
 Open a project or workspace in Visual Studio Code
@@ -613,9 +613,9 @@ DESCRIPTION
   Create a new VM from a template
 
 EXAMPLES
-  $ homelab proxmox vm create my-server ubuntu-22.04
-  Creating VM 'my-server' from template 'ubuntu-22.04'...
-  Successfully created VM 200 'my-server' on node 'pve'
+  $ homelab proxmox vm create tpl-linux-ubuntu-server-24.04 my-server
+  Creating VM 'my-server' from template 'tpl-linux-ubuntu-server-24.04'...
+  Successfully created VM 200 'my-server' on node 'pve1'
 ```
 
 _See code: [src/commands/proxmox/vm/create.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/create.ts)_

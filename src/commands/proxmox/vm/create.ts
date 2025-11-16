@@ -1,7 +1,7 @@
-import {Args} from '@oclif/core'
+import { Args } from '@oclif/core'
 
-import {ProxmoxVMFactory} from '../../../factories/proxmox-vm.factory.js'
-import {BaseCommand} from '../../../lib/base-command.js'
+import { ProxmoxVMFactory } from '../../../factories/proxmox-vm.factory.js'
+import { BaseCommand } from '../../../lib/base-command.js'
 
 export default class ProxmoxVmCreate extends BaseCommand<typeof ProxmoxVmCreate> {
   static args = {
@@ -14,11 +14,11 @@ export default class ProxmoxVmCreate extends BaseCommand<typeof ProxmoxVmCreate>
       required: true,
     }),
   }
-static description = 'Create a new VM from a template'
-static examples = [
-    `<%= config.bin %> <%= command.id %> my-server ubuntu-22.04
-Creating VM 'my-server' from template 'ubuntu-22.04'...
-Successfully created VM 200 'my-server' on node 'pve'`,
+  static description = 'Create a new VM from a template'
+  static examples = [
+    `<%= config.bin %> <%= command.id %> tpl-linux-ubuntu-server-24.04 my-server
+Creating VM 'my-server' from template 'tpl-linux-ubuntu-server-24.04'...
+Successfully created VM 200 'my-server' on node 'pve1'`,
   ]
 
   async run(): Promise<void> {
@@ -40,7 +40,7 @@ Successfully created VM 200 'my-server' on node 'pve'`,
       })
     }
 
-    const {name, node, vmid} = result.data
+    const { name, node, vmid } = result.data
 
     // Display success message
     this.log(`Successfully created VM ${vmid} '${name}' on node '${node}'`)
