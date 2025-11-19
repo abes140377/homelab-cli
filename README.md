@@ -31,6 +31,7 @@ USAGE
 # Commands
 
 <!-- commands -->
+* [`homelab exec demo`](#homelab-exec-demo)
 * [`homelab help [COMMAND]`](#homelab-help-command)
 * [`homelab module list [PROJECT-NAME]`](#homelab-module-list-project-name)
 * [`homelab plugins`](#homelab-plugins)
@@ -52,6 +53,31 @@ USAGE
 * [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
+
+## `homelab exec demo`
+
+Demonstrate command execution capabilities (simple commands, working directory, environment variables, streaming, error handling)
+
+```
+USAGE
+  $ homelab exec demo [--json] [--log-level debug|warn|error|info|trace]
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Demonstrate command execution capabilities (simple commands, working directory, environment variables, streaming,
+  error handling)
+
+EXAMPLES
+  $ homelab exec demo
+
+  $ homelab exec demo # Run all demonstration scenarios
+```
+
+_See code: [src/commands/exec/demo.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/exec/demo.ts)_
 
 ## `homelab help [COMMAND]`
 
