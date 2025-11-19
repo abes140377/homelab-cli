@@ -64,12 +64,12 @@
   - [x] 3.2.1 Execute: `pnpm test`
   - [x] 3.2.2 Ensure all tests pass
   - [x] 3.2.3 Ensure linting passes
-- [ ] 3.3 Manual testing (optional but recommended)
-  - [ ] 3.3.1 Test: `./bin/dev.js project zellij` (auto-detect both)
-  - [ ] 3.3.2 Test: `./bin/dev.js project zellij <config>` (auto-detect project)
-  - [ ] 3.3.3 Test: `./bin/dev.js project zellij <project> <config>` (explicit both)
-  - [ ] 3.3.4 Verify Zellij launches with correct config and session name
-  - [ ] 3.3.5 Test error cases (missing zellij, outside project directory)
+- [x] 3.3 Manual testing (optional but recommended)
+  - [x] 3.3.1 Test: `./bin/dev.js project zellij` (auto-detect both)
+  - [x] 3.3.2 Test: `./bin/dev.js project zellij <config>` (auto-detect project)
+  - [x] 3.3.3 Test: `./bin/dev.js project zellij <project> <config>` (explicit both)
+  - [x] 3.3.4 Verify Zellij launches with correct config and session name
+  - [x] 3.3.5 Test error cases (missing zellij, outside project directory)
 
 ## 4. Documentation
 
