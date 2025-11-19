@@ -31,6 +31,8 @@ USAGE
 # Commands
 
 <!-- commands -->
+* [`homelab config read [KEY]`](#homelab-config-read-key)
+* [`homelab config write KEY VALUE`](#homelab-config-write-key-value)
 * [`homelab exec demo`](#homelab-exec-demo)
 * [`homelab help [COMMAND]`](#homelab-help-command)
 * [`homelab module list [PROJECT-NAME]`](#homelab-module-list-project-name)
@@ -53,6 +55,66 @@ USAGE
 * [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
+
+## `homelab config read [KEY]`
+
+Read configuration values
+
+```
+USAGE
+  $ homelab config read [KEY] [--json] [--log-level debug|warn|error|info|trace] [-p]
+
+ARGUMENTS
+  [KEY]  Configuration key to read
+
+FLAGS
+  -p, --path  Show path to config file
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Read configuration values
+
+EXAMPLES
+  $ homelab config read
+
+  $ homelab config read logLevel
+
+  $ homelab config read --path
+```
+
+_See code: [src/commands/config/read.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/config/read.ts)_
+
+## `homelab config write KEY VALUE`
+
+Write configuration values
+
+```
+USAGE
+  $ homelab config write KEY VALUE [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  KEY    Configuration key to set
+  VALUE  Configuration value
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Write configuration values
+
+EXAMPLES
+  $ homelab config write logLevel debug
+
+  $ homelab config write colorOutput false
+```
+
+_See code: [src/commands/config/write.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/config/write.ts)_
 
 ## `homelab exec demo`
 

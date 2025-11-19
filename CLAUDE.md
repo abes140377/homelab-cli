@@ -43,6 +43,7 @@ The project follows a layered architecture pattern:
 - **tsx**: Fast TypeScript execution for testing
 - **enquirer**: Interactive command-line prompts
 - **date-fns**: Modern JavaScript date utility library
+- **configstore**: Persistent configuration storage with environment variable overrides
 
 ## Development Commands
 
@@ -298,6 +299,81 @@ Optional environment variable:
 import {loadProjectsDirConfig} from './config/projects-dir.config.js'
 
 const config = loadProjectsDirConfig() // Returns {projectsDir: '/absolute/path'}
+```
+
+**CLI Configuration with Configstore** (see `src/config/cli.config.ts`):
+
+The CLI uses `configstore` for persistent configuration management with a three-tier precedence hierarchy:
+
+1. **Environment variables** (highest priority) - for CI/CD and overrides
+2. **Configstore** (fallback) - persistent user configuration
+3. **Schema defaults** (lowest priority) - hardcoded sensible defaults
+
+**Available Settings:**
+- `logLevel`: Log level ('debug', 'info', 'warn', 'error') - defaults to 'info'
+- `colorOutput`: Enable colored output (boolean) - defaults to true
+
+**Environment Variable Overrides:**
+Environment variables use the `HOMELAB_` prefix with uppercase snake_case:
+- `HOMELAB_LOG_LEVEL`: Override logLevel
+- `HOMELAB_COLOR_OUTPUT`: Override colorOutput ('true' or 'false')
+
+**Using CLI Configuration:**
+```typescript
+import {getCliConfig} from './config/cli.config.js'
+
+const config = getCliConfig() // Returns singleton instance
+
+// Read configuration values
+const logLevel = config.get('logLevel')
+const colorOutput = config.get('colorOutput')
+
+// Write configuration values
+config.set('logLevel', 'debug')
+config.set('colorOutput', false)
+
+// Get all configuration
+const allConfig = config.getAll()
+
+// Get config file path
+const path = config.getPath()
+```
+
+**CLI Commands for Configuration:**
+```bash
+# Read all configuration
+homelab config read
+
+# Read specific key
+homelab config read logLevel
+
+# Show config file location
+homelab config read --path
+
+# Write configuration
+homelab config write logLevel debug
+homelab config write colorOutput false
+```
+
+**Configuration File Locations:**
+Configstore automatically determines the config file location based on OS:
+- **Linux**: `~/.config/homelab-cli/config.json`
+- **macOS**: `~/Library/Preferences/homelab-cli/config.json`
+- **Windows**: `%APPDATA%\homelab-cli\config.json`
+
+**Testing with Configstore:**
+When writing tests for configstore-backed configurations:
+- Use unique package names for test instances to avoid conflicts
+- Clean up test config files in afterEach hooks if needed
+- Use environment variables to override config in tests
+- Example:
+```typescript
+const config = new CliConfigManager('test-unique-name')
+config.set('logLevel', 'debug')
+
+// Verify persistence with new instance
+const config2 = new CliConfigManager('test-unique-name')
+expect(config2.get('logLevel')).to.equal('debug')
 ```
 
 **Utilities:**
