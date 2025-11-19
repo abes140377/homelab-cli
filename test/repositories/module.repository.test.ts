@@ -6,10 +6,10 @@ import {join} from 'node:path'
 
 import type {ProjectsDirConfig} from '../../src/config/projects-dir.config.js'
 
-import {ModuleFsRepository} from '../../src/repositories/module-fs.repository.js'
+import {ModuleRepository} from '../../src/repositories/module.repository.js'
 
-describe('ModuleFsRepository', () => {
-  let repository: ModuleFsRepository
+describe('ModuleRepository', () => {
+  let repository: ModuleRepository
   let config: ProjectsDirConfig
   let testDir: string
 
@@ -22,7 +22,7 @@ describe('ModuleFsRepository', () => {
       projectsDir: testDir,
     }
 
-    repository = new ModuleFsRepository(config)
+    repository = new ModuleRepository(config)
   })
 
   afterEach(async () => {

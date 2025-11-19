@@ -1,6 +1,6 @@
-import { loadProjectsDirConfig } from '../config/projects-dir.config.js'
-import { ProjectFsRepository } from '../repositories/project-fs.repository.js'
-import { ProjectFsService } from '../services/project-fs.service.js'
+import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
+import {ProjectRepository} from '../repositories/project.repository.js'
+import {ProjectService} from '../services/project.service.js'
 
 /**
  * Factory for creating project service instances with dependencies.
@@ -8,12 +8,12 @@ import { ProjectFsService } from '../services/project-fs.service.js'
  */
 export const ProjectFactory = {
   /**
-   * Creates a fully-configured ProjectFsService instance using filesystem.
-   * @returns ProjectFsService with filesystem repository dependencies wired
+   * Creates a fully-configured ProjectService instance.
+   * @returns ProjectService with repository dependencies wired
    */
-  createProjectFsService(): ProjectFsService {
+  createProjectService(): ProjectService {
     const config = loadProjectsDirConfig()
-    const repository = new ProjectFsRepository(config)
-    return new ProjectFsService(repository)
+    const repository = new ProjectRepository(config)
+    return new ProjectService(repository)
   },
 }

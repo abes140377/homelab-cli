@@ -2,11 +2,11 @@ import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
 
 import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
-import type {ProjectFsDto} from '../models/project-fs.dto.js'
-import type {IProjectFsRepository} from './interfaces/project-fs.repository.interface.js'
+import type {ProjectDto} from '../models/project.dto.js'
+import type {IProjectRepository} from './interfaces/project.repository.interface.js'
 
 import {RepositoryError} from '../errors/repository.error.js'
-import {ProjectFsSchema} from '../models/schemas/project-fs.schema.js'
+import {ProjectSchema} from '../models/schemas/project.schema.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {logDebugError} from '../utils/debug-logger.js'
 import {failure, type Result, success} from '../utils/result.js'
@@ -15,7 +15,7 @@ import {failure, type Result, success} from '../utils/result.js'
  * Project repository implementation using filesystem.
  * Scans a directory for Git repositories and treats them as projects.
  */
-export class ProjectFsRepository implements IProjectFsRepository {
+export class ProjectRepository implements IProjectRepository {
   private commandExecutor: CommandExecutorService
   private config: ProjectsDirConfig
 
@@ -29,7 +29,7 @@ export class ProjectFsRepository implements IProjectFsRepository {
    * Only scans direct subdirectories (no recursion).
    * @returns Result containing array of projects or a RepositoryError
    */
-  async findAll(): Promise<Result<ProjectFsDto[], RepositoryError>> {
+  async findAll(): Promise<Result<ProjectDto[], RepositoryError>> {
     try {
       // Check if projects directory exists
       await access(this.config.projectsDir)
@@ -56,7 +56,7 @@ export class ProjectFsRepository implements IProjectFsRepository {
       )
 
       // Filter out null values (non-git directories) and unwrap Results
-      const projects: ProjectFsDto[] = []
+      const projects: ProjectDto[] = []
       for (const result of projectResults) {
         if (result === null) continue
 
@@ -93,7 +93,7 @@ export class ProjectFsRepository implements IProjectFsRepository {
    * @param name - The name of the project (directory name) to find
    * @returns Result containing the project or a RepositoryError
    */
-  async findByName(name: string): Promise<Result<ProjectFsDto, RepositoryError>> {
+  async findByName(name: string): Promise<Result<ProjectDto, RepositoryError>> {
     try {
       const dirPath = join(this.config.projectsDir, name)
 
@@ -169,15 +169,15 @@ export class ProjectFsRepository implements IProjectFsRepository {
   }
 
   /**
-   * Creates a ProjectFsDto from a directory path
+   * Creates a ProjectDto from a directory path
    * @param dirPath - The absolute path to the project directory
    * @param name - The directory name
-   * @returns A validated ProjectFsDto wrapped in a Result
+   * @returns A validated ProjectDto wrapped in a Result
    */
   private async createProjectDto(
     dirPath: string,
     name: string,
-  ): Promise<Result<ProjectFsDto, RepositoryError>> {
+  ): Promise<Result<ProjectDto, RepositoryError>> {
     try {
       const gitRepoUrl = await this.getGitRemoteUrl(dirPath)
 
@@ -186,7 +186,7 @@ export class ProjectFsRepository implements IProjectFsRepository {
         name,
       }
 
-      const validated = ProjectFsSchema.parse(projectData)
+      const validated = ProjectSchema.parse(projectData)
       return success(validated)
     } catch (error) {
       logDebugError('Error creating project DTO', error, {

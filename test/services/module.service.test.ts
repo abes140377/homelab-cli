@@ -1,36 +1,36 @@
 import {expect} from 'chai'
 
-import type {ModuleFsDto} from '../../src/models/module-fs.dto.js'
-import type {IModuleFsRepository} from '../../src/repositories/interfaces/module-fs.repository.interface.js'
+import type {ModuleDto} from '../../src/models/module.dto.js'
+import type {IModuleRepository} from '../../src/repositories/interfaces/module.repository.interface.js'
 
 import {RepositoryError} from '../../src/errors/repository.error.js'
-import {ModuleFsService} from '../../src/services/module-fs.service.js'
+import {ModuleService} from '../../src/services/module.service.js'
 import {failure, type Result, success} from '../../src/utils/result.js'
 
 /**
  * Mock repository implementation for testing
  */
-class MockModuleFsRepository implements IModuleFsRepository {
-  private mockData: Result<ModuleFsDto[], RepositoryError>
+class MockModuleRepository implements IModuleRepository {
+  private mockData: Result<ModuleDto[], RepositoryError>
 
-  constructor(mockResult?: Result<ModuleFsDto[], RepositoryError>) {
+  constructor(mockResult?: Result<ModuleDto[], RepositoryError>) {
     this.mockData = mockResult || success([])
   }
 
-  async findByProjectName(_projectName: string): Promise<Result<ModuleFsDto[], RepositoryError>> {
+  async findByProjectName(_projectName: string): Promise<Result<ModuleDto[], RepositoryError>> {
     return this.mockData
   }
 
-  setMockData(result: Result<ModuleFsDto[], RepositoryError>): void {
+  setMockData(result: Result<ModuleDto[], RepositoryError>): void {
     this.mockData = result
   }
 }
 
-describe('ModuleFsService', () => {
-  let mockRepository: MockModuleFsRepository
-  let service: ModuleFsService
+describe('ModuleService', () => {
+  let mockRepository: MockModuleRepository
+  let service: ModuleService
 
-  const validModules: ModuleFsDto[] = [
+  const validModules: ModuleDto[] = [
     {
       gitRepoUrl: 'git@github.com:user/module1.git',
       name: 'module1',
@@ -42,8 +42,8 @@ describe('ModuleFsService', () => {
   ]
 
   beforeEach(() => {
-    mockRepository = new MockModuleFsRepository()
-    service = new ModuleFsService(mockRepository)
+    mockRepository = new MockModuleRepository()
+    service = new ModuleService(mockRepository)
   })
 
   describe('listModules', () => {
@@ -98,7 +98,7 @@ describe('ModuleFsService', () => {
           gitRepoUrl: 'some-url',
           name: '',
         },
-      ] as unknown as ModuleFsDto[]
+      ] as unknown as ModuleDto[]
 
       mockRepository.setMockData(success(invalidModules))
 
@@ -111,7 +111,7 @@ describe('ModuleFsService', () => {
     })
 
     it('should handle modules with empty gitRepoUrl', async () => {
-      const modulesWithEmptyUrl: ModuleFsDto[] = [
+      const modulesWithEmptyUrl: ModuleDto[] = [
         {
           gitRepoUrl: '',
           name: 'local-module',

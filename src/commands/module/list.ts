@@ -59,7 +59,7 @@ export default class ProjectModuleList extends BaseCommand<typeof ProjectModuleL
     // Create service with filesystem repository
     let service
     try {
-      service = ModuleFactory.createModuleFsService()
+      service = ModuleFactory.createModuleService()
     } catch (error) {
       this.error(
         `Failed to initialize filesystem repository: ${error instanceof Error ? error.message : 'Unknown error'}`,

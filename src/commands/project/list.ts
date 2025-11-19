@@ -24,7 +24,7 @@ export default class ProjectList extends BaseCommand<typeof ProjectList> {
 
     let service;
     try {
-      service = ProjectFactory.createProjectFsService();
+      service = ProjectFactory.createProjectService();
     } catch (error) {
       this.error(
         `Failed to initialize filesystem repository: ${error instanceof Error ? error.message : 'Unknown error'}`,

@@ -2,11 +2,11 @@ import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
 
 import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
-import type {ModuleFsDto} from '../models/module-fs.dto.js'
-import type {IModuleFsRepository} from './interfaces/module-fs.repository.interface.js'
+import type {ModuleDto} from '../models/module.dto.js'
+import type {IModuleRepository} from './interfaces/module.repository.interface.js'
 
 import {RepositoryError} from '../errors/repository.error.js'
-import {ModuleFsSchema} from '../models/schemas/module-fs.schema.js'
+import {ModuleSchema} from '../models/schemas/module.schema.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {logDebugError} from '../utils/debug-logger.js'
 import {failure, type Result, success} from '../utils/result.js'
@@ -15,7 +15,7 @@ import {failure, type Result, success} from '../utils/result.js'
  * Module repository implementation using filesystem.
  * Scans a project's src directory for Git repositories and treats them as modules.
  */
-export class ModuleFsRepository implements IModuleFsRepository {
+export class ModuleRepository implements IModuleRepository {
   private commandExecutor: CommandExecutorService
   private config: ProjectsDirConfig
 
@@ -30,7 +30,7 @@ export class ModuleFsRepository implements IModuleFsRepository {
    * @param projectName - The name of the project to find modules for
    * @returns Result containing array of modules or a RepositoryError
    */
-  async findByProjectName(projectName: string): Promise<Result<ModuleFsDto[], RepositoryError>> {
+  async findByProjectName(projectName: string): Promise<Result<ModuleDto[], RepositoryError>> {
     try {
       const projectSrcDir = join(this.config.projectsDir, projectName, 'src')
 
@@ -83,7 +83,7 @@ export class ModuleFsRepository implements IModuleFsRepository {
       )
 
       // Filter out null values (non-git directories) and unwrap Results
-      const modules: ModuleFsDto[] = []
+      const modules: ModuleDto[] = []
       for (const result of moduleResults) {
         if (result === null) continue
 
@@ -116,15 +116,15 @@ export class ModuleFsRepository implements IModuleFsRepository {
   }
 
   /**
-   * Creates a ModuleFsDto from a directory path
+   * Creates a ModuleDto from a directory path
    * @param dirPath - The absolute path to the module directory
    * @param name - The directory name
-   * @returns A validated ModuleFsDto wrapped in a Result
+   * @returns A validated ModuleDto wrapped in a Result
    */
   private async createModuleDto(
     dirPath: string,
     name: string,
-  ): Promise<Result<ModuleFsDto, RepositoryError>> {
+  ): Promise<Result<ModuleDto, RepositoryError>> {
     try {
       const gitRepoUrl = await this.getGitRemoteUrl(dirPath)
 
@@ -133,7 +133,7 @@ export class ModuleFsRepository implements IModuleFsRepository {
         name,
       }
 
-      const validated = ModuleFsSchema.parse(moduleData)
+      const validated = ModuleSchema.parse(moduleData)
       return success(validated)
     } catch (error) {
       logDebugError('Error creating module DTO', error, {

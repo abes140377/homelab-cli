@@ -1,6 +1,6 @@
 import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
-import {ModuleFsRepository} from '../repositories/module-fs.repository.js'
-import {ModuleFsService} from '../services/module-fs.service.js'
+import {ModuleRepository} from '../repositories/module.repository.js'
+import {ModuleService} from '../services/module.service.js'
 
 /**
  * Factory for creating module service instances with dependencies.
@@ -8,12 +8,12 @@ import {ModuleFsService} from '../services/module-fs.service.js'
  */
 export const ModuleFactory = {
   /**
-   * Creates a fully-configured ModuleFsService instance using filesystem.
-   * @returns ModuleFsService with filesystem repository dependencies wired
+   * Creates a fully-configured ModuleService instance.
+   * @returns ModuleService with repository dependencies wired
    */
-  createModuleFsService(): ModuleFsService {
+  createModuleService(): ModuleService {
     const config = loadProjectsDirConfig()
-    const repository = new ModuleFsRepository(config)
-    return new ModuleFsService(repository)
+    const repository = new ModuleRepository(config)
+    return new ModuleService(repository)
   },
 }

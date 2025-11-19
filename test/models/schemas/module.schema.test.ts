@@ -1,8 +1,8 @@
 import {expect} from 'chai'
 
-import {ModuleFsSchema} from '../../../src/models/schemas/module-fs.schema.js'
+import {ModuleSchema} from '../../../src/models/schemas/module.schema.js'
 
-describe('ModuleFsSchema', () => {
+describe('ModuleSchema', () => {
   describe('valid data', () => {
     it('should validate module with name and gitRepoUrl', () => {
       const validData = {
@@ -10,7 +10,7 @@ describe('ModuleFsSchema', () => {
         name: 'my-module',
       }
 
-      const result = ModuleFsSchema.safeParse(validData)
+      const result = ModuleSchema.safeParse(validData)
 
       expect(result.success).to.be.true
       if (result.success) {
@@ -24,7 +24,7 @@ describe('ModuleFsSchema', () => {
         name: 'local-module',
       }
 
-      const result = ModuleFsSchema.safeParse(validData)
+      const result = ModuleSchema.safeParse(validData)
 
       expect(result.success).to.be.true
       if (result.success) {
@@ -39,7 +39,7 @@ describe('ModuleFsSchema', () => {
         gitRepoUrl: 'git@github.com:user/module.git',
       }
 
-      const result = ModuleFsSchema.safeParse(invalidData)
+      const result = ModuleSchema.safeParse(invalidData)
 
       expect(result.success).to.be.false
     })
@@ -50,7 +50,7 @@ describe('ModuleFsSchema', () => {
         name: '',
       }
 
-      const result = ModuleFsSchema.safeParse(invalidData)
+      const result = ModuleSchema.safeParse(invalidData)
 
       expect(result.success).to.be.false
     })
@@ -60,7 +60,7 @@ describe('ModuleFsSchema', () => {
         name: 'my-module',
       }
 
-      const result = ModuleFsSchema.safeParse(invalidData)
+      const result = ModuleSchema.safeParse(invalidData)
 
       expect(result.success).to.be.false
     })
@@ -71,7 +71,7 @@ describe('ModuleFsSchema', () => {
         name: true,
       }
 
-      const result = ModuleFsSchema.safeParse(invalidData)
+      const result = ModuleSchema.safeParse(invalidData)
 
       expect(result.success).to.be.false
     })

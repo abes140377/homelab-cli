@@ -6,10 +6,10 @@ import {join} from 'node:path'
 
 import type {ProjectsDirConfig} from '../../src/config/projects-dir.config.js'
 
-import {ProjectFsRepository} from '../../src/repositories/project-fs.repository.js'
+import {ProjectRepository} from '../../src/repositories/project.repository.js'
 
-describe('ProjectFsRepository', () => {
-  let repository: ProjectFsRepository
+describe('ProjectRepository', () => {
+  let repository: ProjectRepository
   let config: ProjectsDirConfig
   let testDir: string
 
@@ -22,7 +22,7 @@ describe('ProjectFsRepository', () => {
       projectsDir: testDir,
     }
 
-    repository = new ProjectFsRepository(config)
+    repository = new ProjectRepository(config)
   })
 
   afterEach(async () => {
@@ -108,7 +108,7 @@ describe('ProjectFsRepository', () => {
     it('should return failure Result when projects directory does not exist', async () => {
       // Create repository with non-existent directory
       const badConfig = {projectsDir: join(testDir, 'nonexistent')}
-      const badRepository = new ProjectFsRepository(badConfig)
+      const badRepository = new ProjectRepository(badConfig)
 
       const result = await badRepository.findAll()
 

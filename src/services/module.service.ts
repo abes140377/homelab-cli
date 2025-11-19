@@ -1,23 +1,23 @@
-import type {ModuleFsDto} from '../models/module-fs.dto.js'
-import type {IModuleFsRepository} from '../repositories/interfaces/module-fs.repository.interface.js'
+import type {ModuleDto} from '../models/module.dto.js'
+import type {IModuleRepository} from '../repositories/interfaces/module.repository.interface.js'
 
 import {ServiceError} from '../errors/service.error.js'
-import {ModuleFsSchema} from '../models/schemas/module-fs.schema.js'
+import {ModuleSchema} from '../models/schemas/module.schema.js'
 import {failure, type Result, success} from '../utils/result.js'
 
 /**
- * Service for module business logic using filesystem repository.
- * Orchestrates filesystem repository calls and applies validation.
+ * Service for module business logic.
+ * Orchestrates repository calls and applies validation.
  */
-export class ModuleFsService {
-  constructor(private readonly repository: IModuleFsRepository) {}
+export class ModuleService {
+  constructor(private readonly repository: IModuleRepository) {}
 
   /**
    * Lists all modules for a project from the filesystem.
    * @param projectName - The name of the project to find modules for
    * @returns Result containing array of modules or an error
    */
-  async listModules(projectName: string): Promise<Result<ModuleFsDto[], ServiceError>> {
+  async listModules(projectName: string): Promise<Result<ModuleDto[], ServiceError>> {
     const repositoryResult = await this.repository.findByProjectName(projectName)
 
     if (!repositoryResult.success) {
@@ -29,7 +29,7 @@ export class ModuleFsService {
     }
 
     // Validate the data using Zod schema (defensive validation)
-    const validationResult = ModuleFsSchema.array().safeParse(repositoryResult.data)
+    const validationResult = ModuleSchema.array().safeParse(repositoryResult.data)
 
     if (!validationResult.success) {
       return failure(
