@@ -5,7 +5,7 @@ import {z} from 'zod'
  */
 export const CliConfigSchema = z.object({
   colorOutput: z.boolean().default(true),
-  logLevel: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  logLevel: z.enum(['debug', 'trace', 'info', 'warn', 'error']).default('info'),
 })
 
 /**

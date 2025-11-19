@@ -1,7 +1,5 @@
-import {exec} from 'node:child_process'
 import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
-import {promisify} from 'node:util'
 
 import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
 import type {ProjectFsDto} from '../models/project-fs.dto.js'
@@ -9,19 +7,21 @@ import type {IProjectFsRepository} from './interfaces/project-fs.repository.inte
 
 import {RepositoryError} from '../errors/repository.error.js'
 import {ProjectFsSchema} from '../models/schemas/project-fs.schema.js'
+import {CommandExecutorService} from '../services/command-executor.service.js'
+import {logDebugError} from '../utils/debug-logger.js'
 import {failure, type Result, success} from '../utils/result.js'
-
-const execAsync = promisify(exec)
 
 /**
  * Project repository implementation using filesystem.
  * Scans a directory for Git repositories and treats them as projects.
  */
 export class ProjectFsRepository implements IProjectFsRepository {
+  private commandExecutor: CommandExecutorService
   private config: ProjectsDirConfig
 
-  constructor(config: ProjectsDirConfig) {
+  constructor(config: ProjectsDirConfig, commandExecutor?: CommandExecutorService) {
     this.config = config
+    this.commandExecutor = commandExecutor ?? new CommandExecutorService()
   }
 
   /**
@@ -68,6 +68,10 @@ export class ProjectFsRepository implements IProjectFsRepository {
 
       return success(projects)
     } catch (error) {
+      logDebugError('Filesystem error during findAll (projects)', error, {
+        projectsDir: this.config.projectsDir,
+      })
+
       return failure(
         new RepositoryError(
           `Failed to list projects from filesystem: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -127,6 +131,12 @@ export class ProjectFsRepository implements IProjectFsRepository {
     } catch (error) {
       // Handle specific ENOENT error (file/directory not found)
       if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+        logDebugError('Filesystem error during findByName (project not found)', error, {
+          name,
+          path: join(this.config.projectsDir, name),
+          projectsDir: this.config.projectsDir,
+        })
+
         return failure(
           new RepositoryError(`Project '${name}' not found`, {
             cause: error,
@@ -137,6 +147,11 @@ export class ProjectFsRepository implements IProjectFsRepository {
           }),
         )
       }
+
+      logDebugError('Filesystem error during findByName', error, {
+        name,
+        projectsDir: this.config.projectsDir,
+      })
 
       return failure(
         new RepositoryError(
@@ -174,6 +189,11 @@ export class ProjectFsRepository implements IProjectFsRepository {
       const validated = ProjectFsSchema.parse(projectData)
       return success(validated)
     } catch (error) {
+      logDebugError('Error creating project DTO', error, {
+        dirPath,
+        name,
+      })
+
       return failure(
         new RepositoryError(
           `Failed to create project DTO for '${name}': ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -195,17 +215,18 @@ export class ProjectFsRepository implements IProjectFsRepository {
    * @returns The remote URL or empty string if not found
    */
   private async getGitRemoteUrl(dirPath: string): Promise<string> {
-    try {
-      const {stdout} = await execAsync('git remote get-url origin', {
-        cwd: dirPath,
-        encoding: 'utf8',
-      })
+    const result = await this.commandExecutor.executeCommand(
+      'git',
+      ['remote', 'get-url', 'origin'],
+      {cwd: dirPath},
+    )
 
-      return stdout.trim()
-    } catch {
+    if (!result.success || !result.data.stdout) {
       // Return empty string if git remote doesn't exist
       return ''
     }
+
+    return result.data.stdout.trim()
   }
 
   /**

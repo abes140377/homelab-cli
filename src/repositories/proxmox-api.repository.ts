@@ -4,6 +4,7 @@ import { type ProxmoxConfig } from '../config/proxmox.config.js';
 import { RepositoryError } from '../errors/repository.error.js';
 import { type ProxmoxTemplateDTO } from '../models/proxmox-template.dto.js';
 import { type ProxmoxVMDTO } from '../models/proxmox-vm.dto.js';
+import { logDebugError } from '../utils/debug-logger.js';
 import { failure, type Result, success } from '../utils/result.js';
 import { type IProxmoxRepository } from './interfaces/proxmox.repository.interface.js';
 
@@ -66,6 +67,15 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
 
       return success(response);
     } catch (error) {
+      logDebugError('Proxmox API error during cloneFromTemplate', error, {
+        host: this.config.host,
+        newVmid,
+        node,
+        port: this.config.port,
+        templateVmid,
+        vmName,
+      });
+
       return failure(
         new RepositoryError('Failed to clone VM from template', {
           cause: error instanceof Error ? error : undefined,
@@ -147,6 +157,11 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       const maxVmid = vmids.at(-1);
       return success(Math.max(maxVmid + 1, minVmid));
     } catch (error) {
+      logDebugError('Proxmox API error during getNextAvailableVmid', error, {
+        host: this.config.host,
+        port: this.config.port,
+      });
+
       return failure(
         new RepositoryError('Failed to fetch cluster resources for VMID allocation', {
           cause: error instanceof Error ? error : undefined,
@@ -190,8 +205,6 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
         return failure(new RepositoryError('Unexpected API response format'));
       }
 
-      // console.log('Fetched resources from Proxmox API:', response);
-
       // Filter resources based on type
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resources = (response as any[]).filter((resource: any) =>
@@ -221,6 +234,12 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
 
       return success(resourcesWithNetworkInfo);
     } catch (error) {
+      logDebugError(`Proxmox API error during listResources (${resourceType})`, error, {
+        host: this.config.host,
+        port: this.config.port,
+        resourceType,
+      });
+
       return failure(
         new RepositoryError(`Failed to retrieve ${resourceType} resources from Proxmox API`, {
           cause: error instanceof Error ? error : undefined,
@@ -278,6 +297,12 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
 
       return success(templates);
     } catch (error) {
+      logDebugError('Proxmox API error during listTemplates', error, {
+        host: this.config.host,
+        port: this.config.port,
+        // Exclude sensitive data: tokenSecret, tokenKey
+      });
+
       return failure(
         new RepositoryError('Failed to connect to Proxmox API', {
           cause: error instanceof Error ? error : undefined,
@@ -326,6 +351,14 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
       // eslint-disable-next-line unicorn/no-useless-undefined
       return success(undefined);
     } catch (error) {
+      logDebugError('Proxmox API error during setVMConfig', error, {
+        config,
+        host: this.config.host,
+        node,
+        port: this.config.port,
+        vmid,
+      });
+
       return failure(
         new RepositoryError('Failed to set VM configuration', {
           cause: error instanceof Error ? error : undefined,
@@ -428,6 +461,13 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
         );
       }
     } catch (error) {
+      logDebugError('Proxmox API error during waitForTask', error, {
+        host: this.config.host,
+        node,
+        port: this.config.port,
+        upid,
+      });
+
       return failure(
         new RepositoryError('Failed to poll task status', {
           cause: error instanceof Error ? error : undefined,

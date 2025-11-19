@@ -406,6 +406,45 @@ const choices = await promptMultiSelect('Select features', ['Feature A', 'Featur
 
 The prompt utilities are built on top of the `enquirer` library and provide a consistent interface for interactive command-line prompts. See `src/commands/prompt/demo.ts` for examples.
 
+*Debug Logging* (see `src/utils/debug-logger.ts`):
+
+All repository methods include enhanced debug logging that activates when the `--log-level debug` flag is used. This provides detailed error information for troubleshooting:
+
+```typescript
+import {logDebugError} from './utils/debug-logger.js'
+
+// In repository catch blocks
+try {
+  // ... repository operation
+} catch (error) {
+  logDebugError('Description of operation that failed', error, {
+    // Include non-sensitive context
+    host: this.config.host,
+    port: this.config.port,
+    // EXCLUDE sensitive data: tokenSecret, passwords, keys
+  })
+
+  return failure(new RepositoryError('User-friendly error message'))
+}
+```
+
+**Using Debug Mode:**
+```bash
+# Enable debug logging via flag
+homelab --log-level debug proxmox template list
+
+# Enable debug logging via environment variable
+HOMELAB_LOG_LEVEL=debug homelab proxmox template list
+```
+
+**Debug Output Includes:**
+- Full error stack traces
+- Error cause chain (nested errors)
+- Contextual information (parameters, configuration)
+- Clear separation from normal output
+
+**Security Note:** Debug logging deliberately excludes sensitive information such as API tokens, passwords, and private keys. Only include non-sensitive diagnostic information in the context parameter.
+
 ## Key Patterns
 
 ### Architecture Decision: When to Use Service/Repository Layers

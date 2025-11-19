@@ -26,13 +26,15 @@ export const CommandExecutionResultSchema = z.object({
 
   /**
    * Standard error from the command
+   * Null when stdio is 'inherit' or 'ignore'
    */
-  stderr: z.string(),
+  stderr: z.string().nullable(),
 
   /**
    * Standard output from the command
+   * Null when stdio is 'inherit' or 'ignore'
    */
-  stdout: z.string(),
+  stdout: z.string().nullable(),
 })
 
 export type CommandExecutionResultType = z.infer<

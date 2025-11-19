@@ -1,9 +1,9 @@
 import { Args } from '@oclif/core'
-import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 
 import { loadProjectsDirConfig } from '../../config/projects-dir.config.js'
 import { BaseCommand } from '../../lib/base-command.js'
+import { CommandExecutorService } from '../../services/command-executor.service.js'
 import { detectCurrentProject } from '../../utils/detect-current-project.js'
 
 export default class ProjectVscode extends BaseCommand<typeof ProjectVscode> {
@@ -71,43 +71,24 @@ export default class ProjectVscode extends BaseCommand<typeof ProjectVscode> {
       cwd = join(config.projectsDir, projectName)
     }
 
-    this.log(`Opening ${workspaceName ? `workspace '${workspaceName}'` : 'project'} in VS Code... with targetPath: ${targetPath}`)
+    this.log(`Opening ${workspaceName ? `workspace '${workspaceName}'` : 'project'} in VS Code...`)
 
-    // Execute VS Code
-    // We need to wait briefly for spawn to either succeed or fail before detaching
-    await new Promise<void>((resolve, reject) => {
-      const child = spawn('code', [targetPath, "--profile", `${workspaceName}`], {
+    // Execute VS Code in detached mode so it runs independently
+    const commandExecutor = new CommandExecutorService()
+    const result = await commandExecutor.executeCommand(
+      'code',
+      [targetPath, "--profile", `${workspaceName}`],
+      {
         cwd,
         detached: true,
         stdio: 'ignore',
-      })
+      }
+    )
 
-      // Handle spawn errors (like command not found)
-      child.on('error', (error: NodeJS.ErrnoException) => {
-        if (error.code === 'ENOENT') {
-          reject(
-            new Error(
-              "VSCode CLI 'code' command not found. Please ensure VSCode is installed and 'code' is in your PATH.",
-            ),
-          )
-        } else {
-          reject(new Error(`Failed to open VSCode: ${error.message}`))
-        }
-      })
+    if (!result.success) {
+      this.error(result.error.message, { exit: 1 })
+    }
 
-      // Once spawned successfully, detach and resolve
-      child.on('spawn', () => {
-        child.unref()
-        resolve()
-      })
-    })
-      .then(() => {
-        this.log(
-          `Opening ${workspaceName ? `workspace '${workspaceName}'` : 'project'} in VS Code...`,
-        )
-      })
-      .catch((error) => {
-        this.error(error.message, { exit: 1 })
-      })
+    this.log(`VS Code opened successfully.`)
   }
 }

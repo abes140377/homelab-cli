@@ -102,15 +102,18 @@ export function formatExecutionComplete(
   lines.push(`Execution Time: ${result.executionTimeMs}ms (${timeInSeconds}s)`)
 
   // Output summary
-  const stdoutLines = result.stdout.trim().split('\n').length
-  const stderrLines = result.stderr.trim().split('\n').length
-
-  if (result.stdout.trim()) {
-    lines.push(`Output Lines: ${stdoutLines}`)
+  if (result.stdout !== null) {
+    const stdoutLines = result.stdout.trim().split('\n').length
+    if (result.stdout.trim()) {
+      lines.push(`Output Lines: ${stdoutLines}`)
+    }
   }
 
-  if (result.stderr.trim()) {
-    lines.push(`Error Lines: ${stderrLines}`)
+  if (result.stderr !== null) {
+    const stderrLines = result.stderr.trim().split('\n').length
+    if (result.stderr.trim()) {
+      lines.push(`Error Lines: ${stderrLines}`)
+    }
   }
 
   lines.push(SEPARATOR)

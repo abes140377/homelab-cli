@@ -1,7 +1,5 @@
-import {exec} from 'node:child_process'
 import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
-import {promisify} from 'node:util'
 
 import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
 import type {ModuleFsDto} from '../models/module-fs.dto.js'
@@ -9,19 +7,21 @@ import type {IModuleFsRepository} from './interfaces/module-fs.repository.interf
 
 import {RepositoryError} from '../errors/repository.error.js'
 import {ModuleFsSchema} from '../models/schemas/module-fs.schema.js'
+import {CommandExecutorService} from '../services/command-executor.service.js'
+import {logDebugError} from '../utils/debug-logger.js'
 import {failure, type Result, success} from '../utils/result.js'
-
-const execAsync = promisify(exec)
 
 /**
  * Module repository implementation using filesystem.
  * Scans a project's src directory for Git repositories and treats them as modules.
  */
 export class ModuleFsRepository implements IModuleFsRepository {
+  private commandExecutor: CommandExecutorService
   private config: ProjectsDirConfig
 
-  constructor(config: ProjectsDirConfig) {
+  constructor(config: ProjectsDirConfig, commandExecutor?: CommandExecutorService) {
     this.config = config
+    this.commandExecutor = commandExecutor ?? new CommandExecutorService()
   }
 
   /**
@@ -95,6 +95,11 @@ export class ModuleFsRepository implements IModuleFsRepository {
 
       return success(modules)
     } catch (error) {
+      logDebugError('Filesystem error during findByProjectName (modules)', error, {
+        projectName,
+        projectSrcDir: join(this.config.projectsDir, projectName, 'src'),
+      })
+
       return failure(
         new RepositoryError(
           `Failed to list modules from filesystem: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -131,6 +136,11 @@ export class ModuleFsRepository implements IModuleFsRepository {
       const validated = ModuleFsSchema.parse(moduleData)
       return success(validated)
     } catch (error) {
+      logDebugError('Error creating module DTO', error, {
+        dirPath,
+        name,
+      })
+
       return failure(
         new RepositoryError(
           `Failed to create module DTO for '${name}': ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -152,17 +162,18 @@ export class ModuleFsRepository implements IModuleFsRepository {
    * @returns The remote URL or empty string if not found
    */
   private async getGitRemoteUrl(dirPath: string): Promise<string> {
-    try {
-      const {stdout} = await execAsync('git remote get-url origin', {
-        cwd: dirPath,
-        encoding: 'utf8',
-      })
+    const result = await this.commandExecutor.executeCommand(
+      'git',
+      ['remote', 'get-url', 'origin'],
+      {cwd: dirPath},
+    )
 
-      return stdout.trim()
-    } catch {
+    if (!result.success || !result.data.stdout) {
       // Return empty string if git remote doesn't exist
       return ''
     }
+
+    return result.data.stdout.trim()
   }
 
   /**

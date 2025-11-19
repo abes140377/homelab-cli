@@ -1,13 +1,10 @@
 import {Args} from '@oclif/core'
-import {execFile, spawn} from 'node:child_process'
 import {basename, join} from 'node:path'
-import {promisify} from 'node:util'
 
 import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
 import {BaseCommand} from '../../lib/base-command.js'
+import {CommandExecutorService} from '../../services/command-executor.service.js'
 import {detectCurrentProject} from '../../utils/detect-current-project.js'
-
-const execFileAsync = promisify(execFile)
 
 export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
   static args = {
@@ -81,56 +78,35 @@ export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
 
     // Execute Zellij - either attach to existing session or create new one
     // We need to wait for the process to complete (unlike VSCode which detaches)
-    await new Promise<void>((resolve, reject) => {
-      // Choose the appropriate command based on whether session exists
-      const zellijArgs = sessionAlreadyExists ? ['attach', configName] : ['-n', configPath, '-s', configName]
+    // Choose the appropriate command based on whether session exists
+    const zellijArgs = sessionAlreadyExists ? ['attach', configName] : ['-n', configPath, '-s', configName]
 
-      const child = spawn('zellij', zellijArgs, {
-        stdio: 'inherit', // Pass stdin/stdout/stderr to Zellij for interactive session
-      })
-
-      // Handle spawn errors (like command not found)
-      child.on('error', (error: NodeJS.ErrnoException) => {
-        if (error.code === 'ENOENT') {
-          reject(
-            new Error(
-              "Zellij CLI 'zellij' command not found. Please ensure Zellij is installed and 'zellij' is in your PATH.",
-            ),
-          )
-        } else {
-          reject(new Error(`Failed to open Zellij: ${error.message}`))
-        }
-      })
-
-      // Wait for process to exit
-      child.on('close', (code) => {
-        if (code === 0) {
-          resolve()
-        } else {
-          reject(new Error(`Zellij exited with code ${code}`))
-        }
-      })
+    const commandExecutor = new CommandExecutorService()
+    const result = await commandExecutor.executeCommand('zellij', zellijArgs, {
+      stdio: 'inherit', // Pass stdin/stdout/stderr to Zellij for interactive session
     })
-      .then(() => {
-        this.log('Zellij session closed.')
-      })
-      .catch((error) => {
-        this.error(error.message, {exit: 1})
-      })
+
+    if (!result.success) {
+      this.error(result.error.message, {exit: 1})
+    }
+
+    this.log('Zellij session closed.')
   }
 
   /**
    * Check if a Zellij session with the given name exists
    */
   private async sessionExists(sessionName: string): Promise<boolean> {
-    try {
-      const {stdout} = await execFileAsync('zellij', ['list-sessions'])
-      // Check if the session name appears in the output
-      // The output format is like: "session-name [Created...] (STATUS...)"
-      return stdout.includes(sessionName)
-    } catch {
+    const commandExecutor = new CommandExecutorService()
+    const result = await commandExecutor.executeCommand('zellij', ['list-sessions'])
+
+    if (!result.success || !result.data.stdout) {
       // If list-sessions fails, assume no sessions exist
       return false
     }
+
+    // Check if the session name appears in the output
+    // The output format is like: "session-name [Created...] (STATUS...)"
+    return result.data.stdout.includes(sessionName)
   }
 }

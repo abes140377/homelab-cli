@@ -206,4 +206,76 @@ describe('CommandExecutorService', () => {
       }
     })
   })
+
+  describe('stdio configuration', () => {
+    it('should return null stdout/stderr when stdio is "inherit"', async () => {
+      const result = await service.executeCommand('echo', ['test'], {
+        stdio: 'inherit',
+      })
+
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data.stdout).to.be.null
+        expect(result.data.stderr).to.be.null
+        expect(result.data.exitCode).to.equal(0)
+      }
+    })
+
+    it('should return null stdout/stderr when stdio is "ignore"', async () => {
+      const result = await service.executeCommand('echo', ['test'], {
+        stdio: 'ignore',
+      })
+
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data.stdout).to.be.null
+        expect(result.data.stderr).to.be.null
+        expect(result.data.exitCode).to.equal(0)
+      }
+    })
+
+    it('should capture output when stdio is "pipe" (default)', async () => {
+      const result = await service.executeCommand('echo', ['test'])
+
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data.stdout).to.not.be.null
+        expect(result.data.stdout?.trim()).to.equal('test')
+        expect(result.data.stderr).to.not.be.null
+      }
+    })
+
+    it('should not invoke outputCallback when stdio is "inherit"', async () => {
+      let callbackInvoked = false
+      const callback = () => {
+        callbackInvoked = true
+      }
+
+      const result = await service.executeCommand(
+        'echo',
+        ['test'],
+        {stdio: 'inherit'},
+        callback,
+      )
+
+      expect(result.success).to.be.true
+      expect(callbackInvoked).to.be.false
+    })
+  })
+
+  describe('detached option', () => {
+    it('should execute command in detached mode', async () => {
+      const result = await service.executeCommand('echo', ['test'], {
+        detached: true,
+        stdio: 'ignore',
+      })
+
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data.exitCode).to.equal(0)
+        expect(result.data.stdout).to.be.null
+        expect(result.data.stderr).to.be.null
+      }
+    })
+  })
 })

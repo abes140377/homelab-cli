@@ -50,14 +50,19 @@ export class CommandExecutorService {
     const startTime = Date.now()
 
     try {
+      // Determine stdio configuration
+      const stdio = options?.stdio ?? 'pipe'
+
       // Build execa options
       // Note: reject: false prevents throwing on non-zero exit codes,
       // but ENOENT and other spawn errors still throw
       const execaOptions = {
-        all: true, // Interleave stdout and stderr
+        all: stdio === 'pipe', // Only interleave stdout and stderr when capturing
         cwd: options?.cwd,
+        detached: options?.detached ?? false,
         env: options?.env,
         reject: false, // Don't throw on non-zero exit codes
+        stdio, // Use configured stdio
         timeout: options?.timeout,
       }
 
@@ -65,15 +70,21 @@ export class CommandExecutorService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const subprocess = execa(command, args, execaOptions as any)
 
+      // If detached, unref the subprocess to allow parent to exit independently
+      if (options?.detached && subprocess) {
+        subprocess.unref()
+      }
+
       // Set up streaming for stdout if callback provided
-      if (outputCallback && subprocess.stdout) {
+      // Note: stdout/stderr are only available when stdio is 'pipe'
+      if (outputCallback && stdio === 'pipe' && subprocess.stdout) {
         subprocess.stdout.on('data', (chunk: Buffer | string) => {
           outputCallback(typeof chunk === 'string' ? chunk : chunk.toString())
         })
       }
 
       // Set up streaming for stderr if callback provided
-      if (outputCallback && subprocess.stderr) {
+      if (outputCallback && stdio === 'pipe' && subprocess.stderr) {
         subprocess.stderr.on('data', (chunk: Buffer | string) => {
           outputCallback(typeof chunk === 'string' ? chunk : chunk.toString())
         })
@@ -134,12 +145,13 @@ export class CommandExecutorService {
       }
 
       // Build result DTO
+      // Note: stdout/stderr are null when stdio is 'inherit' or 'ignore'
       const resultDto = new CommandExecutionResultDto(
         command,
         args,
         result.exitCode ?? 0,
-        result.stdout ?? '',
-        result.stderr ?? '',
+        stdio === 'pipe' ? (result.stdout ?? '') : null,
+        stdio === 'pipe' ? (result.stderr ?? '') : null,
         executionTimeMs,
       )
 

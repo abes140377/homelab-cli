@@ -60,7 +60,7 @@ private scenarioResults: Array<{name: string; success: boolean}> = []
 
     if (result.success) {
       this.log('\nOutput:')
-      this.log(result.data.stdout.trim())
+      this.log(result.data.stdout?.trim() ?? '(no output captured)')
       this.log('')
       this.log(formatExecutionComplete(result.data))
       this.scenarioResults.push({name: scenarioName, success: true})
@@ -149,7 +149,7 @@ private scenarioResults: Array<{name: string; success: boolean}> = []
 
     if (result.success) {
       this.log('\nOutput:')
-      this.log(result.data.stdout.trim())
+      this.log(result.data.stdout?.trim() ?? '(no output captured)')
       this.log('')
       this.log(formatExecutionComplete(result.data))
       this.scenarioResults.push({name: scenarioName, success: true})
@@ -213,7 +213,7 @@ private scenarioResults: Array<{name: string; success: boolean}> = []
 
     if (result.success) {
       this.log('\nOutput:')
-      this.log(result.data.stdout.trim())
+      this.log(result.data.stdout?.trim() ?? '(no output captured)')
       this.log('')
       this.log(formatExecutionComplete(result.data))
       this.scenarioResults.push({name: scenarioName, success: true})

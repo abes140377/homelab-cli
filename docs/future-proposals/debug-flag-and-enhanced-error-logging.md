@@ -1,4 +1,4 @@
-# Proposal: Add a debug flag and enhance error logging for better troubleshooting
+/openspec:proposal Add a debug flag and enhance error logging for better troubleshooting
 
 Introduce a debug flag as described in https://oclif.io/docs/base_class
 
@@ -18,3 +18,5 @@ return failure(
   }),
 );
 ```
+führe die implemetierung in einer repository methode aus. provoziere einen fehler mit gesetztem debug flag und prüfe ob die ausgabe den fehler-stack anzeigt.
+wenn die ausgabe das gewünschte ergebnis zeigt erweitere alle anderen repository methoden.
