@@ -47,14 +47,14 @@ USAGE
 * [`homelab plugins unlink [PLUGIN]`](#homelab-plugins-unlink-plugin)
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
-* [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
-* [`homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME]`](#homelab-project-zellij-project-name-module-name-config-name)
 * [`homelab prompt demo`](#homelab-prompt-demo)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
+* [`homelab vscode [WORKSPACE-NAME]`](#homelab-vscode-workspace-name)
+* [`homelab zellij MODULE-NAME [CONFIG-NAME]`](#homelab-zellij-module-name-config-name)
 
 ## `homelab config read [KEY]`
 
@@ -518,88 +518,6 @@ EXAMPLES
 
 _See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
 
-## `homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`
-
-Open a project or workspace in Visual Studio Code
-
-```
-USAGE
-  $ homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME] [--json] [--log-level debug|warn|error|info|trace]
-
-ARGUMENTS
-  [PROJECT-NAME]    Name of the project (defaults to current project)
-  [WORKSPACE-NAME]  Name of the workspace file (without .code-workspace extension)
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  Open a project or workspace in Visual Studio Code
-
-EXAMPLES
-  # Open current project in VS Code (auto-detect project from working directory)
-
-    $ homelab project vscode
-
-  # Open workspace for current project (auto-detect project)
-
-    $ homelab project vscode myworkspace
-
-  # Open specific project in VS Code
-
-    $ homelab project vscode sflab
-
-  # Open specific workspace in specific project
-
-    $ homelab project vscode sflab homelab
-```
-
-_See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
-
-## `homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME]`
-
-Open a Zellij session for a project module with a specific configuration
-
-```
-USAGE
-  $ homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME] [--json] [--log-level
-    debug|warn|error|info|trace]
-
-ARGUMENTS
-  [PROJECT-NAME]  Name of the project (defaults to current project)
-  MODULE-NAME     Name of the module
-  [CONFIG-NAME]   Name of the Zellij config file (without .kdl extension, defaults to "default")
-
-GLOBAL FLAGS
-  --json                Format output as json.
-  --log-level=<option>  [default: info] Specify level for logging.
-                        <options: debug|warn|error|info|trace>
-
-DESCRIPTION
-  Open a Zellij session for a project module with a specific configuration
-
-EXAMPLES
-  # Open Zellij session with auto-detected project and default config
-
-    $ homelab project zellij my-module
-
-  # Open Zellij session with auto-detected project and custom config
-
-    $ homelab project zellij my-module custom-config
-
-  # Open Zellij session with explicit project and default config
-
-    $ homelab project zellij sflab my-module
-
-  # Open Zellij session with explicit project and custom config
-
-    $ homelab project zellij sflab my-module custom-config
-```
-
-_See code: [src/commands/project/zellij.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/zellij.ts)_
-
 ## `homelab prompt demo`
 
 Demonstrate interactive prompts (text, password, select, multi-select)
@@ -779,4 +697,67 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/vm/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/list.ts)_
+
+## `homelab vscode [WORKSPACE-NAME]`
+
+Open current project or workspace in Visual Studio Code
+
+```
+USAGE
+  $ homelab vscode [WORKSPACE-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [WORKSPACE-NAME]  Name of the workspace file (without .code-workspace extension)
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Open current project or workspace in Visual Studio Code
+
+EXAMPLES
+  # Open current project in VS Code (auto-detect from working directory)
+
+    $ homelab vscode
+
+  # Open workspace for current project (auto-detect project)
+
+    $ homelab vscode sflab
+```
+
+_See code: [src/commands/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/vscode.ts)_
+
+## `homelab zellij MODULE-NAME [CONFIG-NAME]`
+
+Open a Zellij session for a project module with a specific configuration
+
+```
+USAGE
+  $ homelab zellij MODULE-NAME [CONFIG-NAME] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  MODULE-NAME    Name of the module
+  [CONFIG-NAME]  Name of the Zellij config file (without .kdl extension, defaults to "default")
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Open a Zellij session for a project module with a specific configuration
+
+EXAMPLES
+  # Open Zellij session with default config
+
+    $ homelab zellij my-module
+
+  # Open Zellij session with custom config
+
+    $ homelab zellij my-module custom-config
+```
+
+_See code: [src/commands/zellij.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/zellij.ts)_
 <!-- commandsstop -->

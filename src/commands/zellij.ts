@@ -1,12 +1,12 @@
 import {Args} from '@oclif/core'
 import {join} from 'node:path'
 
-import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
-import {BaseCommand} from '../../lib/base-command.js'
-import {CommandExecutorService} from '../../services/command-executor.service.js'
-import {detectCurrentProject} from '../../utils/detect-current-project.js'
+import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
+import {BaseCommand} from '../lib/base-command.js'
+import {CommandExecutorService} from '../services/command-executor.service.js'
+import {detectCurrentProject} from '../utils/detect-current-project.js'
 
-export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
+export default class Zellij extends BaseCommand<typeof Zellij> {
   static args = {
     'module-name': Args.string({
       description: 'Name of the module',
@@ -25,7 +25,7 @@ export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
   ]
 
   async run(): Promise<void> {
-    await this.parse(ProjectZellij)
+    await this.parse(Zellij)
 
     // Load configuration
     let config
