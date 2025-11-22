@@ -1,5 +1,5 @@
 import {Args} from '@oclif/core'
-import {basename, join} from 'node:path'
+import {join} from 'node:path'
 
 import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
 import {BaseCommand} from '../../lib/base-command.js'
@@ -8,21 +8,20 @@ import {detectCurrentProject} from '../../utils/detect-current-project.js'
 
 export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
   static args = {
-    'config-name': Args.string({
-      description: 'Name of the Zellij config file (without .kdl extension, defaults to current directory basename)',
-      required: false,
+    'module-name': Args.string({
+      description: 'Name of the module',
+      required: true,
     }),
-    'project-name': Args.string({
-      description: 'Name of the project (defaults to current project)',
+    // eslint-disable-next-line perfectionist/sort-objects -- Order matters for positional arguments in oclif
+    'config-name': Args.string({
+      description: 'Name of the Zellij config file (without .kdl extension, defaults to "default")',
       required: false,
     }),
   }
-  static description = 'Open a Zellij session for a project with a specific configuration'
+  static description = 'Open a Zellij session for a project module with a specific configuration'
   static examples = [
-    '# Open Zellij session with auto-detected project and config (from current directory basename)\n<%= config.bin %> <%= command.id %>',
-    '# Open Zellij session with auto-detected project and explicit config\n<%= config.bin %> <%= command.id %> myconfig',
-    '# Open Zellij session with explicit project and auto-detected config\n<%= config.bin %> <%= command.id %> sflab',
-    '# Open Zellij session with explicit project and config\n<%= config.bin %> <%= command.id %> sflab homelab-cli',
+    '# Open Zellij session with default config\n<%= config.bin %> <%= command.id %> my-module',
+    '# Open Zellij session with custom config\n<%= config.bin %> <%= command.id %> my-module custom-config',
   ]
 
   async run(): Promise<void> {
@@ -39,47 +38,41 @@ export default class ProjectZellij extends BaseCommand<typeof ProjectZellij> {
       )
     }
 
-    // Determine project name
-    let projectName = this.args['project-name']
+    // Detect current project from working directory
+    const projectName = detectCurrentProject(process.cwd(), config.projectsDir)
 
     if (!projectName) {
-      // Auto-detect current project from working directory
-      const detectedProject = detectCurrentProject(process.cwd(), config.projectsDir)
-
-      if (!detectedProject) {
-        this.error(
-          'Could not detect current project. Please provide a project name or run the command from within a project directory.',
-          {exit: 1},
-        )
-      }
-
-      projectName = detectedProject
+      this.error(
+        'Could not detect current project. Please run the command from within a project directory.',
+        {exit: 1},
+      )
     }
 
-    // Determine config name
-    let configName = this.args['config-name']
+    // Get module name (required argument)
+    const moduleName = this.args['module-name']
 
-    if (!configName) {
-      // Auto-detect config name from current working directory basename
-      configName = basename(process.cwd())
-    }
+    // Determine config name (defaults to 'default')
+    const configName = this.args['config-name'] || 'default'
 
     // Construct Zellij config path
-    const configPath = join(config.projectsDir, projectName, '.config/zellij', `${configName}.kdl`)
+    const configPath = join(config.projectsDir, projectName, '.config/zellij', moduleName, `${configName}.kdl`)
+
+    // Construct session name
+    const sessionName = `${moduleName}-${configName}`
 
     // Check if session already exists
-    const sessionAlreadyExists = await this.sessionExists(configName)
+    const sessionAlreadyExists = await this.sessionExists(sessionName)
 
     if (sessionAlreadyExists) {
-      this.log(`Attaching to existing Zellij session '${configName}'...`)
+      this.log(`Attaching to existing Zellij session '${sessionName}'...`)
     } else {
-      this.log(`Opening new Zellij session '${configName}' for project '${projectName}'...`)
+      this.log(`Opening new Zellij session '${sessionName}' for project '${projectName}', module '${moduleName}'...`)
     }
 
     // Execute Zellij - either attach to existing session or create new one
     // We need to wait for the process to complete (unlike VSCode which detaches)
     // Choose the appropriate command based on whether session exists
-    const zellijArgs = sessionAlreadyExists ? ['attach', configName] : ['-n', configPath, '-s', configName]
+    const zellijArgs = sessionAlreadyExists ? ['attach', sessionName] : ['-n', configPath, '-s', sessionName]
 
     const commandExecutor = new CommandExecutorService()
     const result = await commandExecutor.executeCommand('zellij', zellijArgs, {

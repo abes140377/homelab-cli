@@ -48,7 +48,7 @@ USAGE
 * [`homelab plugins update`](#homelab-plugins-update)
 * [`homelab project list`](#homelab-project-list)
 * [`homelab project vscode [PROJECT-NAME] [WORKSPACE-NAME]`](#homelab-project-vscode-project-name-workspace-name)
-* [`homelab project zellij [CONFIG-NAME] [PROJECT-NAME]`](#homelab-project-zellij-config-name-project-name)
+* [`homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME]`](#homelab-project-zellij-project-name-module-name-config-name)
 * [`homelab prompt demo`](#homelab-prompt-demo)
 * [`homelab proxmox container list`](#homelab-proxmox-container-list)
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
@@ -558,17 +558,19 @@ EXAMPLES
 
 _See code: [src/commands/project/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/vscode.ts)_
 
-## `homelab project zellij [CONFIG-NAME] [PROJECT-NAME]`
+## `homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME]`
 
-Open a Zellij session for a project with a specific configuration
+Open a Zellij session for a project module with a specific configuration
 
 ```
 USAGE
-  $ homelab project zellij [CONFIG-NAME] [PROJECT-NAME] [--json] [--log-level debug|warn|error|info|trace]
+  $ homelab project zellij [PROJECT-NAME] MODULE-NAME [CONFIG-NAME] [--json] [--log-level
+    debug|warn|error|info|trace]
 
 ARGUMENTS
-  [CONFIG-NAME]   Name of the Zellij config file (without .kdl extension, defaults to current directory basename)
   [PROJECT-NAME]  Name of the project (defaults to current project)
+  MODULE-NAME     Name of the module
+  [CONFIG-NAME]   Name of the Zellij config file (without .kdl extension, defaults to "default")
 
 GLOBAL FLAGS
   --json                Format output as json.
@@ -576,24 +578,24 @@ GLOBAL FLAGS
                         <options: debug|warn|error|info|trace>
 
 DESCRIPTION
-  Open a Zellij session for a project with a specific configuration
+  Open a Zellij session for a project module with a specific configuration
 
 EXAMPLES
-  # Open Zellij session with auto-detected project and config (from current directory basename)
+  # Open Zellij session with auto-detected project and default config
 
-    $ homelab project zellij
+    $ homelab project zellij my-module
 
-  # Open Zellij session with auto-detected project and explicit config
+  # Open Zellij session with auto-detected project and custom config
 
-    $ homelab project zellij myconfig
+    $ homelab project zellij my-module custom-config
 
-  # Open Zellij session with explicit project and auto-detected config
+  # Open Zellij session with explicit project and default config
 
-    $ homelab project zellij sflab
+    $ homelab project zellij sflab my-module
 
-  # Open Zellij session with explicit project and config
+  # Open Zellij session with explicit project and custom config
 
-    $ homelab project zellij sflab homelab-cli
+    $ homelab project zellij sflab my-module custom-config
 ```
 
 _See code: [src/commands/project/zellij.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/zellij.ts)_
