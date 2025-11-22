@@ -159,23 +159,48 @@ describe('ModuleRepository', () => {
       }
     })
 
-    it('should only check direct children of src directory', async () => {
+    it('should not scan subdirectories of a found Git repository', async () => {
       const projectName = 'testproject'
       const projectSrcDir = join(testDir, projectName, 'src')
 
       // Create module at root level of src
       await mkdir(join(projectSrcDir, 'root-module', '.git'), {recursive: true})
 
-      // Create nested git repo (should not be detected)
+      // Create nested git repo (should not be detected because parent is already a git repo)
       await mkdir(join(projectSrcDir, 'root-module', 'nested', '.git'), {recursive: true})
 
       const result = await repository.findByProjectName(projectName)
 
       expect(result.success).to.be.true
       if (result.success) {
-        // Should only find root-module, not nested
+        // Should only find root-module, not nested (stops scanning subdirs when git repo found)
         expect(result.data).to.have.lengthOf(1)
         expect(result.data[0].name).to.equal('root-module')
+      }
+    })
+
+    it('should recursively scan subdirectories for Git repositories', async () => {
+      const projectName = 'testproject'
+      const projectSrcDir = join(testDir, projectName, 'src')
+
+      // Create modules at different nesting levels
+      await mkdir(join(projectSrcDir, 'top-level', '.git'), {recursive: true})
+      await mkdir(join(projectSrcDir, 'frontend', 'ui', '.git'), {recursive: true})
+      await mkdir(join(projectSrcDir, 'backend', 'api', 'services', '.git'), {recursive: true})
+      await mkdir(join(projectSrcDir, 'libs', 'shared', '.git'), {recursive: true})
+
+      const result = await repository.findByProjectName(projectName)
+
+      expect(result.success).to.be.true
+      if (result.success) {
+        expect(result.data).to.have.lengthOf(4)
+        const names = result.data.map((m) => m.name).sort()
+        expect(names).to.deep.equal([
+          'backend/api/services',
+          'frontend/ui',
+          'libs/shared',
+          'top-level',
+        ])
       }
     })
   })

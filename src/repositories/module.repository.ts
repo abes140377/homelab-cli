@@ -26,7 +26,7 @@ export class ModuleRepository implements IModuleRepository {
 
   /**
    * Retrieves all Git repositories from a project's src directory.
-   * Only scans direct subdirectories (no recursion).
+   * Scans recursively through all subdirectories.
    * @param projectName - The name of the project to find modules for
    * @returns Result containing array of modules or a RepositoryError
    */
@@ -61,32 +61,20 @@ export class ModuleRepository implements IModuleRepository {
         )
       }
 
-      // Read all entries in the src directory
-      const entries = await readdir(projectSrcDir, {withFileTypes: true})
+      // Recursively scan for Git repositories
+      const gitDirectories = await this.scanDirectoryRecursively(projectSrcDir)
 
-      // Filter for directories only (exclude hidden directories)
-      const directories = entries.filter(
-        (entry) => entry.isDirectory() && !entry.name.startsWith('.'),
-      )
-
-      // Check which directories are Git repositories and create DTOs
+      // Create module DTOs for each Git repository
       const moduleResults = await Promise.all(
-        directories.map(async (dir) => {
-          const dirPath = join(projectSrcDir, dir.name)
-          const isGit = await this.isGitRepository(dirPath)
-          if (!isGit) {
-            return null
-          }
-
-          return this.createModuleDto(dirPath, dir.name)
+        gitDirectories.map(async (dirPath) => {
+          const name = this.getModuleName(dirPath, projectSrcDir)
+          return this.createModuleDto(dirPath, name)
         }),
       )
 
-      // Filter out null values (non-git directories) and unwrap Results
+      // Filter out failed results and collect successful modules
       const modules: ModuleDto[] = []
       for (const result of moduleResults) {
-        if (result === null) continue
-
         if (result.success) {
           modules.push(result.data)
         }
@@ -177,6 +165,20 @@ export class ModuleRepository implements IModuleRepository {
   }
 
   /**
+   * Generates a module name from its path relative to the project src directory.
+   * Uses the relative path with forward slashes as the module name.
+   * @param modulePath - The absolute path to the module
+   * @param projectSrcDir - The absolute path to the project's src directory
+   * @returns The module name (relative path from src directory)
+   */
+  private getModuleName(modulePath: string, projectSrcDir: string): string {
+    // Get relative path from src directory
+    const relativePath = modulePath.slice(projectSrcDir.length + 1)
+    // Normalize path separators to forward slashes
+    return relativePath.split(/[\\/]/).join('/')
+  }
+
+  /**
    * Checks if a directory is a Git repository by looking for .git subdirectory
    * @param dirPath - The directory path to check
    * @returns true if .git exists and is a directory, false otherwise
@@ -189,5 +191,51 @@ export class ModuleRepository implements IModuleRepository {
     } catch {
       return false
     }
+  }
+
+  /**
+   * Recursively scans a directory for Git repositories.
+   * Stops scanning subdirectories once a Git repository is found.
+   * @param dirPath - The directory path to scan
+   * @returns Array of absolute paths to Git repositories
+   */
+  private async scanDirectoryRecursively(dirPath: string): Promise<string[]> {
+    const gitRepos: string[] = []
+
+    try {
+      // Check if current directory is a Git repository
+      const isGit = await this.isGitRepository(dirPath)
+      if (isGit) {
+        // Found a Git repository, add it and don't scan subdirectories
+        gitRepos.push(dirPath)
+        return gitRepos
+      }
+
+      // Read all entries in the directory
+      const entries = await readdir(dirPath, {withFileTypes: true})
+
+      // Filter for directories only (exclude hidden directories)
+      const directories = entries.filter(
+        (entry) => entry.isDirectory() && !entry.name.startsWith('.'),
+      )
+
+      // Recursively scan each subdirectory in parallel
+      const scanResults = await Promise.all(
+        directories.map(async (dir) => {
+          const subDirPath = join(dirPath, dir.name)
+          return this.scanDirectoryRecursively(subDirPath)
+        }),
+      )
+
+      // Flatten results
+      for (const subDirRepos of scanResults) {
+        gitRepos.push(...subDirRepos)
+      }
+    } catch (error) {
+      // Silently skip directories we can't access (permissions, etc.)
+      logDebugError('Error scanning directory', error, {dirPath})
+    }
+
+    return gitRepos
   }
 }
