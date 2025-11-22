@@ -1,28 +1,35 @@
-import {Args} from '@oclif/core'
+import {Args, Flags} from '@oclif/core'
+import {readdir} from 'node:fs/promises'
 import {join} from 'node:path'
 
 import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
 import {BaseCommand} from '../lib/base-command.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {detectCurrentProject} from '../utils/detect-current-project.js'
+import {promptForSelection} from '../utils/prompts.js'
 
 export default class Zellij extends BaseCommand<typeof Zellij> {
   static args = {
     'module-name': Args.string({
-      description: 'Name of the module',
-      required: true,
-    }),
-    // eslint-disable-next-line perfectionist/sort-objects -- Order matters for positional arguments in oclif
-    'config-name': Args.string({
-      description: 'Name of the Zellij config file (without .kdl extension, defaults to "default")',
+      description: 'Name of the Zellij module from .config/zellij/ (optional, prompts for selection if not provided)',
       required: false,
     }),
   }
-  static description = 'Open a Zellij session for a project module with a specific configuration'
+  static description = 'Open a Zellij session with a project-specific configuration'
   static examples = [
-    '# Open Zellij session with default config\n<%= config.bin %> <%= command.id %> my-module',
-    '# Open Zellij session with custom config\n<%= config.bin %> <%= command.id %> my-module custom-config',
+    '# Open Zellij session with interactive module selection and default layout\n<%= config.bin %> <%= command.id %>',
+    '# Open Zellij session with module and default layout\n<%= config.bin %> <%= command.id %> my-module',
+    '# Open Zellij session with specific module and layout\n<%= config.bin %> <%= command.id %> my-module --layout-name my-layout',
+    '# Open Zellij session with specific module and layout (short flag)\n<%= config.bin %> <%= command.id %> my-module -l my-layout',
   ]
+  static flags = {
+    'layout-name': Flags.string({
+      char: 'l',
+      default: 'default',
+      description: 'Name of the layout subdirectory (defaults to "default")',
+      required: false,
+    }),
+  }
 
   async run(): Promise<void> {
     await this.parse(Zellij)
@@ -48,17 +55,45 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
       )
     }
 
-    // Get module name (required argument)
-    const moduleName = this.args['module-name']
+    // Determine module name - prompt if not provided
+    let moduleName = this.args['module-name']
 
-    // Determine config name (defaults to 'default')
-    const configName = this.args['config-name'] || 'default'
+    if (!moduleName) {
+      // Get available Zellij modules from .config/zellij directory
+      const zellijBaseDir = join(config.projectsDir, projectName, '.config/zellij')
+      const availableModules = await this.getAvailableConfigurations(zellijBaseDir)
+
+      if (availableModules.length === 0) {
+        this.error(
+          `No Zellij modules found in ${zellijBaseDir}. Create a directory structure like .config/zellij/<module-name>/<config-name>/`,
+          {exit: 1},
+        )
+      }
+
+      // Prompt user to select a module
+      const moduleResult = await promptForSelection({
+        choices: availableModules,
+        message: 'Select a Zellij module:',
+      })
+
+      if (!moduleResult.success) {
+        this.error(moduleResult.error.message, {exit: 1})
+      }
+
+      moduleName = moduleResult.data
+    }
+
+    // Get layout name from flag (defaults to 'default')
+    const layoutName = this.flags['layout-name']
 
     // Construct Zellij config path
-    const configPath = join(config.projectsDir, projectName, '.config/zellij', moduleName, `${configName}.kdl`)
+    // Layout name is now a directory containing the layout.kdl file
+    const configPath = join(config.projectsDir, projectName, '.config/zellij', moduleName, layoutName, '.kdl')
+
+    console.log(configPath)
 
     // Construct session name
-    const sessionName = `${moduleName}-${configName}`
+    const sessionName = `${moduleName}-${layoutName}`
 
     // Check if session already exists
     const sessionAlreadyExists = await this.sessionExists(sessionName)
@@ -66,7 +101,7 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
     if (sessionAlreadyExists) {
       this.log(`Attaching to existing Zellij session '${sessionName}'...`)
     } else {
-      this.log(`Opening new Zellij session '${sessionName}' for project '${projectName}', module '${moduleName}'...`)
+      this.log(`Opening new Zellij session '${sessionName}' for project '${projectName}', module '${moduleName}', layout '${layoutName}'...`)
     }
 
     // Execute Zellij - either attach to existing session or create new one
@@ -84,6 +119,27 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
     }
 
     this.log('Zellij session closed.')
+  }
+
+  /**
+   * Get available Zellij configurations from a directory
+   * Reads all subdirectories in the given path
+   */
+  private async getAvailableConfigurations(configDir: string): Promise<string[]> {
+    try {
+      const entries = await readdir(configDir, {withFileTypes: true})
+
+      // Filter for directories only
+      const directories = entries
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => entry.name)
+        .sort()
+
+      return directories
+    } catch {
+      // If directory doesn't exist or can't be read, return empty array
+      return []
+    }
   }
 
   /**

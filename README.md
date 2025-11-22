@@ -54,7 +54,7 @@ USAGE
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 * [`homelab vscode [WORKSPACE-NAME]`](#homelab-vscode-workspace-name)
-* [`homelab zellij MODULE-NAME [CONFIG-NAME]`](#homelab-zellij-module-name-config-name)
+* [`homelab zellij [MODULE-NAME]`](#homelab-zellij-module-name)
 
 ## `homelab config read [KEY]`
 
@@ -724,22 +724,24 @@ EXAMPLES
 
   # Open workspace for current project (auto-detect project)
 
-    $ homelab vscode sflab
+    $ homelab vscode myworkspace
 ```
 
 _See code: [src/commands/vscode.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/vscode.ts)_
 
-## `homelab zellij MODULE-NAME [CONFIG-NAME]`
+## `homelab zellij [MODULE-NAME]`
 
-Open a Zellij session for a project module with a specific configuration
+Open a Zellij session with a project-specific configuration
 
 ```
 USAGE
-  $ homelab zellij MODULE-NAME [CONFIG-NAME] [--json] [--log-level debug|warn|error|info|trace]
+  $ homelab zellij [MODULE-NAME] [--json] [--log-level debug|warn|error|info|trace] [-l <value>]
 
 ARGUMENTS
-  MODULE-NAME    Name of the module
-  [CONFIG-NAME]  Name of the Zellij config file (without .kdl extension, defaults to "default")
+  [MODULE-NAME]  Name of the Zellij module from .config/zellij/ (optional, prompts for selection if not provided)
+
+FLAGS
+  -l, --layout-name=<value>  [default: default] Name of the layout subdirectory (defaults to "default")
 
 GLOBAL FLAGS
   --json                Format output as json.
@@ -747,16 +749,24 @@ GLOBAL FLAGS
                         <options: debug|warn|error|info|trace>
 
 DESCRIPTION
-  Open a Zellij session for a project module with a specific configuration
+  Open a Zellij session with a project-specific configuration
 
 EXAMPLES
-  # Open Zellij session with default config
+  # Open Zellij session with interactive module selection and default layout
+
+    $ homelab zellij
+
+  # Open Zellij session with module and default layout
 
     $ homelab zellij my-module
 
-  # Open Zellij session with custom config
+  # Open Zellij session with specific module and layout
 
-    $ homelab zellij my-module custom-config
+    $ homelab zellij my-module --layout-name my-layout
+
+  # Open Zellij session with specific module and layout (short flag)
+
+    $ homelab zellij my-module -l my-layout
 ```
 
 _See code: [src/commands/zellij.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/zellij.ts)_
