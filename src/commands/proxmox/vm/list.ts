@@ -1,5 +1,7 @@
 import Table from 'cli-table3'
 
+import type {ProxmoxVMDTO} from '../../../models/proxmox-vm.dto.js'
+
 import {ProxmoxVMFactory} from '../../../factories/proxmox-vm.factory.js'
 import { BaseCommand } from '../../../lib/base-command.js'
 
@@ -15,9 +17,31 @@ export default class ProxmoxVMList extends BaseCommand<typeof ProxmoxVMList> {
 │ 102  │ backup          │ stopped  │ N/A           │
 └──────┴─────────────────┴──────────┴───────────────┘
 `,
+    `<%= config.bin %> <%= command.id %> --json
+[
+  {
+    "vmid": 100,
+    "name": "web-server",
+    "status": "running",
+    "ipv4Address": "192.168.1.10"
+  },
+  {
+    "vmid": 101,
+    "name": "database",
+    "status": "running",
+    "ipv4Address": "192.168.1.11"
+  },
+  {
+    "vmid": 102,
+    "name": "backup",
+    "status": "stopped",
+    "ipv4Address": null
+  }
+]
+`,
   ]
 
-  async run(): Promise<void> {
+  async run(): Promise<ProxmoxVMDTO[] | void> {
     await this.parse(ProxmoxVMList)
 
     const service = ProxmoxVMFactory.createProxmoxVMService()
@@ -31,6 +55,13 @@ export default class ProxmoxVMList extends BaseCommand<typeof ProxmoxVMList> {
 
     const vms = result.data
 
+    // Handle JSON output mode
+    if (this.jsonEnabled()) {
+      // Return structured data for JSON mode (oclif will format it)
+      return vms
+    }
+
+    // Handle table output mode
     if (vms.length === 0) {
       this.log('No VMs found')
       return

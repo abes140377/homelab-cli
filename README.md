@@ -694,6 +694,28 @@ EXAMPLES
   │ 101  │ database        │ running  │ 192.168.1.11  │
   │ 102  │ backup          │ stopped  │ N/A           │
   └──────┴─────────────────┴──────────┴───────────────┘
+
+  $ homelab proxmox vm list --json
+  [
+    {
+      "vmid": 100,
+      "name": "web-server",
+      "status": "running",
+      "ipv4Address": "192.168.1.10"
+    },
+    {
+      "vmid": 101,
+      "name": "database",
+      "status": "running",
+      "ipv4Address": "192.168.1.11"
+    },
+    {
+      "vmid": 102,
+      "name": "backup",
+      "status": "stopped",
+      "ipv4Address": null
+    }
+  ]
 ```
 
 _See code: [src/commands/proxmox/vm/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/list.ts)_
