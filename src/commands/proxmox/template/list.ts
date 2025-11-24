@@ -1,5 +1,7 @@
 import Table from 'cli-table3'
 
+import type {ProxmoxTemplateDTO} from '../../../models/proxmox-template.dto.js'
+
 import {ProxmoxTemplateFactory} from '../../../factories/proxmox-template.factory.js'
 import { BaseCommand } from '../../../lib/base-command.js'
 
@@ -14,9 +16,25 @@ export default class ProxmoxTemplateList extends BaseCommand<typeof ProxmoxTempl
 │ 101  │ debian-12       │ Yes      │
 └──────┴─────────────────┴──────────┘
 `,
+    `<%= config.bin %> <%= command.id %> --json
+[
+  {
+    "vmid": 100,
+    "name": "ubuntu-22.04",
+    "node": "pve1",
+    "template": 1
+  },
+  {
+    "vmid": 101,
+    "name": "debian-12",
+    "node": "pve1",
+    "template": 1
+  }
+]
+`,
   ]
 
-  async run(): Promise<void> {
+  async run(): Promise<ProxmoxTemplateDTO[] | void> {
     await this.parse(ProxmoxTemplateList)
 
     const service = ProxmoxTemplateFactory.createProxmoxTemplateService()
@@ -30,6 +48,12 @@ export default class ProxmoxTemplateList extends BaseCommand<typeof ProxmoxTempl
 
     const templates = result.data
 
+    // Handle JSON output mode
+    if (this.jsonEnabled()) {
+      return templates
+    }
+
+    // Handle table output mode
     if (templates.length === 0) {
       this.log('No templates found')
       return

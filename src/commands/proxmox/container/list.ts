@@ -1,5 +1,7 @@
 import Table from 'cli-table3'
 
+import type {ProxmoxVMDTO} from '../../../models/proxmox-vm.dto.js'
+
 import {ProxmoxVMFactory} from '../../../factories/proxmox-vm.factory.js'
 import { BaseCommand } from '../../../lib/base-command.js'
 
@@ -15,9 +17,31 @@ export default class ProxmoxContainerList extends BaseCommand<typeof ProxmoxCont
 │ 102  │ test-container  │ stopped  │ N/A           │
 └──────┴─────────────────┴──────────┴───────────────┘
 `,
+    `<%= config.bin %> <%= command.id %> --json
+[
+  {
+    "vmid": 100,
+    "name": "web-container",
+    "status": "running",
+    "ipv4Address": "192.168.1.10"
+  },
+  {
+    "vmid": 101,
+    "name": "db-container",
+    "status": "running",
+    "ipv4Address": "192.168.1.11"
+  },
+  {
+    "vmid": 102,
+    "name": "test-container",
+    "status": "stopped",
+    "ipv4Address": null
+  }
+]
+`,
   ]
 
-  async run(): Promise<void> {
+  async run(): Promise<ProxmoxVMDTO[] | void> {
     await this.parse(ProxmoxContainerList)
 
     const service = ProxmoxVMFactory.createProxmoxVMService()
@@ -31,6 +55,12 @@ export default class ProxmoxContainerList extends BaseCommand<typeof ProxmoxCont
 
     const containers = result.data
 
+    // Handle JSON output mode
+    if (this.jsonEnabled()) {
+      return containers
+    }
+
+    // Handle table output mode
     if (containers.length === 0) {
       this.log('No containers found')
       return

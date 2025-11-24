@@ -1,8 +1,6 @@
 pb_data/
 pb_migrations/
 
-.prompts/
-
 *-debug.log
 *-error.log
 **/.DS_Store

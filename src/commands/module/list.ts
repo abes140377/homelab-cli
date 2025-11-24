@@ -1,6 +1,8 @@
 import {Args} from '@oclif/core'
 import Table from 'cli-table3'
 
+import type {ModuleDto} from '../../models/module.dto.js'
+
 import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
 import {ModuleFactory} from '../../factories/module.factory.js'
 import {BaseCommand} from '../../lib/base-command.js'
@@ -26,9 +28,21 @@ export default class ProjectModuleList extends BaseCommand<typeof ProjectModuleL
 `,
     `# List modules for current project (auto-detect from working directory)
 <%= config.bin %> <%= command.id %>`,
+    `<%= config.bin %> <%= command.id %> sflab --json
+[
+  {
+    "name": "module1",
+    "gitRepoUrl": "git@github.com:user/module1.git"
+  },
+  {
+    "name": "module2",
+    "gitRepoUrl": "git@github.com:user/module2.git"
+  }
+]
+`,
   ]
 
-  async run(): Promise<void> {
+  async run(): Promise<ModuleDto[] | void> {
     await this.parse(ProjectModuleList)
 
     // Determine project name
@@ -78,6 +92,12 @@ export default class ProjectModuleList extends BaseCommand<typeof ProjectModuleL
 
     const modules = result.data
 
+    // Handle JSON output mode
+    if (this.jsonEnabled()) {
+      return modules
+    }
+
+    // Handle table output mode
     if (modules.length === 0) {
       this.log(`No modules found for project '${projectName}'.`)
       return
