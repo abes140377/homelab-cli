@@ -422,8 +422,9 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
         // eslint-disable-next-line no-await-in-loop
         const taskStatus = await proxmox.nodes.$(node).tasks.$(upid).status.$get();
 
-        // Check if task is still running
-        if (!taskStatus || !taskStatus.data) {
+        // Check if task status was returned
+        // Note: proxmox-api returns the data directly, not wrapped in a 'data' property
+        if (!taskStatus) {
           // Wait before next poll if no task status
           // eslint-disable-next-line no-await-in-loop
           await new Promise((resolve) => {
@@ -432,7 +433,7 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
           continue;
         }
 
-        const { exitstatus, status } = taskStatus.data;
+        const { exitstatus, status } = taskStatus;
 
         // If task is still running, continue polling
         if (status === 'running') {
