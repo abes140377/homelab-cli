@@ -607,4 +607,245 @@ describe('ProxmoxVMService', () => {
       }
     });
   });
+
+  describe('startVM', () => {
+    it('should successfully start a VM', async () => {
+      // Arrange
+      const vmid = 100;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '192.168.1.100',
+          name: 'test-vm',
+          node: 'pve-node-1',
+          status: 'stopped',
+          vmid: 100,
+        },
+      ];
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        async startVM(node, vmidParam) {
+          // Verify correct parameters
+          expect(node).to.equal('pve-node-1');
+          expect(vmidParam).to.equal(100);
+          return success('UPID:pve-node-1:00001234:00005678:ABCD1234:qmstart:100:root@pam:');
+        },
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.true;
+      if (result.success) {
+        expect(result.data.vmid).to.equal(100);
+        expect(result.data.name).to.equal('test-vm');
+        expect(result.data.node).to.equal('pve-node-1');
+      }
+    });
+
+    it('should handle VM not found error', async () => {
+      // Arrange
+      const vmid = 999;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '192.168.1.100',
+          name: 'test-vm',
+          node: 'pve',
+          status: 'stopped',
+          vmid: 100,
+        },
+      ];
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        startVM: async () => success('UPID:pve:00001234:00005678:ABCD1234:qmstart:100:root@pam:'),
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.message).to.include('VM 999 not found');
+        expect(result.error.context?.context?.vmid).to.equal(999);
+        expect(result.error.context?.context?.message).to.include('homelab proxmox vm list');
+      }
+    });
+
+    it('should handle repository error during cluster query', async () => {
+      // Arrange
+      const vmid = 100;
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => failure(new RepositoryError('Connection failed')),
+        listTemplates: async () => success([]),
+        startVM: async () => success('UPID:pve:00001234:00005678:ABCD1234:qmstart:100:root@pam:'),
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.message).to.include('Failed to query cluster resources');
+        expect(result.error.context?.cause).to.be.instanceOf(RepositoryError);
+      }
+    });
+
+    it('should handle repository error during start operation', async () => {
+      // Arrange
+      const vmid = 100;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '192.168.1.100',
+          name: 'test-vm',
+          node: 'pve',
+          status: 'stopped',
+          vmid: 100,
+        },
+      ];
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        startVM: async () => failure(new RepositoryError('Failed to start VM: API error')),
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.message).to.include('Failed to start VM: API error');
+        expect(result.error.context?.cause).to.be.instanceOf(RepositoryError);
+        expect(result.error.context?.context?.vmid).to.equal(100);
+        expect(result.error.context?.context?.name).to.equal('test-vm');
+        expect(result.error.context?.context?.node).to.equal('pve');
+      }
+    });
+
+    it('should preserve VM details in error context', async () => {
+      // Arrange
+      const vmid = 250;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '10.0.10.50',
+          name: 'production-vm',
+          node: 'pve-node-2',
+          status: 'stopped',
+          vmid: 250,
+        },
+      ];
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        startVM: async () => failure(new RepositoryError('Network timeout')),
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.context?.context?.vmid).to.equal(250);
+        expect(result.error.context?.context?.name).to.equal('production-vm');
+        expect(result.error.context?.context?.node).to.equal('pve-node-2');
+      }
+    });
+
+    it('should handle multiple VMs with same name on different nodes', async () => {
+      // Arrange
+      const vmid = 101;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '192.168.1.100',
+          name: 'test-vm',
+          node: 'pve-node-1',
+          status: 'stopped',
+          vmid: 100,
+        },
+        {
+          ipv4Address: '192.168.1.101',
+          name: 'test-vm',
+          node: 'pve-node-2',
+          status: 'stopped',
+          vmid: 101,
+        },
+      ];
+
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        async startVM(node, vmidParam) {
+          // Verify correct node is selected for the specific VMID
+          expect(node).to.equal('pve-node-2');
+          expect(vmidParam).to.equal(101);
+          return success('UPID:pve-node-2:00001234:00005678:ABCD1234:qmstart:101:root@pam:');
+        },
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.true;
+      if (result.success) {
+        expect(result.data.vmid).to.equal(101);
+        expect(result.data.node).to.equal('pve-node-2');
+      }
+    });
+
+    it('should pass through repository error message as-is', async () => {
+      // Arrange
+      const vmid = 100;
+      const mockVMs: ProxmoxVMDTO[] = [
+        {
+          ipv4Address: '192.168.1.100',
+          name: 'test-vm',
+          node: 'pve',
+          status: 'stopped',
+          vmid: 100,
+        },
+      ];
+
+      const repositoryErrorMessage = 'Failed to start VM: VM is locked';
+      const mockRepository: IProxmoxRepository = {
+        listResources: async () => success(mockVMs),
+        listTemplates: async () => success([]),
+        startVM: async () => failure(new RepositoryError(repositoryErrorMessage)),
+      };
+
+      const service = new ProxmoxVMService(mockRepository);
+
+      // Act
+      const result = await service.startVM(vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        // Service should pass through repository error message unchanged
+        expect(result.error.message).to.equal(repositoryErrorMessage);
+      }
+    });
+  });
 });

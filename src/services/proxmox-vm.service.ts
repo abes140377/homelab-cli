@@ -253,6 +253,64 @@ export class ProxmoxVMService {
   }
 
   /**
+   * Starts a stopped VM by VMID.
+   * Orchestrates: node resolution → start call.
+   * @param vmid VM ID to start
+   * @returns Result containing started VM details {vmid, name, node} or an error
+   */
+  async startVM(vmid: number): Promise<Result<{name: string; node: string; vmid: number}, ServiceError>> {
+    // Step 1: Resolve node name and get VM details
+    const vmsResult = await this.repository.listResources('qemu');
+
+    if (!vmsResult.success) {
+      return failure(
+        new ServiceError('Failed to query cluster resources', {
+          cause: vmsResult.error,
+        }),
+      );
+    }
+
+    // Find VM with matching VMID
+    const vm = vmsResult.data.find((v) => v.vmid === vmid);
+
+    if (!vm) {
+      return failure(
+        new ServiceError(`VM ${vmid} not found`, {
+          context: {
+            message: 'Use \'homelab proxmox vm list\' to see available VMs',
+            vmid,
+          },
+        }),
+      );
+    }
+
+    const {name, node} = vm;
+
+    // Step 2: Start the VM
+    const startResult = await this.repository.startVM(node, vmid);
+    if (!startResult.success) {
+      // Pass through the repository error message as-is (it's already user-friendly)
+      return failure(
+        new ServiceError(startResult.error.message, {
+          cause: startResult.error,
+          context: {
+            name,
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+
+    // Return success with started VM details
+    return success({
+      name,
+      node,
+      vmid,
+    });
+  }
+
+  /**
    * Resolves node name for a given VMID by querying cluster resources.
    * @param vmid VM ID to resolve
    * @returns Result containing node name or an error

@@ -54,6 +54,7 @@ USAGE
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
 * [`homelab proxmox vm delete [VMIDS]`](#homelab-proxmox-vm-delete-vmids)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
+* [`homelab proxmox vm start [VMIDS]`](#homelab-proxmox-vm-start-vmids)
 * [`homelab vscode [WORKSPACE-NAME]`](#homelab-vscode-workspace-name)
 * [`homelab zellij [MODULE-NAME]`](#homelab-zellij-module-name)
 
@@ -841,6 +842,48 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/vm/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/list.ts)_
+
+## `homelab proxmox vm start [VMIDS]`
+
+Start one or more stopped Proxmox VMs
+
+```
+USAGE
+  $ homelab proxmox vm start [VMIDS...] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [VMIDS...]  VM IDs to start
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Start one or more stopped Proxmox VMs
+
+EXAMPLES
+  $ homelab proxmox vm start 100
+  Starting VM 100...
+  Successfully started VM 100 'web-server' on node 'pve1'
+
+  $ homelab proxmox vm start 100 101 102
+  Starting 3 VMs...
+  Successfully started 3 VMs
+
+  $ homelab proxmox vm start
+  # Interactive mode - select VMs from list of stopped VMs
+
+  $ homelab proxmox vm start 100 --json
+  {
+    "vmid": 100,
+    "name": "web-server",
+    "node": "pve1",
+    "status": "started"
+  }
+```
+
+_See code: [src/commands/proxmox/vm/start.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/start.ts)_
 
 ## `homelab vscode [WORKSPACE-NAME]`
 
