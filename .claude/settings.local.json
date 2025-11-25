@@ -12,7 +12,8 @@
       "Bash(pnpm install:*)",
       "WebSearch",
       "Bash(test:*)",
-      "WebFetch(domain:www.npmjs.com)"
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(openspec show:*)"
     ],
     "deny": [],
     "ask": []
