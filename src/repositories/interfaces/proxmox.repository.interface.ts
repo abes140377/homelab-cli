@@ -24,6 +24,15 @@ export interface IProxmoxRepository {
   ): Promise<Result<string, RepositoryError>>;
 
   /**
+   * Deletes a VM and all its owned volumes.
+   * This operation destroys the VM permanently and cannot be undone.
+   * @param node Node where VM resides
+   * @param vmid VM ID to delete
+   * @returns Result containing task UPID for async operation tracking or an error
+   */
+  deleteVM(node: string, vmid: number): Promise<Result<string, RepositoryError>>;
+
+  /**
    * Finds the next available VMID in the Proxmox cluster.
    * Searches for gaps in the VMID sequence starting from 100.
    * @returns Result containing next available VMID or an error

@@ -17,9 +17,10 @@ describe('prompts', () => {
     // - promptForPassword: Returns masked input as Result<string>
     // - promptForSelection: Returns selected value as Result<T>
     // - promptForMultipleSelections: Returns array of selections as Result<T[]>
+    // - promptForConfirmation: Returns Result<boolean> for yes/no confirmation
     // - All functions handle user cancellation (Ctrl+C)
     // - All functions support default values via 'initial' option
-    // - All functions support validation via 'validate' option
+    // - All functions support validation via 'validate' option (except confirmation)
     // - All functions support skipping via 'skip' option
     expect(true).to.be.true
   })

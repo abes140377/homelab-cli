@@ -92,6 +92,76 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
   }
 
   /**
+   * Deletes a VM and all its owned volumes.
+   * This operation destroys the VM permanently and cannot be undone.
+   * @param node Node where VM resides
+   * @param vmid VM ID to delete
+   * @returns Result containing task UPID for async operation tracking or an error
+   */
+  async deleteVM(node: string, vmid: number): Promise<Result<string, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const { tokenSecret } = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      // Delete the VM: DELETE /nodes/{node}/qemu/{vmid}
+      const response = await proxmox.nodes.$(node).qemu.$(vmid).$delete();
+
+      // Response should contain task UPID
+      if (!response || typeof response !== 'string') {
+        return failure(new RepositoryError('Unexpected API response format from delete operation'));
+      }
+
+      return success(response);
+    } catch (error) {
+      logDebugError('Proxmox API error during deleteVM', error, {
+        host: this.config.host,
+        node,
+        port: this.config.port,
+        vmid,
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      // Check if VM is running (common error that needs user action)
+      if (errorMessage.includes('is running') || errorMessage.includes('destroy failed')) {
+        return failure(
+          new RepositoryError(`Delete failed: VM ${vmid} is running - Stop the VM and rerun the delete command`, {
+            cause: error instanceof Error ? error : undefined,
+            context: {
+              node,
+              vmid,
+            },
+          }),
+        );
+      }
+
+      return failure(
+        new RepositoryError(`Failed to delete VM: ${errorMessage}`, {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+  }
+
+  /**
    * Finds the next available VMID in the Proxmox cluster.
    * Searches for gaps in the VMID sequence starting from 100 (Proxmox convention).
    * @returns Result containing next available VMID or an error

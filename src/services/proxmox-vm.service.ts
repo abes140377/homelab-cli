@@ -141,6 +141,85 @@ export class ProxmoxVMService {
   }
 
   /**
+   * Deletes a VM by VMID.
+   * Orchestrates: node resolution → delete call → wait for completion.
+   * @param vmid VM ID to delete
+   * @returns Result containing deleted VM details {vmid, name, node} or an error
+   */
+  async deleteVM(vmid: number): Promise<Result<{name: string; node: string; vmid: number}, ServiceError>> {
+    // Step 1: Resolve node name and get VM details
+    const vmsResult = await this.repository.listResources('qemu');
+
+    if (!vmsResult.success) {
+      return failure(
+        new ServiceError('Failed to query cluster resources', {
+          cause: vmsResult.error,
+        }),
+      );
+    }
+
+    // Find VM with matching VMID
+    const vm = vmsResult.data.find((v) => v.vmid === vmid);
+
+    if (!vm) {
+      return failure(
+        new ServiceError(`VM ${vmid} not found`, {
+          context: {
+            message: 'Use \'homelab proxmox vm list\' to see available VMs',
+            vmid,
+          },
+        }),
+      );
+    }
+
+    const {name, node} = vm;
+
+    // Step 2: Delete the VM
+    const deleteResult = await this.repository.deleteVM(node, vmid);
+    if (!deleteResult.success) {
+      // Pass through the repository error message as-is (it's already user-friendly)
+      return failure(
+        new ServiceError(deleteResult.error.message, {
+          cause: deleteResult.error,
+          context: {
+            name,
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+
+    const taskUpid = deleteResult.data;
+
+    // Step 3: Wait for delete task to complete
+    const waitResult = await this.repository.waitForTask(node, taskUpid);
+    if (!waitResult.success) {
+      return failure(
+        new ServiceError(
+          `VM deletion timed out or failed: ${waitResult.error.message}. The VM deletion may still be in progress. Check Proxmox web UI for task status.`,
+          {
+            cause: waitResult.error,
+            context: {
+              name,
+              node,
+              taskUpid,
+              vmid,
+            },
+          },
+        ),
+      );
+    }
+
+    // Return success with deleted VM details
+    return success({
+      name,
+      node,
+      vmid,
+    });
+  }
+
+  /**
    * Lists Proxmox resources (VMs or LXC containers), sorted by VMID ascending.
    * @param resourceType Type of resource to list: 'qemu' for VMs or 'lxc' for containers
    * @returns Result containing array of resources or an error

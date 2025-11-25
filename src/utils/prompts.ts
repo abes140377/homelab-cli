@@ -1,6 +1,6 @@
 import Enquirer from 'enquirer'
 
-import type {PromptOptions, SelectionOptions} from './prompts.types.js'
+import type {ConfirmationOptions, PromptOptions, SelectionOptions} from './prompts.types.js'
 import type {Result} from './result.js'
 
 /**
@@ -205,6 +205,57 @@ export async function promptForMultipleSelections<T>(
       .filter((v): v is T => v !== null)
 
     return {data: selectedValues, success: true}
+  } catch (error) {
+    return {
+      error: new Error(
+        error instanceof Error ? error.message : 'Prompt cancelled',
+      ),
+      success: false,
+    }
+  }
+}
+
+/**
+ * Prompts the user for confirmation (yes/no)
+ *
+ * @param options Configuration for the confirmation prompt
+ * @returns Result containing true (yes) or false (no), or an error if cancelled
+ *
+ * @example
+ * ```typescript
+ * const result = await promptForConfirmation({
+ *   message: 'Are you sure you want to delete this VM?',
+ *   initial: false
+ * });
+ *
+ * if (result.success && result.data) {
+ *   // User confirmed - proceed with deletion
+ *   console.log('Deleting VM...');
+ * } else if (result.success) {
+ *   // User declined
+ *   console.log('Operation cancelled');
+ * } else {
+ *   // Prompt was cancelled (Ctrl+C)
+ *   console.error('Prompt cancelled:', result.error.message);
+ * }
+ * ```
+ */
+export async function promptForConfirmation(
+  options: ConfirmationOptions,
+): Promise<Result<boolean, Error>> {
+  try {
+    if (options.skip) {
+      return {data: options.initial ?? false, success: true}
+    }
+
+    const response = await Enquirer.prompt<{value: boolean}>({
+      initial: options.initial,
+      message: options.message,
+      name: 'value',
+      type: 'confirm',
+    })
+
+    return {data: response.value, success: true}
   } catch (error) {
     return {
       error: new Error(

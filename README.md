@@ -52,6 +52,7 @@ USAGE
 * [`homelab proxmox template list`](#homelab-proxmox-template-list)
 * [`homelab proxmox vm cloudinit VMID`](#homelab-proxmox-vm-cloudinit-vmid)
 * [`homelab proxmox vm create TEMPLATE-NAME VM-NAME`](#homelab-proxmox-vm-create-template-name-vm-name)
+* [`homelab proxmox vm delete [VMIDS]`](#homelab-proxmox-vm-delete-vmids)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 * [`homelab vscode [WORKSPACE-NAME]`](#homelab-vscode-workspace-name)
 * [`homelab zellij [MODULE-NAME]`](#homelab-zellij-module-name)
@@ -193,6 +194,18 @@ EXAMPLES
   # List modules for current project (auto-detect from working directory)
 
     $ homelab module list
+
+  $ homelab module list sflab --json
+  [
+    {
+      "name": "module1",
+      "gitRepoUrl": "git@github.com:user/module1.git"
+    },
+    {
+      "name": "module2",
+      "gitRepoUrl": "git@github.com:user/module2.git"
+    }
+  ]
 ```
 
 _See code: [src/commands/module/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/module/list.ts)_
@@ -514,6 +527,22 @@ EXAMPLES
   ├──────────────┼──────────────────────────────────────┤
   │ project3     │ git@github.com:user/project3.git     │
   └──────────────┴──────────────────────────────────────┘
+
+  $ homelab project list --json
+  [
+    {
+      "name": "project1",
+      "gitRepoUrl": "git@github.com:user/project1.git"
+    },
+    {
+      "name": "project2",
+      "gitRepoUrl": "git@github.com:user/project2.git"
+    },
+    {
+      "name": "project3",
+      "gitRepoUrl": "git@github.com:user/project3.git"
+    }
+  ]
 ```
 
 _See code: [src/commands/project/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/project/list.ts)_
@@ -565,6 +594,28 @@ EXAMPLES
   │ 101  │ db-container    │ running  │ 192.168.1.11  │
   │ 102  │ test-container  │ stopped  │ N/A           │
   └──────┴─────────────────┴──────────┴───────────────┘
+
+  $ homelab proxmox container list --json
+  [
+    {
+      "vmid": 100,
+      "name": "web-container",
+      "status": "running",
+      "ipv4Address": "192.168.1.10"
+    },
+    {
+      "vmid": 101,
+      "name": "db-container",
+      "status": "running",
+      "ipv4Address": "192.168.1.11"
+    },
+    {
+      "vmid": 102,
+      "name": "test-container",
+      "status": "stopped",
+      "ipv4Address": null
+    }
+  ]
 ```
 
 _See code: [src/commands/proxmox/container/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/container/list.ts)_
@@ -593,6 +644,22 @@ EXAMPLES
   │ 100  │ ubuntu-22.04    │ Yes      │
   │ 101  │ debian-12       │ Yes      │
   └──────┴─────────────────┴──────────┘
+
+  $ homelab proxmox template list --json
+  [
+    {
+      "vmid": 100,
+      "name": "ubuntu-22.04",
+      "node": "pve1",
+      "template": 1
+    },
+    {
+      "vmid": 101,
+      "name": "debian-12",
+      "node": "pve1",
+      "template": 1
+    }
+  ]
 ```
 
 _See code: [src/commands/proxmox/template/list.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/template/list.ts)_
@@ -665,9 +732,64 @@ EXAMPLES
   $ homelab proxmox vm create tpl-linux-ubuntu-server-24.04 my-server
   Creating VM 'my-server' from template 'tpl-linux-ubuntu-server-24.04'...
   Successfully created VM 200 'my-server' on node 'pve1'
+
+  $ homelab proxmox vm create tpl-linux-ubuntu-server-24.04 my-server --json
+  {
+    "vmid": 200,
+    "name": "my-server",
+    "node": "pve1"
+  }
 ```
 
 _See code: [src/commands/proxmox/vm/create.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/create.ts)_
+
+## `homelab proxmox vm delete [VMIDS]`
+
+Delete one or more Proxmox VMs
+
+```
+USAGE
+  $ homelab proxmox vm delete [VMIDS...] [--json] [--log-level debug|warn|error|info|trace] [-f]
+
+ARGUMENTS
+  [VMIDS...]  VM IDs to delete
+
+FLAGS
+  -f, --force  Skip confirmation prompts
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Delete one or more Proxmox VMs
+
+EXAMPLES
+  $ homelab proxmox vm delete 100
+  Deleting VM 100...
+  Successfully deleted VM 100 'web-server' from node 'pve1'
+
+  $ homelab proxmox vm delete 100 101 102
+  Deleting 3 VMs...
+  Successfully deleted 3 VMs
+
+  $ homelab proxmox vm delete 100 --force
+  Successfully deleted VM 100 'web-server' from node 'pve1'
+
+  $ homelab proxmox vm delete
+  # Interactive mode - select VMs from list
+
+  $ homelab proxmox vm delete 100 --json --force
+  {
+    "vmid": 100,
+    "name": "web-server",
+    "node": "pve1",
+    "status": "deleted"
+  }
+```
+
+_See code: [src/commands/proxmox/vm/delete.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/delete.ts)_
 
 ## `homelab proxmox vm list`
 

@@ -34,3 +34,9 @@ export interface SelectionOptions<T> extends PromptOptions<T> {
    */
   choices: T[];
 }
+
+/**
+ * Configuration options for confirmation prompts (yes/no)
+ * Validation is not applicable for boolean confirmations
+ */
+export type ConfirmationOptions = Omit<PromptOptions<boolean>, 'validate'>
