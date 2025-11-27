@@ -1,0 +1,30 @@
+# Gitleaks ignore file for test dummy values and false positives
+# Format: <commit>:<file>:<rule>:<line>
+#
+# Note: Secrets in old commits (before cleanup) remain in git history.
+# These are being ignored since:
+# 1. The actual Proxmox token has been invalidated
+# 2. Current code uses dummy test values
+# 3. Git history rewriting is complex and risky
+#
+# All fingerprints for the old token in historical commits:
+
+b8df074fb069c5173d17bf6f6f6e3cbfe3a4c861:test/config/proxmox.config.test.ts:generic-api-key:169
+b8df074fb069c5173d17bf6f6f6e3cbfe3a4c861:test/config/proxmox.config.test.ts:generic-api-key:181
+b8df074fb069c5173d17bf6f6f6e3cbfe3a4c861:test/config/proxmox.config.test.ts:generic-api-key:194
+b8df074fb069c5173d17bf6f6f6e3cbfe3a4c861:test/config/proxmox.config.test.ts:generic-api-key:207
+b8df074fb069c5173d17bf6f6f6e3cbfe3a4c861:test/config/proxmox.config.test.ts:generic-api-key:220
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:29
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:40
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:60
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:69
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/integration/proxmox-api.integration.test.ts:generic-api-key:22
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:78
+fdaabe1e74855d991af9db572b17dde21052f593:openspec/changes/refactor-proxmox-config/specs/proxmox-configuration/spec.md:generic-api-key:55
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:97
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:106
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:117
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:139
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/repositories/proxmox.repository.test.ts:generic-api-key:14
+b06286480abf3060be203fcf9dd52b63f5b9ac7b:test/config/proxmox.config.test.ts:generic-api-key:49
+scripts/cleanup-git-leaks.sh

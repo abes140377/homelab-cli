@@ -172,7 +172,7 @@ describe('CLI Configuration', () => {
         process.env.PROXMOX_USER = 'root'
         process.env.PROXMOX_REALM = 'pam'
         process.env.PROXMOX_TOKEN_KEY = 'homelabcli'
-        process.env.PROXMOX_TOKEN_SECRET = 'some-example-for-a-secret'
+        process.env.PROXMOX_TOKEN_SECRET = '12345678-1234-1234-1234-123456789abc'
         process.env.PROXMOX_HOST = 'proxmox.home.sflab.io'
         process.env.PROXMOX_PORT = '8006'
 
@@ -185,7 +185,7 @@ describe('CLI Configuration', () => {
           realm: 'pam',
           rejectUnauthorized: true,
           tokenKey: 'homelabcli',
-          tokenSecret: 'some-example-for-a-secret',
+          tokenSecret: '12345678-1234-1234-1234-123456789abc',
           user: 'root',
         })
       })
@@ -194,7 +194,7 @@ describe('CLI Configuration', () => {
         process.env.PROXMOX_USER = 'root'
         process.env.PROXMOX_REALM = 'pam'
         process.env.PROXMOX_TOKEN_KEY = 'homelabcli'
-        process.env.PROXMOX_TOKEN_SECRET = 'some-example-for-a-secret'
+        process.env.PROXMOX_TOKEN_SECRET = '12345678-1234-1234-1234-123456789abc'
         process.env.PROXMOX_HOST = 'proxmox.home.sflab.io'
 
         const config = new CliConfigManager('test-homelab-cli-proxmox-port-default')
@@ -207,7 +207,7 @@ describe('CLI Configuration', () => {
         process.env.PROXMOX_USER = 'root'
         process.env.PROXMOX_REALM = 'pam'
         process.env.PROXMOX_TOKEN_KEY = 'homelabcli'
-        process.env.PROXMOX_TOKEN_SECRET = 'some-example-for-a-secret'
+        process.env.PROXMOX_TOKEN_SECRET = '12345678-1234-1234-1234-123456789abc'
         process.env.PROXMOX_HOST = 'proxmox.home.sflab.io'
         process.env.PROXMOX_REJECT_UNAUTHORIZED = 'false'
 

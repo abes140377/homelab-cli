@@ -11,7 +11,7 @@ import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.reposit
  * - PROXMOX_USER: Proxmox user (e.g., root)
  * - PROXMOX_REALM: Authentication realm (e.g., pam)
  * - PROXMOX_TOKEN_KEY: Token identifier (e.g., homelabcli)
- * - PROXMOX_TOKEN_SECRET: Token secret (UUID format, e.g., bd2ed89e-6a09-48e8-8a6e-38da9128c8ce)
+ * - PROXMOX_TOKEN_SECRET: Token secret (UUID format, e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
  * - PROXMOX_HOST: Proxmox hostname without protocol (e.g., proxmox.home.sflab.io)
  * - PROXMOX_PORT: Port number (optional, defaults to 8006)
  *
@@ -19,7 +19,7 @@ import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.reposit
  *   export PROXMOX_USER=root
  *   export PROXMOX_REALM=pam
  *   export PROXMOX_TOKEN_KEY=homelabcli
- *   export PROXMOX_TOKEN_SECRET=bd2ed89e-6a09-48e8-8a6e-38da9128c8ce
+ *   export PROXMOX_TOKEN_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
  *   export PROXMOX_HOST=proxmox.home.sflab.io
  *   export PROXMOX_PORT=8006
  *   pnpm test
