@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import type { ProxmoxConfig } from '../../src/config/proxmox.config.js';
+import type { RequiredProxmoxConfig } from '../../src/models/schemas/cli-config.schema.js';
 
 import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.repository.js';
 
@@ -14,7 +14,7 @@ import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.reposit
  */
 describe('ProxmoxApiRepository', () => {
   let repository: ProxmoxApiRepository;
-  let config: ProxmoxConfig;
+  let config: RequiredProxmoxConfig;
 
   beforeEach(() => {
     // Setup test config with invalid host to ensure tests don't make real API calls

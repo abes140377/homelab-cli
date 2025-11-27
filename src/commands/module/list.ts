@@ -3,7 +3,7 @@ import Table from 'cli-table3'
 
 import type {ModuleDto} from '../../models/module.dto.js'
 
-import {loadProjectsDirConfig} from '../../config/projects-dir.config.js'
+import {getCliConfig} from '../../config/cli.config.js'
 import {ModuleFactory} from '../../factories/module.factory.js'
 import {BaseCommand} from '../../lib/base-command.js'
 import {detectCurrentProject} from '../../utils/detect-current-project.js'
@@ -51,8 +51,9 @@ export default class ProjectModuleList extends BaseCommand<typeof ProjectModuleL
     if (!projectName) {
       // Auto-detect current project from working directory
       try {
-        const config = loadProjectsDirConfig()
-        const detectedProject = detectCurrentProject(process.cwd(), config.projectsDir)
+        const cliConfig = getCliConfig()
+        const projectsDir = cliConfig.get('projectsDir')
+        const detectedProject = detectCurrentProject(process.cwd(), projectsDir)
 
         if (!detectedProject) {
           this.error(

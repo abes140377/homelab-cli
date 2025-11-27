@@ -1,4 +1,4 @@
-import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
+import {getCliConfig} from '../config/cli.config.js'
 import {ModuleRepository} from '../repositories/module.repository.js'
 import {ModuleService} from '../services/module.service.js'
 
@@ -12,7 +12,8 @@ export const ModuleFactory = {
    * @returns ModuleService with repository dependencies wired
    */
   createModuleService(): ModuleService {
-    const config = loadProjectsDirConfig()
+    const cliConfig = getCliConfig()
+    const config = {projectsDir: cliConfig.get('projectsDir')}
     const repository = new ModuleRepository(config)
     return new ModuleService(repository)
   },

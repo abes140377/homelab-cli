@@ -1,9 +1,9 @@
 import proxmoxApi from 'proxmox-api';
 
-import { type ProxmoxConfig } from '../config/proxmox.config.js';
 import { RepositoryError } from '../errors/repository.error.js';
 import { type ProxmoxTemplateDTO } from '../models/proxmox-template.dto.js';
 import { type ProxmoxVMDTO } from '../models/proxmox-vm.dto.js';
+import { type RequiredProxmoxConfig } from '../models/schemas/cli-config.schema.js';
 import { logDebugError } from '../utils/debug-logger.js';
 import { failure, type Result, success } from '../utils/result.js';
 import { type IProxmoxRepository } from './interfaces/proxmox.repository.interface.js';
@@ -14,9 +14,9 @@ import { type IProxmoxRepository } from './interfaces/proxmox.repository.interfa
  * Provides an alternative implementation to the fetch-based repository.
  */
 export class ProxmoxApiRepository implements IProxmoxRepository {
-  private readonly config: ProxmoxConfig;
+  private readonly config: RequiredProxmoxConfig;
 
-  constructor(config: ProxmoxConfig) {
+  constructor(config: RequiredProxmoxConfig) {
     this.config = config;
   }
 

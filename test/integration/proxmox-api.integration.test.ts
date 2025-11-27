@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 
-import { loadProxmoxConfig } from '../../src/config/proxmox.config.js'
+import { getCliConfig } from '../../src/config/cli.config.js'
 import { ProxmoxApiRepository } from '../../src/repositories/proxmox-api.repository.js'
 
 /**
@@ -65,8 +65,9 @@ describe('ProxmoxApiRepository Integration Tests', () => {
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
       // Load configuration from environment
-      const config = loadProxmoxConfig()
-      repository = new ProxmoxApiRepository(config)
+      const cliConfig = getCliConfig()
+      const config = cliConfig.get('proxmox')
+      repository = new ProxmoxApiRepository(config as Required<typeof config>)
     })
 
     after(() => {

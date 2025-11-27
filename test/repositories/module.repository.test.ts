@@ -4,9 +4,14 @@ import {mkdir, rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 
-import type {ProjectsDirConfig} from '../../src/config/projects-dir.config.js'
-
 import {ModuleRepository} from '../../src/repositories/module.repository.js'
+
+/**
+ * Configuration for projects directory
+ */
+interface ProjectsDirConfig {
+  projectsDir: string
+}
 
 describe('ModuleRepository', () => {
   let repository: ModuleRepository

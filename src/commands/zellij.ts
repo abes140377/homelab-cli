@@ -2,7 +2,7 @@ import {Args, Flags} from '@oclif/core'
 import {readdir} from 'node:fs/promises'
 import {join} from 'node:path'
 
-import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
+import {getCliConfig} from '../config/cli.config.js'
 import {BaseCommand} from '../lib/base-command.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {detectCurrentProject} from '../utils/detect-current-project.js'
@@ -35,18 +35,11 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
     await this.parse(Zellij)
 
     // Load configuration
-    let config
-    try {
-      config = loadProjectsDirConfig()
-    } catch (error) {
-      this.error(
-        `Failed to load projects directory configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        {exit: 1},
-      )
-    }
+    const cliConfig = getCliConfig()
+    const projectsDir = cliConfig.get('projectsDir')
 
     // Detect current project from working directory
-    const projectName = detectCurrentProject(process.cwd(), config.projectsDir)
+    const projectName = detectCurrentProject(process.cwd(), projectsDir)
 
     if (!projectName) {
       this.error(
@@ -60,7 +53,7 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
 
     if (!moduleName) {
       // Get available Zellij modules from .config/zellij directory
-      const zellijBaseDir = join(config.projectsDir, projectName, '.config/zellij')
+      const zellijBaseDir = join(projectsDir, projectName, '.config/zellij')
       const availableModules = await this.getAvailableConfigurations(zellijBaseDir)
 
       if (availableModules.length === 0) {
@@ -88,7 +81,7 @@ export default class Zellij extends BaseCommand<typeof Zellij> {
 
     // Construct Zellij config path
     // Layout name is now a directory containing the layout.kdl file
-    const configPath = join(config.projectsDir, projectName, '.config/zellij', moduleName, layoutName, '.kdl')
+    const configPath = join(projectsDir, projectName, '.config/zellij', moduleName, layoutName, '.kdl')
 
     console.log(configPath)
 

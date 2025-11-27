@@ -1,7 +1,6 @@
 import {access, readdir, stat} from 'node:fs/promises'
 import {join} from 'node:path'
 
-import type {ProjectsDirConfig} from '../config/projects-dir.config.js'
 import type {ModuleDto} from '../models/module.dto.js'
 import type {IModuleRepository} from './interfaces/module.repository.interface.js'
 
@@ -10,6 +9,13 @@ import {ModuleSchema} from '../models/schemas/module.schema.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {logDebugError} from '../utils/debug-logger.js'
 import {failure, type Result, success} from '../utils/result.js'
+
+/**
+ * Configuration for projects directory
+ */
+interface ProjectsDirConfig {
+  projectsDir: string
+}
 
 /**
  * Module repository implementation using filesystem.

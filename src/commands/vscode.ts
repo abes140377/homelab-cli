@@ -1,7 +1,7 @@
 import {Args} from '@oclif/core'
 import {join} from 'node:path'
 
-import {loadProjectsDirConfig} from '../config/projects-dir.config.js'
+import {getCliConfig} from '../config/cli.config.js'
 import {BaseCommand} from '../lib/base-command.js'
 import {CommandExecutorService} from '../services/command-executor.service.js'
 import {detectCurrentProject} from '../utils/detect-current-project.js'
@@ -23,18 +23,11 @@ export default class Vscode extends BaseCommand<typeof Vscode> {
     await this.parse(Vscode)
 
     // Load configuration
-    let config
-    try {
-      config = loadProjectsDirConfig()
-    } catch (error) {
-      this.error(
-        `Failed to load projects directory configuration: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        {exit: 1},
-      )
-    }
+    const cliConfig = getCliConfig()
+    const projectsDir = cliConfig.get('projectsDir')
 
     // Always auto-detect current project from working directory
-    const projectName = detectCurrentProject(process.cwd(), config.projectsDir)
+    const projectName = detectCurrentProject(process.cwd(), projectsDir)
 
     if (!projectName) {
       this.error(
@@ -51,11 +44,11 @@ export default class Vscode extends BaseCommand<typeof Vscode> {
 
     if (workspaceName) {
       // Open workspace file
-      targetPath = join(config.projectsDir, projectName, `${workspaceName}.code-workspace`)
+      targetPath = join(projectsDir, projectName, `${workspaceName}.code-workspace`)
     } else {
       // Open project directory with code .
       targetPath = '.'
-      cwd = join(config.projectsDir, projectName)
+      cwd = join(projectsDir, projectName)
     }
 
     this.log(`Opening ${workspaceName ? `workspace '${workspaceName}'` : 'project'} in VS Code...`)
