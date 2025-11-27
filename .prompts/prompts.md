@@ -357,3 +357,31 @@ füge die unterstützung für das --json falg auch in den folgenden commands hin
 - src/commands/proxmox/container/list.ts
 - src/commands/project/list.ts
 - src/commands/module/list.ts
+
+---
+
+schau dir die implementierung meiner unterschiedlichen config klassen unter `src/config/` an.
+ich möchte die konfigurations klassen vereinheitlichen und zusammenlegen.
+benutze als grundlage die implementierung der `CliConfig` klasse.
+überführe die funktionalität der anderen klassen `src/config/projects-dir.config.ts` und `src/config/proxmox.config.ts` in die `CliConfig` klasse.
+die CliConfig klasse soll danach die einzige konfigurations klasse sein.
+die CliConfig klasse soll weiterhin in der lage sein die konfigurationswerte aus der configstore datei zu laden und zu speichern.
+die konfigurationswerte sollen weiterhin über environment variablen überschreibbar sein.
+aktuell sieht die resultierende configstore json datei unter `~/.config/homelab-cli/config.json` so aus:
+{
+  "logLevel": "info",
+	"colorOutput": false,
+}
+später soll die datei so aussehen:
+{
+  "logLevel": "info",
+	"colorOutput": false,
+  "projectsDir": "...",
+  "proxmox": {
+    "apiUrl": "...",
+    "username": "...",
+    "password": "",
+    "tokenId": "",
+    "tokenSecret": ""
+  }
+}

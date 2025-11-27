@@ -9,12 +9,14 @@ OUTPUT=$(bin/dev.js proxmox vm create "$TEMPLATE_NAME" "test" --json)
 # parse the output with jq and extract the vmid to a variable
 VMID=$(echo "$OUTPUT" | jq -r '.vmid')
 
-echo "Created VM with ID: $VMID"
-
 bin/dev.js proxmox vm cloudinit "$VMID" --ipconfig ip=$IP_ADDRESS/24
+
+sleep 5
 
 bin/dev.js proxmox vm start $VMID
 
 sleep 10
 
-ssh -i /Users/seba/projects/sflab/src/homelab-packer-templates/keys/admin_id_ecdsa -o StrictHostKeyChecking=no admin@$IP_ADDRESS
+ssh -i ~/.ssh/admin_id_ecdsa -o StrictHostKeyChecking=no admin@$IP_ADDRESS "echo 'SSH connection to VM $VMID successful'"
+
+bin/dev.js proxmox vm stop $VMID

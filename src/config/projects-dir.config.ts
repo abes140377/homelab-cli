@@ -36,6 +36,7 @@ export function loadProjectsDirConfig(): ProjectsDirConfig {
 
   if (!result.success) {
     const errors = result.error.issues.map((issue) => issue.message).join(', ')
+
     throw new Error(`Invalid projects directory configuration: ${errors}`)
   }
 

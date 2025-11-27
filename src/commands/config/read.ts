@@ -12,13 +12,13 @@ export default class ConfigRead extends BaseCommand<typeof ConfigRead> {
       required: false,
     }),
   }
-static description = 'Read configuration values'
-static examples = [
+  static description = 'Read configuration values'
+  static examples = [
     '<%= config.bin %> <%= command.id %>',
     '<%= config.bin %> <%= command.id %> logLevel',
     '<%= config.bin %> <%= command.id %> --path',
   ]
-static flags = {
+  static flags = {
     path: Flags.boolean({
       char: 'p',
       default: false,
@@ -32,6 +32,7 @@ static flags = {
 
     if (this.flags.path) {
       this.log(`Config file: ${config.getPath()}`)
+
       return
     }
 
@@ -39,10 +40,12 @@ static flags = {
       // Read specific key
       const key = this.args.key as keyof CliConfig
       const value = config.get(key)
+
       this.log(`${this.args.key}: ${value}`)
     } else {
       // Read all config
       const allConfig = config.getAll()
+
       this.log(JSON.stringify(allConfig, null, 2))
     }
   }

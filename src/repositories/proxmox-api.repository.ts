@@ -500,6 +500,62 @@ export class ProxmoxApiRepository implements IProxmoxRepository {
   }
 
   /**
+   * Stops a running Proxmox VM using graceful shutdown.
+   * @param node Node where VM resides
+   * @param vmid VM ID to stop
+   * @returns Result containing task UPID for async operation tracking or an error
+   */
+  async stopVM(node: string, vmid: number): Promise<Result<string, RepositoryError>> {
+    try {
+      // Construct tokenID from user@realm!tokenKey format
+      const tokenID = `${this.config.user}@${this.config.realm}!${this.config.tokenKey}`;
+      const { tokenSecret } = this.config;
+
+      // Disable SSL verification for self-signed certificates if configured
+      if (!this.config.rejectUnauthorized) {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      }
+
+      // Create proxmox client with token authentication
+      const proxmox = proxmoxApi({
+        host: this.config.host,
+        port: this.config.port,
+        tokenID,
+        tokenSecret,
+      });
+
+      // Stop the VM: POST /nodes/{node}/qemu/{vmid}/status/stop
+      const response = await proxmox.nodes.$(node).qemu.$(vmid).status.stop.$post();
+
+      // Response should contain task UPID
+      if (!response || typeof response !== 'string') {
+        return failure(new RepositoryError('Unexpected API response format from stop operation'));
+      }
+
+      return success(response);
+    } catch (error) {
+      logDebugError('Proxmox API error during stopVM', error, {
+        host: this.config.host,
+        node,
+        port: this.config.port,
+        vmid,
+      });
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      return failure(
+        new RepositoryError(`Failed to stop VM: ${errorMessage}`, {
+          cause: error instanceof Error ? error : undefined,
+          context: {
+            node,
+            vmid,
+          },
+        }),
+      );
+    }
+  }
+
+  /**
    * Waits for a Proxmox task to complete with timeout support.
    * Polls the task status endpoint every 2 seconds until completion or timeout.
    * @param node Node where task is running

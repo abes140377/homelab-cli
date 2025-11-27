@@ -55,6 +55,7 @@ USAGE
 * [`homelab proxmox vm delete [VMIDS]`](#homelab-proxmox-vm-delete-vmids)
 * [`homelab proxmox vm list`](#homelab-proxmox-vm-list)
 * [`homelab proxmox vm start [VMIDS]`](#homelab-proxmox-vm-start-vmids)
+* [`homelab proxmox vm stop [VMIDS]`](#homelab-proxmox-vm-stop-vmids)
 * [`homelab vscode [WORKSPACE-NAME]`](#homelab-vscode-workspace-name)
 * [`homelab zellij [MODULE-NAME]`](#homelab-zellij-module-name)
 
@@ -884,6 +885,48 @@ EXAMPLES
 ```
 
 _See code: [src/commands/proxmox/vm/start.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/start.ts)_
+
+## `homelab proxmox vm stop [VMIDS]`
+
+Stop one or more running Proxmox VMs
+
+```
+USAGE
+  $ homelab proxmox vm stop [VMIDS...] [--json] [--log-level debug|warn|error|info|trace]
+
+ARGUMENTS
+  [VMIDS...]  VM IDs to stop
+
+GLOBAL FLAGS
+  --json                Format output as json.
+  --log-level=<option>  [default: info] Specify level for logging.
+                        <options: debug|warn|error|info|trace>
+
+DESCRIPTION
+  Stop one or more running Proxmox VMs
+
+EXAMPLES
+  $ homelab proxmox vm stop 100
+  Stopping VM 100...
+  Successfully stopped VM 100 'web-server' on node 'pve1'
+
+  $ homelab proxmox vm stop 100 101 102
+  Stopping 3 VMs...
+  Successfully stopped 3 VMs
+
+  $ homelab proxmox vm stop
+  # Interactive mode - select VMs from list of running VMs
+
+  $ homelab proxmox vm stop 100 --json
+  {
+    "vmid": 100,
+    "name": "web-server",
+    "node": "pve1",
+    "status": "stopped"
+  }
+```
+
+_See code: [src/commands/proxmox/vm/stop.ts](https://github.com/abes140377/homelab-cli/blob/v0.0.0/src/commands/proxmox/vm/stop.ts)_
 
 ## `homelab vscode [WORKSPACE-NAME]`
 

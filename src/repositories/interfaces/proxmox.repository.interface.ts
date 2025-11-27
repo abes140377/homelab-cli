@@ -75,6 +75,14 @@ export interface IProxmoxRepository {
   startVM(node: string, vmid: number): Promise<Result<string, RepositoryError>>;
 
   /**
+   * Stops a running Proxmox VM using graceful shutdown.
+   * @param node Node where VM resides
+   * @param vmid VM ID to stop
+   * @returns Result containing task UPID for async operation tracking or an error
+   */
+  stopVM(node: string, vmid: number): Promise<Result<string, RepositoryError>>;
+
+  /**
    * Waits for a Proxmox task to complete with timeout support.
    * Polls the task status endpoint until completion or timeout.
    * @param node Node where task is running

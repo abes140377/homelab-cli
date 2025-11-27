@@ -303,4 +303,113 @@ describe('ProxmoxApiRepository', () => {
       }
     });
   });
+
+  describe('stopVM', () => {
+    it('should return Result type with failure when API connection fails', async () => {
+      // Arrange
+      const node = 'pve';
+      const vmid = 100;
+
+      // Act - call with invalid host will fail
+      const result = await repository.stopVM(node, vmid);
+
+      // Assert - verify Result type structure
+      expect(result).to.have.property('success');
+      expect(result.success).to.be.false;
+
+      if (!result.success) {
+        expect(result.error).to.exist;
+        expect(result.error.message).to.include('Failed to stop VM');
+        expect(result.error.context?.cause).to.exist;
+      }
+    });
+
+    it('should include error context with node and vmid when API fails', async () => {
+      // Arrange
+      const node = 'pve-node-1';
+      const vmid = 250;
+
+      // Act
+      const result = await repository.stopVM(node, vmid);
+
+      // Assert
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.context).to.exist;
+        expect(result.error.context?.context?.node).to.equal(node);
+        expect(result.error.context?.context?.vmid).to.equal(vmid);
+      }
+    });
+
+    it('should handle different node names correctly', async () => {
+      // Arrange
+      const nodes = ['pve', 'pve-node-1', 'pve-node-2', 'proxmox'];
+      const vmid = 100;
+
+      // Act & Assert - Test multiple node values
+      for (const node of nodes) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await repository.stopVM(node, vmid);
+
+        expect(result.success).to.be.false;
+        if (!result.success) {
+          expect(result.error.context).to.exist;
+          expect(result.error.context?.context?.node).to.equal(node);
+        }
+      }
+    });
+
+    it('should handle numeric vmid values correctly', async () => {
+      // Arrange
+      const node = 'pve';
+      const vmids = [100, 250, 999, 1000];
+
+      // Act & Assert - Test multiple vmid values
+      for (const vmid of vmids) {
+        // eslint-disable-next-line no-await-in-loop
+        const result = await repository.stopVM(node, vmid);
+
+        expect(result.success).to.be.false;
+        if (!result.success) {
+          expect(result.error.context).to.exist;
+          expect(result.error.context?.context?.vmid).to.equal(vmid);
+          expect(typeof result.error.context?.context?.vmid).to.equal('number');
+        }
+      }
+    });
+
+    it('should preserve error cause chain', async () => {
+      // Arrange
+      const node = 'pve';
+      const vmid = 100;
+
+      // Act
+      const result = await repository.stopVM(node, vmid);
+
+      // Assert - Verify error cause is preserved for debugging
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.context).to.exist;
+        expect(result.error.context?.cause).to.exist;
+        expect(result.error.context?.cause).to.be.instanceOf(Error);
+      }
+    });
+
+    it('should include descriptive error message', async () => {
+      // Arrange
+      const node = 'pve';
+      const vmid = 100;
+
+      // Act
+      const result = await repository.stopVM(node, vmid);
+
+      // Assert - Error message should be user-friendly
+      expect(result.success).to.be.false;
+      if (!result.success) {
+        expect(result.error.message).to.be.a('string');
+        expect(result.error.message).to.have.length.greaterThan(0);
+        expect(result.error.message).to.include('Failed to stop VM');
+      }
+    });
+  });
 });

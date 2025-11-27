@@ -16,8 +16,8 @@ export default class ConfigWrite extends BaseCommand<typeof ConfigWrite> {
       required: true,
     }),
   }
-static description = 'Write configuration values'
-static examples = [
+  static description = 'Write configuration values'
+  static examples = [
     '<%= config.bin %> <%= command.id %> logLevel debug',
     '<%= config.bin %> <%= command.id %> colorOutput false',
   ]

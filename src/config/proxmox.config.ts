@@ -75,6 +75,7 @@ export function loadProxmoxConfig(): ProxmoxConfig {
 
   if (!result.success) {
     const errors = result.error.issues.map((issue) => issue.message).join(', ');
+
     throw new Error(`Proxmox configuration validation failed: ${errors}`);
   }
 
